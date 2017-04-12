@@ -1,0 +1,2 @@
+'slack-ruby-client'
+'sinatra'
