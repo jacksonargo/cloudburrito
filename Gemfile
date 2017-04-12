@@ -1,2 +1,4 @@
-'slack-ruby-client'
-'sinatra'
+source 'https://rubygems.org/'
+gem 'slack-ruby-client'
+gem 'sinatra'
+gem 'passenger'

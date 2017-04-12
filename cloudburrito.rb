@@ -1,8 +1,6 @@
-#!/usr/bin/ruby -w
-
 require 'json'
 require 'time'
-require 'sinatra'
+require 'sinatra/base'
 require 'slack-ruby-client'
 
 ##
@@ -47,8 +45,27 @@ class Settings
   end
 end
 
-class CloudBurrito
-  attr_accessor :data
+class Patron
+  attr_reader :joined, :user_id
+  attr_accessor :last_feeding, :total_feedings
+  attr_accessor :last_delivery, :total_deliveries
+
+  def initialize(args = {})
+    @user_id = args["user_id"]
+    @joined = args["joined"]
+    @total_feedings = args["total_feedings"]
+    @total_deliveries = args["total_deliveries"]
+    @joined ||= Time.now
+    @total_feedings ||= 0
+    @total_deliveries ||= 0
+  end
+
+  def dump
+    { user_id: @user_id, joined: @joined }
+  end
+end
+
+class BurritoMaster
 
   def initialize
     # Load the patrons
@@ -117,66 +134,55 @@ So who's gonna get your burritos now?"
   end
 end
 
-class Patron
-  attr_reader :joined, :user_id
-  attr_accessor :last_feeding, :total_feedings
-  attr_accessor :last_delivery, :total_deliveries
+class CloudBurrito < Sinatra::Base
 
-  def initialize(args = {})
-    @user_id = args["user_id"]
-    @joined = args["joined"]
-    @total_feedings = args["total_feedings"]
-    @total_deliveries = args["total_deliveries"]
-    @joined ||= Time.now
-    @total_feedings ||= 0
-    @total_deliveries ||= 0
+  # Load settings
+  settings = Settings.new
+
+  # Configure slack
+  Slack.configure do |config|
+    config.token = settings.auth_token
   end
 
-  def dump
-    { user_id: @user_id, joined: @joined }
+  # Create our Dungeon Master
+  burrito = BurritoMaster.new
+
+  # Serve our burrito
+  error do
+    "A nasty error occured!"
   end
-end
 
-# Load settings
-settings = Settings.new
-
-# Configure slack
-Slack.configure do |config|
-  config.token = settings.auth_token
-end
-
-# Create our cloud burrito
-burrito = CloudBurrito.new
-
-# Serve our burrito
-error do
-  "A nasty error occured!"
-end
-
-not_found do
-  "This page does not exist."
-end
-
-post '/join' do
-  if params["token"] == settings.verification_token
-    burrito.join params["user_id"]
-  else
-    403
+  not_found do
+    "This page does not exist."
   end
-end
 
-post '/leave' do
-  if params["token"] == settings.verification_token
-    burrito.leave params["user_id"]
-  else
-    403
+  post '/join' do
+    if params["token"] == settings.verification_token
+      burrito.join params["user_id"]
+    else
+      403
+    end
   end
-end
 
-post '/feedme' do
-  if params["token"] == settings.verification_token
-    burrito.feed params["user_id"]
-  else
-    403
+  post '/leave' do
+    if params["token"] == settings.verification_token
+      burrito.leave params["user_id"]
+    else
+      403
+    end
   end
+
+  post '/feedme' do
+    if params["token"] == settings.verification_token
+      burrito.feed params["user_id"]
+    else
+      403
+    end
+  end
+
+  get '/sleepy' do
+    sleep 10
+    Time.now.to_s
+  end
+
 end
