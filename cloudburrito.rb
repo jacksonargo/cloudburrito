@@ -5,6 +5,38 @@ require 'time'
 require 'sinatra'
 require 'slack-ruby-client'
 
+##
+## Quick Goals:
+##
+
+## 1) Use mongo db as the backed
+## 2) Use modpassenger or something
+## 3) Automate builds with docker
+## 4) Automate testing
+## 5) Log every transaction
+
+##
+## Implement the following rules of play:
+## * hungry_man receives the burrito
+## * delivery_man delivers the burrito
+## 1) You must be in the pool play
+## 2) You can only be hungry_man once per hour
+## 3) You can only be delivery_man once per hour
+## 4) You must ack when your burrito is delivered
+## 5) You can only have one burrito en route
+##    at a time
+## 6) You must ack when chosen as delivery_man
+## 7) If you do not ack delivery_man within 5 minutes,
+##    you are removed from queue
+##
+
+## Api calls needed to implement:
+##
+## /join
+## /feedme
+## /ack_delivery
+## /ack_feedme
+
 class Settings
   attr_reader :verification_token, :auth_token
 
