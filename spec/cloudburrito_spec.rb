@@ -45,6 +45,22 @@ describe 'The CloudBurrito app' do
     expect(last_response).to be_ok
   end
 
+  it "needs a token to feed a patron" do
+    post '/feedme', :user_id => '1'
+    expect(last_response).not_to be_ok
+  end
+
+  it "needs a user_id to feed a patron" do
+    post '/feedme', :token => token
+    expect(last_response).not_to be_ok
+  end
+
+  it "can't feed a user that doesn't exist" do
+    post '/feedme', { :token => token, :user_id => '1' }
+    expect(last_response).to be_ok
+    expect(last_response.body).to eq("Please join CloudBurrito!")
+  end
+
   it "needs a token to add a patron" do
     post '/join', :user_id => '1'
     expect(last_response).not_to be_ok
@@ -67,20 +83,16 @@ describe 'The CloudBurrito app' do
     expect(last_response.body).to eq("Please enjoy our fine selection of burritos!")
   end
 
-  it "needs a token to feed a patron" do
-    post '/feedme', :user_id => '1'
-    expect(last_response).not_to be_ok
-  end
-
-  it "needs a user_id to feed a patron" do
-    post '/feedme', :token => token
-    expect(last_response).not_to be_ok
-  end
-
-  it "can't feed a patron if there's only one" do
+  it "can't immediately feed a new patron" do
     post '/feedme', { :token => token, :user_id => '1' }
     expect(last_response).to be_ok
-    expect(last_response.body).to eq("How about this? Get your own burrito.")
+    expect(last_response.body).to match(/Stop being so greedy! You need to wait \d*s./)
+  end
+
+  it "can't feed a patron if there aren't any available delivery men" do
+    sleep 1
+    post '/feedme', { :token => token, :user_id => '1' }
+    expect(last_response).to be_ok
   end
 
   it "can add a second patron" do
