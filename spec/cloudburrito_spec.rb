@@ -25,7 +25,6 @@ describe 'The CloudBurrito app' do
     CloudBurrito
   end
 
-  File.delete('../data/patrons.json') if File.exists?('../data/patrons.json')
   token = Settings.verification_token
 
   it "can load the home page" do
@@ -63,7 +62,7 @@ describe 'The CloudBurrito app' do
   it "wont try to add the same patron twice" do
     post '/join', { :token => token, :user_id => '1' }
     expect(last_response).to be_ok
-    expect(last_response.body).to eq("You are already a patron of Cloud Burrito!")
+    expect(last_response.body).to eq("Please enjoy our fine selection of burritos!")
   end
 
   it "needs a token to feed a patron" do
