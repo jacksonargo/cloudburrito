@@ -1,4 +1,4 @@
-require_relative '../cloudburrito.rb'
+require_relative '../lib/cloudburrito.rb'
 require 'rspec'
 require 'rack/test'
 
