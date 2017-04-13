@@ -8,9 +8,9 @@ require 'slack-ruby-client'
 ##
 
 ## 1) Use mongo db as the backed
-## 2) Use modpassenger or something
+## 2) Use modpassenger or something #check
 ## 3) Automate builds with docker
-## 4) Automate testing
+## 4) Automate testing #check
 ## 5) Log every transaction
 
 ##
@@ -36,12 +36,18 @@ require 'slack-ruby-client'
 ## /ack_feedme
 
 class Settings
-  attr_reader :verification_token, :auth_token
+  data = JSON::parse File.read('config/settings.json')
+  @@verification_token = data["verification_token"]
+  @@auth_token = data["auth_token"]
 
-  def initialize
-    data = JSON::parse File.read('settings.json')
-    @verification_token = data["verification_token"]
-    @auth_token = data["auth_token"]
+  def self.verification_token
+    @@verification_token
+  end
+  def self.auth_token
+    @@auth_token
+  end
+  def self.save_patrons
+    "data/patrons.json"
   end
 end
 
@@ -61,26 +67,39 @@ class Patron
   end
 
   def dump
-    { user_id: @user_id, joined: @joined }
+    { "user_id" => @user_id, "joined" => @joined }
+  end
+
+  def to_s
+    "<@#{@user_id}>"
   end
 end
 
-class BurritoMaster
+class Master
+  attr_reader :patrons
 
   def initialize
     # Load the patrons
-    @patrons = []
-    if File.exist? "patrons.json"
-      JSON::load(File.open("patrons.json")).each do |patron|
-        @patrons << Patron.new(patron)
-      end
-    end
+    load
     # Create a slack client
     @client = Slack::Web::Client.new
   end
 
   def save
-    File.write "patrons.json", JSON::dump(@patrons.map(&:dump))
+    File.write "data/patrons.json", JSON::dump(@patrons.map(&:dump))
+  end
+
+  def load
+    @patrons = []
+    if File.exist? "data/patrons.json"
+      JSON::load(File.open("data/patrons.json")).each do |patron|
+        @patrons << Patron.new(patron)
+      end
+    end
+  end
+
+  def purge_patrons
+    @patrons = []
   end
 
   def feed(user_id)
@@ -135,54 +154,55 @@ So who's gonna get your burritos now?"
 end
 
 class CloudBurrito < Sinatra::Base
-
-  # Load settings
-  settings = Settings.new
+  def valid_token?(token)
+    token == Settings.verification_token
+  end
 
   # Configure slack
   Slack.configure do |config|
-    config.token = settings.auth_token
+    config.token = Settings.auth_token
   end
 
   # Create our Dungeon Master
-  burrito = BurritoMaster.new
+  burrito = Master.new
 
-  # Serve our burrito
+  # Serve burritos
+
   error do
-    "A nasty error occured!"
+    "A nasty burrito was found!"
   end
 
   not_found do
-    "This page does not exist."
+    "Burrito not found!"
   end
 
   post '/join' do
-    if params["token"] == settings.verification_token
-      burrito.join params["user_id"]
-    else
-      403
-    end
+    halt 401 unless valid_token? params["token"]
+    halt 400 unless params["user_id"]
+    burrito.join params["user_id"]
   end
 
   post '/leave' do
-    if params["token"] == settings.verification_token
-      burrito.leave params["user_id"]
-    else
-      403
-    end
+    halt 401 unless valid_token? params["token"]
+    halt 400 unless params["user_id"]
+    burrito.leave params["user_id"]
   end
 
   post '/feedme' do
-    if params["token"] == settings.verification_token
-      burrito.feed params["user_id"]
-    else
-      403
+    halt 401 unless valid_token? params["token"]
+    halt 400 unless params["user_id"]
+    burrito.feed params["user_id"]
+  end
+
+  get '/list_patrons' do
+    halt 401 unless valid_token? params["token"]
+    if headers["Accept"] = "application/json"
+      return JSON.dump(burrito.patrons.map(&:dump))
     end
+    burrito.patrons.join('\n')
   end
 
-  get '/sleepy' do
-    sleep 10
-    Time.now.to_s
+  get '/' do
+    "Burritos are in the oven!"
   end
-
 end

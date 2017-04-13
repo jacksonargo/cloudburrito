@@ -1,2 +1,2 @@
-require File.absolute_path("cloudburrito.rb")
+require_relative 'cloudburrito'
 run CloudBurrito
