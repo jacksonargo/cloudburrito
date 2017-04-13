@@ -25,6 +25,8 @@ describe 'The CloudBurrito app' do
     CloudBurrito
   end
 
+  Patron.each.map(&:delete)
+  Package.each.map(&:delete)
   token = Settings.verification_token
 
   it "can load the home page" do
