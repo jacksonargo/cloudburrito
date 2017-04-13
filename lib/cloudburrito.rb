@@ -46,7 +46,7 @@ class CloudBurrito < Sinatra::Base
 
   def get_next_delivery_man_for(hungry_man)
     # Get all the active patrons
-    candidates = Patrons.where(is_active: true)
+    candidates = Patron.where(is_active: true)
     # Check that there are active patrons
     return nil unless candidates.exists?
     # Select delivery man based on these rules:
@@ -95,7 +95,7 @@ class CloudBurrito < Sinatra::Base
 
   def send_on_delivery(delivery_man, hungry_man)
     package = Package.new
-    package.deliver_man = delivery_man
+    package.delivery_man = delivery_man
     package.hungry_man = hungry_man
     package.save
     msg = "Go get a burrito for <@#{hungry_man.user_id}>."
@@ -107,6 +107,7 @@ class CloudBurrito < Sinatra::Base
     if patron.exists?
       patron = patron.first
       patron.is_active = true
+      patron.last_time_activated = Time.now
       patron.save
       "Please enjoy our fine selection of burritos!"
     else

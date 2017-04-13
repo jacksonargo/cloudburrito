@@ -6,9 +6,9 @@ class Settings
   @@verification_token = data["verification_token"]
   @@auth_token = data["auth_token"]
   @@greedy_time = data["greedy_time"]
-  @@greedy_time ||= 1
+  @@greedy_time ||= 3600
   @@sleep_time = data["sleep_time"]
-  @@sleep_time ||= 1
+  @@sleep_time ||= 3600
 
   def self.verification_token
     @@verification_token
