@@ -6,15 +6,14 @@ class Patron
   include Mongoid::Document
   include Mongoid::Timestamps
 
+  has_many :burritos, class_name: "Package", inverse_of: :hungry_man
+  has_many :deliveries, class_name: "Package", inverse_of: :delivery_man
+
   field :user_id, type: String
+  field :_id, type: String, default: ->{ user_id }
   field :is_active, type: Boolean, default: true
   field :is_on_delivery, type: Boolean, default: false
   field :is_hungry, type: Boolean, default: false
-  field :last_feeding, type: Time, default: Time.now
-  field :last_delivery, type: Time, default: Time.now
-  field :total_feedings, type: Integer, default: 0
-  field :total_deliveries, type: Integer, default: 0
-  field :_id, type: String, default: ->{ user_id }
 
   def to_s
     "<@#{user_id}>"

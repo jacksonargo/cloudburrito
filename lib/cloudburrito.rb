@@ -1,4 +1,5 @@
 require_relative 'patron'
+require_relative 'delivery'
 require 'json'
 require 'time'
 require 'sinatra/base'
@@ -9,7 +10,7 @@ require 'mongoid'
 ## Quick Goals:
 ##
 
-## 1) Use mongo db as the backed
+## 1) Use mongo db as the backed #check
 ## 2) Use modpassenger or something #check
 ## 3) Automate builds with docker #check
 ## 4) Automate testing #check
