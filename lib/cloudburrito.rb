@@ -1,9 +1,8 @@
 require_relative 'patron'
 require_relative 'package'
 require_relative 'settings'
+require_relative 'messenger'
 require 'sinatra/base'
-require 'slack-ruby-client'
-require 'mongoid'
 
 ##
 ## Quick Goals:
@@ -30,15 +29,6 @@ require 'mongoid'
 ## /feedme
 ## /ack_delivery
 ## /ack_feedme
-
-class Messenger
-  @@client = Slack::Web::Client.new
-  def self.notify(patron, msg)
-    return if true
-    im = @@client.im_open(user: patron.user_id).channel.id
-    @@client.chat_postMessage(channel: im, text: msg)
-  end
-end
 
 class CloudBurrito < Sinatra::Base
 
