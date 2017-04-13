@@ -9,6 +9,8 @@ class Settings
   @@greedy_time ||= 3600
   @@sleep_time = data["sleep_time"]
   @@sleep_time ||= 3600
+  @@stale_time = data["stale_time"]
+  @@stale_time ||= 300
 
   def self.verification_token
     @@verification_token
@@ -21,5 +23,8 @@ class Settings
   end
   def self.sleep_time
     @@sleep_time
+  end
+  def self.stale_time
+    @@stale_time
   end
 end

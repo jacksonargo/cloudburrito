@@ -21,22 +21,24 @@ class Patron
 
   def is_on_delivery?
     return false unless deliveries.exists?
-    deliveries.last.delivered == false
+    deliveries.last.received == false
   end
 
   def is_already_waiting?
     return false unless burritos.exists?
-    burritos.last.delivered == false
+    burritos.last.received == false
   end
 
   def time_of_last_burrito
-    return last_time_activated unless burritos.where(delivered: true).exists?
-    max(last_time_activated, burritos.where(delivered: true).last.delivery_time)
+    return last_time_activated unless burritos.where(received: true).exists?
+    x = last_time_activated
+    y = burritos.where(received: true).last.delivery_time
+    x > y ? x : y
   end
 
   def time_of_last_delivery
-    return 0 unless deliveries.where(delivered: true).exists?
-    deliveries.where(delivered: true).last.delivery_time
+    return 0 unless deliveries.where(received: true).exists?
+    deliveries.where(received: true).last.delivery_time
   end
 
   def is_greedy?

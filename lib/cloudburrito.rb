@@ -1,34 +1,11 @@
+# CloudBurrito
+# Jackson Argo 2017
+
 require_relative 'patron'
 require_relative 'package'
 require_relative 'settings'
 require_relative 'messenger'
 require 'sinatra/base'
-
-##
-## Quick Goals:
-##
-
-##
-## Implement the following rules of play:
-## * hungry_man receives the burrito
-## * delivery_man delivers the burrito
-## 1) You must be in the pool play - done
-## 2) You can only be hungry_man once per hour - done
-## 3) You can only be delivery_man once per hour - done
-## 4) You must ack when your burrito is delivered
-## 5) You can only have one burrito en route
-##    at a time - done
-## 6) You must ack when chosen as delivery_man
-## 7) If you do not ack delivery_man within 5 minutes,
-##    you are removed from queue
-##
-
-## Api calls needed to implement:
-##
-## /join - done
-## /feedme
-## /ack_delivery
-## /ack_feedme
 
 class CloudBurrito < Sinatra::Base
 
@@ -94,12 +71,84 @@ class CloudBurrito < Sinatra::Base
   end
 
   def send_on_delivery(delivery_man, hungry_man)
+    # Create the new package
     package = Package.new
     package.delivery_man = delivery_man
     package.hungry_man = hungry_man
     package.save
+    # Notify delivery man of his duties
     msg = "Go get a burrito for <@#{hungry_man.user_id}>."
     Messenger.notify delivery_man, msg
+    # Start a new thread to verify package delivery
+    Thread.new { verify_en_route package }
+  end
+
+  # Verify that a burrito is headed to hungry man
+  def verify_en_route(package)
+    hungry_man = package.hungry_man
+    delivery_man = package.delivery_man
+    # Loop until the package is en route or stale
+    while not (package.en_route or package.is_stale?) do
+      sleep 1
+    end
+    if not package.en_route
+      # Mark the delivery_man inactive
+      delivery_man.is_active = false
+      delivery_man.save
+      msg = "You are too slow..."
+      #Messenger.notify delivery_man, msg
+      # Mark the package as failed
+      package.failed = true
+      package.save
+      # Try to find a new delivery man
+      delivery_man = get_next_delivery_man_for hungry_man
+      if delivery_man
+        package.retry = true
+        package.save
+        send_on_delivery delivery_man, hungry_man
+      else
+        msg = "I regret to inform you that your burrito was lost in transit."
+        Messenger.notify hungry_man, msg
+      end
+    end
+  end
+
+  def en_route(patron_id)
+    # Check if the patron exists
+    patron = Patron.where(:user_id => patron_id)
+    return "You aren't a part of CloudBurrito..." unless patron.exists?
+    # Check if the patron has packages
+    patron = patron.first
+    package = patron.deliveries.where(failed: false)
+    return "You've never been asked to deliver..." unless package.exists?
+    # Check if the patron should be delivering
+    package = package.last
+    return "You aren't delivering a burrito..." if package.received
+    # Check if the package as already been acked
+    return "You've already acked this request..." if package.en_route
+    # Ack the package
+    package.en_route = true
+    package.save
+    "Make haste!"
+  end
+
+  def received(patron_id)
+    # Check if the patron exists
+    patron = Patron.where(:user_id => patron_id)
+    return "You aren't a part of CloudBurrito..." unless patron.exists?
+    # Check if the patron received any burritos
+    patron = patron.first
+    package = patron.burritos.where(failed: false)
+    return "You've never received a burrito from us..." unless package.exists?
+    # Has already acked this burrito
+    package = package.last
+    return "You've already acked this burrito..." if package.received
+    # Mark the package as received 
+    package.received = true
+    package.en_route = true
+    package.delivery_time = Time.now
+    package.save
+    "Enjoy!"
   end
 
   def join(patron_id)
@@ -142,6 +191,22 @@ class CloudBurrito < Sinatra::Base
     halt 401 unless valid_token? token
     halt 400 unless user_id
     feed user_id
+  end
+
+  post '/en_route' do
+    token = params["token"]
+    user_id = params["user_id"]
+    halt 401 unless valid_token? token
+    halt 400 unless user_id
+    en_route user_id
+  end
+
+  post '/received' do
+    token = params["token"]
+    user_id = params["user_id"]
+    halt 401 unless valid_token? token
+    halt 400 unless user_id
+    received user_id
   end
 
   get '/' do
