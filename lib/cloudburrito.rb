@@ -36,6 +36,10 @@ class CloudBurrito < Sinatra::Base
 
   Mongoid.load!("config/mongoid.yml", :development)
 
+  ##
+  ## Functions
+  ##
+
   def valid_token?(token)
     token == Settings.verification_token
   end
@@ -111,12 +115,9 @@ class CloudBurrito < Sinatra::Base
     end
   end
 
-  # Configure slack
-  Slack.configure do |config|
-    config.token = Settings.auth_token
-  end
-
-  # Serve burritos
+  ##
+  ## Serve burritos
+  ##
 
   error do
     "A nasty burrito was found!"

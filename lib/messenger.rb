@@ -2,6 +2,11 @@ require 'slack-ruby-client'
 
 # Class to send messages through slack
 class Messenger
+  # Configure slack
+  Slack.configure do |config|
+    config.token = Settings.auth_token
+  end
+
   @@client = Slack::Web::Client.new
   def self.notify(patron, msg)
     return if true
