@@ -1,5 +1,5 @@
 require_relative 'patron'
-require_relative 'delivery'
+require_relative 'package'
 require 'json'
 require 'time'
 require 'sinatra/base'
