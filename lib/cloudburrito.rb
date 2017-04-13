@@ -142,14 +142,6 @@ class CloudBurrito < Sinatra::Base
     feed user_id
   end
 
-  get '/list_patrons' do
-    halt 401 unless valid_token? params["token"]
-    if headers["Accept"] == "application/json"
-      return JSON.dump(Patron.each.map(&:attributes))
-    end
-    Patron.each.map(&:to_s).join("\n")
-  end
-
   get '/' do
     "Burritos are in the oven!"
   end

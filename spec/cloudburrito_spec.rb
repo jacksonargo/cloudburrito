@@ -35,16 +35,6 @@ describe 'The CloudBurrito app' do
     expect(last_response.body).to eq('Burritos are in the oven!')
   end
 
-  it "needs a token to list patrons" do
-    get '/list_patrons'
-    expect(last_response).not_to be_ok
-  end
-
-  it "can list patrons with a token" do
-    get '/list_patrons', :token => token
-    expect(last_response).to be_ok
-  end
-
   it "needs a token to feed a patron" do
     post '/feedme', :user_id => '1'
     expect(last_response).not_to be_ok
