@@ -9,7 +9,7 @@ require 'slack-ruby-client'
 
 ## 1) Use mongo db as the backed
 ## 2) Use modpassenger or something #check
-## 3) Automate builds with docker
+## 3) Automate builds with docker #check
 ## 4) Automate testing #check
 ## 5) Log every transaction
 
