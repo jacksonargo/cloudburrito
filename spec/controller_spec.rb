@@ -19,8 +19,8 @@ describe 'The CloudBurrito controller' do
     expect(Patron.count).to eq(0)
     expect(Package.count).to eq(0)
     # Create two patrons
-    Controller.join '1'
-    Controller.join '2'
+    Controller.join "user_id" => '1'
+    Controller.join "user_id" => '2'
     expect(Patron.count).to eq(2)
     p1 = Patron.find('1')
     p2 = Patron.find('2')
@@ -29,7 +29,7 @@ describe 'The CloudBurrito controller' do
     p1.save
     expect(p1.is_greedy?).to eq(false)
     # Create a burrito for p1
-    Controller.feed '1'
+    Controller.feed "user_id" => '1'
     p1.reload
     p2.reload
     expect(Package.count).to eq(1)
@@ -44,7 +44,7 @@ describe 'The CloudBurrito controller' do
   end
 
   it "Can create patrons" do
-    (1..10).each{|x| Controller.join x.to_s}
+    (1..10).each{|x| Controller.join("user_id" => x.to_s)}
     expect(Patron.count).to eq(10)
     Patron.each do |p| 
       expect(p.is_active).to eq(true)
@@ -53,7 +53,7 @@ describe 'The CloudBurrito controller' do
   end
 
   it "Won't create a second patron with same id" do
-    (1..10).each{|x| Controller.join '1'}
+    (1..10).each{|x| Controller.join "user_id" => '1'}
     expect(Patron.count).to eq(1)
   end
 
@@ -64,7 +64,7 @@ describe 'The CloudBurrito controller' do
   it "Hungryman can ack and Delivery can ack" do
     p1, p2, b = create_burrito_and_patrons
     # p2 should ack that he's on delivery
-    Controller.en_route '2'
+    Controller.en_route "user_id" => '2'
     p1.reload
     p2.reload
     b.reload
@@ -73,7 +73,7 @@ describe 'The CloudBurrito controller' do
     expect(p1.is_waiting?).to eq(true)
     expect(p2.is_on_delivery?).to eq(true)
     # p1 should ack that he received the burrito
-    Controller.received '1'
+    Controller.received "user_id" => '1'
     p1.reload
     p2.reload
     b.reload
@@ -90,7 +90,7 @@ describe 'The CloudBurrito controller' do
   it "will look for a new delivery man if package goes stale" do
     p1, p2, b = create_burrito_and_patrons
     # Create a new patron to deliver
-    Controller.join '3'
+    Controller.join "user_id" => '3'
     p3 = Patron.find '3'
     # p2 doesn't ack
     b.force_stale = true

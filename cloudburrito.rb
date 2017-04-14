@@ -24,14 +24,6 @@ class CloudBurrito < Sinatra::Base
   ## Serve burritos
   ##
 
-  # Check for the necessary diddlies from slack
-  before '/slack/*' do
-    token = params["token"]
-    user_id = params["user_id"]
-    halt 401 unless valid_token? token
-    halt 400 unless user_id
-  end
-
   error do
     "A nasty burrito was found!"
   end
@@ -54,19 +46,24 @@ class CloudBurrito < Sinatra::Base
     end
   end
 
-  post '/slack/join' do
-    Controller.join params["user_id"]
-  end
-
-  post '/slack/feedme' do
-    Controller.feed params["user_id"]
-  end
-
-  post '/slack/en_route' do
-    Controller.en_route params["user_id"]
-  end
-
-  post '/slack/received' do
-    Controller.received params["user_id"]
+  post '/slack' do
+    token = params["token"]
+    user_id = params["user_id"]
+    halt 401 unless valid_token? token
+    halt 400 unless user_id
+    case params["text"]
+    when /[Jj]oin/
+      return Controller.join params
+    when /[Ff]eed ?(|me)/
+      return Controller.feed params
+    when /[En]\_route/
+      return Controller.en_route params
+    when /[Rr]eceived/
+      return Controller.received params
+    when /[Ss]tatus/
+      return Controller.status params
+    else
+      return Controller.help
+    end
   end
 end

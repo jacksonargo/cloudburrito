@@ -75,7 +75,8 @@ class Controller
     end
   end
 
-  def self.feed(hungry_man_id)
+  def self.feed(params)
+    hungry_man_id = params["user_id"]
     hungry_man = Patron.where(:user_id => hungry_man_id)
     # Check if hungry man is allowed to feed based on these rules:
     # 1) Must be in the pool
@@ -101,7 +102,8 @@ class Controller
     end
   end
 
-  def self.en_route(patron_id)
+  def self.en_route(params)
+    patron_id = params["user_id"]
     # Check if the patron exists
     patron = Patron.where(:user_id => patron_id)
     return "You aren't a part of CloudBurrito..." unless patron.exists?
@@ -117,7 +119,8 @@ class Controller
     "Make haste!"
   end
 
-  def self.received(patron_id)
+  def self.received(params)
+    patron_id = params["user_id"]
     # Check if the patron exists
     patron = Patron.where(:user_id => patron_id)
     return "You aren't a part of CloudBurrito..." unless patron.exists?
@@ -135,7 +138,8 @@ class Controller
     "Enjoy!"
   end
 
-  def self.burrito_status(patron_id)
+  def self.burrito_status(params)
+    patron_id = params["user_id"]
     # Check if patron exists
     patron = Patron.where(:user_id => patron_id)
     return "You aren't part of CloudBurrito..." unless patron.exists?
@@ -146,7 +150,8 @@ class Controller
     "You burrito is still in the fridge"
   end
 
-  def self.join(patron_id)
+  def self.join(params)
+    patron_id = params["user_id"]
     patron = Patron.where(:user_id => patron_id)
     if patron.exists?
       patron = patron.first

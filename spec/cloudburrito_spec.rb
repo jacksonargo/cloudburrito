@@ -26,33 +26,33 @@ describe 'The CloudBurrito app' do
   end
 
   before(:each) do
-    Package.where({}).delete
-    Patron.where({}).delete
+    Package.delete_all
+    Patron.delete_all
   end
 
   token = Settings.verification_token
 
   def create_patron(x)
     token = Settings.verification_token
-    post '/slack/join', { :token => token, :user_id => x }
+    post '/slack', { token: token, user_id: x, text: "join" }
     expect(last_response).to be_ok
   end
 
   def feed_patron(x)
     token = Settings.verification_token
-    post '/slack/feedme', { :token => token, :user_id => x }
+    post '/slack', { token: token, user_id: x, text: "feed" }
     expect(last_response).to be_ok
   end
 
   def en_route_for(x)
     token = Settings.verification_token
-    post '/slack/en_route', { :token => token, :user_id => x }
+    post '/slack', { token: token, user_id: x, text: "en_route" }
     expect(last_response).to be_ok
   end
 
   def received_for(x)
     token = Settings.verification_token
-    post '/slack/received', { :token => token, :user_id => x }
+    post '/slack', { token: token, user_id: x, text: "received" }
     expect(last_response).to be_ok
   end
 
@@ -88,43 +88,8 @@ describe 'The CloudBurrito app' do
     expect(last_response.body).to eq("404: Burrito Not Found!")
   end
 
-  it "needs a token to feed a patron" do
-    post '/slack/feedme', :user_id => '1'
-    expect(last_response).not_to be_ok
-  end
-
-  it "needs a user_id to feed a patron" do
-    post '/slack/feedme', :token => token
-    expect(last_response).not_to be_ok
-  end
-
-  it "needs a token to add a patron" do
-    post '/slack/join', :user_id => '1'
-    expect(last_response).not_to be_ok
-  end
-
-  it "needs a user_id to add a patron" do
-    post '/slack/join', :token => token
-    expect(last_response).not_to be_ok
-  end
-
-  it "needs a token to mark a delivery en route" do
-    post '/slack/en_route', :user_id => '1'
-    expect(last_response).not_to be_ok
-  end
-
-  it "needs a user_id to mark a delivery en route" do
-    post '/slack/en_route', :token => token
-    expect(last_response).not_to be_ok
-  end
-
-  it "needs a token to mark a burrito as received" do
-    post '/slack/received', :user_id => '1'
-    expect(last_response).not_to be_ok
-  end
-
-  it "needs a user_id to mark a burrito as received" do
-    post '/slack/received', :token => token
+  it "will only repond to /slack if token is correct" do
+    post '/slack'
     expect(last_response).not_to be_ok
   end
 
