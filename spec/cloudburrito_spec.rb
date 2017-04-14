@@ -81,6 +81,13 @@ describe 'The CloudBurrito app' do
     expect(last_response.body).not_to eq("Welcome to Cloud Burrito!")
   end
 
+  it "can load the 404 page" do
+    header "Accept", "text/plain"
+    get '/notapage'
+    expect(last_response).not_to be_ok
+    expect(last_response.body).to eq("404: Burrito Not Found!")
+  end
+
   it "needs a token to feed a patron" do
     post '/slack/feedme', :user_id => '1'
     expect(last_response).not_to be_ok
