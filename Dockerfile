@@ -1,2 +1,2 @@
-FROM ruby:2.4-onbuild
+FROM ruby:2.3.3-onbuild
 CMD ["passenger", "start"]
