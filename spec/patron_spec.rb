@@ -1,5 +1,4 @@
-require_relative "../lib/patron.rb"
-require_relative "../lib/package.rb"
+require_relative "../cloudburrito"
 require 'rspec'
 require 'rack/test'
 

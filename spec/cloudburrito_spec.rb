@@ -1,4 +1,4 @@
-require_relative '../lib/cloudburrito.rb'
+require_relative '../cloudburrito'
 require 'rspec'
 require 'rack/test'
 
@@ -34,25 +34,25 @@ describe 'The CloudBurrito app' do
 
   def create_patron(x)
     token = Settings.verification_token
-    post '/join', { :token => token, :user_id => x }
+    post '/slack/join', { :token => token, :user_id => x }
     expect(last_response).to be_ok
   end
 
   def feed_patron(x)
     token = Settings.verification_token
-    post '/feedme', { :token => token, :user_id => x }
+    post '/slack/feedme', { :token => token, :user_id => x }
     expect(last_response).to be_ok
   end
 
   def en_route_for(x)
     token = Settings.verification_token
-    post '/en_route', { :token => token, :user_id => x }
+    post '/slack/en_route', { :token => token, :user_id => x }
     expect(last_response).to be_ok
   end
 
   def received_for(x)
     token = Settings.verification_token
-    post '/received', { :token => token, :user_id => x }
+    post '/slack/received', { :token => token, :user_id => x }
     expect(last_response).to be_ok
   end
 
@@ -68,49 +68,56 @@ describe 'The CloudBurrito app' do
     return b
   end
 
-  it "can load the home page" do
+  it "can load the plain home page" do
+    header "Accept", "text/plain"
     get '/'
     expect(last_response).to be_ok
-    expect(last_response.body).to eq('Burritos are in the oven!')
+    expect(last_response.body).to eq("Welcome to Cloud Burrito!")
+  end
+
+  it "the html home page is different" do
+    get '/'
+    expect(last_response).to be_ok
+    expect(last_response.body).not_to eq("Welcome to Cloud Burrito!")
   end
 
   it "needs a token to feed a patron" do
-    post '/feedme', :user_id => '1'
+    post '/slack/feedme', :user_id => '1'
     expect(last_response).not_to be_ok
   end
 
   it "needs a user_id to feed a patron" do
-    post '/feedme', :token => token
+    post '/slack/feedme', :token => token
     expect(last_response).not_to be_ok
   end
 
   it "needs a token to add a patron" do
-    post '/join', :user_id => '1'
+    post '/slack/join', :user_id => '1'
     expect(last_response).not_to be_ok
   end
 
   it "needs a user_id to add a patron" do
-    post '/join', :token => token
+    post '/slack/join', :token => token
     expect(last_response).not_to be_ok
   end
 
   it "needs a token to mark a delivery en route" do
-    post '/en_route', :user_id => '1'
+    post '/slack/en_route', :user_id => '1'
     expect(last_response).not_to be_ok
   end
 
   it "needs a user_id to mark a delivery en route" do
-    post '/en_route', :token => token
+    post '/slack/en_route', :token => token
     expect(last_response).not_to be_ok
   end
 
   it "needs a token to mark a burrito as received" do
-    post '/received', :user_id => '1'
+    post '/slack/received', :user_id => '1'
     expect(last_response).not_to be_ok
   end
 
   it "needs a user_id to mark a burrito as received" do
-    post '/received', :token => token
+    post '/slack/received', :token => token
     expect(last_response).not_to be_ok
   end
 
