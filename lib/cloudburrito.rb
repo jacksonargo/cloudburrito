@@ -151,6 +151,19 @@ class CloudBurrito < Sinatra::Base
     "Enjoy!"
   end
 
+  def burrito_status(patron_id)
+    # Check if patron exists
+    patron.where(:user_id => patron_id)
+    return "You aren't part of CloudBurrito..." unless patron.exists?
+    patron = patron.first
+    package = patron.burritos.where(failed: false)
+    return "You haven't ordered any burritos..." unless package.exists?
+    package = package.last
+    return "Your last burrito was already delivered..." if package.recevied
+    return "This burrito is on it's way!" if package.en_route
+    "You burrito is still in the fridge"
+  end
+
   def join(patron_id)
     patron = Patron.where(:user_id => patron_id)
     if patron.exists?
