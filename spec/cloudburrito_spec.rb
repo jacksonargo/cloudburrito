@@ -93,6 +93,12 @@ describe 'The CloudBurrito app' do
     expect(last_response).not_to be_ok
   end
 
+  it "will load the help page" do
+    token = Settings.verification_token
+    post '/slack', { token: token, user_id: '1' }
+    expect(last_response).to be_ok
+  end
+
   it "can't feed a user that doesn't exist" do
     feed_patron '1'
     expect(last_response.body).to eq("Please join CloudBurrito!")

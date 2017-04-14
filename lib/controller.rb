@@ -32,7 +32,8 @@ class Controller
     package.hungry_man = hungry_man
     package.save
     # Notify delivery man of his duties
-    msg = "Go get a burrito for <@#{hungry_man.user_id}>."
+    msg = "You've been volunteered to get a burrito for #{hungry_man}. "
+    msg += "Please ACK this request by replying:\n/CloudBurrito en route"
     Messenger.notify delivery_man, msg
     # Start a new thread to verify package delivery
     Thread.new { verify_en_route package }
@@ -52,8 +53,10 @@ class Controller
       puts "Delivery man took to long; finding another."
       delivery_man.is_active = false
       delivery_man.save
-      msg = "You are too slow..."
-      #Messenger.notify delivery_man, msg
+      msg = "You've been bounced out of the pool. Use this command "
+      msg += "to rejoin the pool and start downloading burritos:\n"
+      msg += "/CloudBurrito join"
+      Messenger.notify delivery_man, msg
       # Mark the package as failed
       puts "Package is failed."
       package.failed = true
@@ -67,7 +70,9 @@ class Controller
         package.save
       else
         puts "Couldn't find another delivery man"
-        msg = "I regret to inform you that your burrito was lost in transit."
+        msg = "I regret to inform you that your burrito was lost in transit. "
+        msg += "You can request another burrito using this command:\n"
+        msg += "/CloudBurrito feed me"
         Messenger.notify hungry_man, msg
       end
     else

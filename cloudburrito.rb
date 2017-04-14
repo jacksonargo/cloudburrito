@@ -56,14 +56,14 @@ class CloudBurrito < Sinatra::Base
       return Controller.join params
     when /[Ff]eed ?(|me)/
       return Controller.feed params
-    when /[En]\_route/
+    when /[Ee]n(\_| )route/
       return Controller.en_route params
     when /[Rr]eceived/
       return Controller.received params
     when /[Ss]tatus/
       return Controller.status params
     else
-      return Controller.help
+      erb :slack_help
     end
   end
 end
