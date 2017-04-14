@@ -37,13 +37,21 @@ class CloudBurrito < Sinatra::Base
   end
 
   not_found do
-    return erb :error404 if request.accept? "text/html"
-    "404: Burrito Not Found!"
+    if request.accept? "text/html"
+      @content = erb :error404
+      return erb :beautify
+    else
+      "404: Burrito Not Found!"
+    end
   end
 
   get '/' do
-    return erb :index if request.accept? "text/html"
-    "Welcome to Cloud Burrito!"
+    if request.accept? "text/html"
+      @content = erb :index
+      return erb :beautify
+    else
+      "Welcome to Cloud Burrito!"
+    end
   end
 
   post '/slack/join' do
