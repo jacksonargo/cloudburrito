@@ -43,10 +43,9 @@ class Controller
     hungry_man = package.hungry_man
     delivery_man = package.delivery_man
     # Loop until the package is en route or stale
+    puts "Waiting for ack..."
     while not (package.en_route or package.is_stale?) do
       package.reload
-      puts "Waiting for ack..."
-      sleep 1
     end
     if not package.en_route
       # Mark the delivery_man inactive
@@ -63,9 +62,9 @@ class Controller
       delivery_man = get_next_delivery_man_for hungry_man
       if delivery_man
         puts "Found another delivery man"
+        send_on_delivery delivery_man, hungry_man
         package.retry = true
         package.save
-        send_on_delivery delivery_man, hungry_man
       else
         puts "Couldn't find another delivery man"
         msg = "I regret to inform you that your burrito was lost in transit."
@@ -112,6 +111,7 @@ class Controller
     package = patron.active_delivery
     return "You've already acked this request..." if package.en_route
     # Ack the package
+    puts "Package acked by delivery_man #{patron_id}."
     package.en_route = true
     package.save
     "Make haste!"
@@ -126,6 +126,7 @@ class Controller
     # Check if patron has an in coming burrito
     return "You don't have any in coming burritos" unless patron.is_waiting?
     # Mark the package as received 
+    puts "Package received by hungry_man #{patron_id}."
     package = patron.incoming_burrito
     package.received = true
     package.en_route = true

@@ -14,6 +14,8 @@ class Patron
   field :_id, type: String, default: ->{ user_id }
   field :is_active, type: Boolean, default: true
   field :last_time_activated, type: Time, default: Time.now
+  field :force_not_greedy, type: Boolean, default: false
+  field :force_not_sleeping, type: Boolean, default: false
 
   def to_s
     "<@#{user_id}>"
@@ -27,12 +29,12 @@ class Patron
     active_delivery != nil
   end
 
-  def incoming_burritos
+  def incoming_burrito
     burritos.where({failed: false, received: false}).last
   end
 
   def is_waiting?
-    incoming_burritos != nil
+    incoming_burrito != nil
   end
 
   def time_of_last_burrito
@@ -48,10 +50,12 @@ class Patron
   end
 
   def is_greedy?
+    return false if force_not_greedy
     time_until_hungry > 0
   end
 
   def is_sleeping?
+    return false if force_not_sleeping
     time_until_awake > 0
   end
 
