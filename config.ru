@@ -1,2 +1,2 @@
-require_relative 'lib/cloudburrito'
+require_relative 'cloudburrito'
 run CloudBurrito
