@@ -143,7 +143,7 @@ class Controller
     "Enjoy!"
   end
 
-  def self.burrito_status(params)
+  def self.status(params)
     patron_id = params["user_id"]
     # Check if patron exists
     patron = Patron.where(:user_id => patron_id)

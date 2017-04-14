@@ -61,6 +61,11 @@ describe 'The CloudBurrito controller' do
     create_burrito_and_patrons
   end
 
+  it "can check the status of burritos" do
+    p1, p2, b = create_burrito_and_patrons
+    Controller.status "user_id" => p1.user_id
+  end
+
   it "Hungryman can ack and Delivery can ack" do
     p1, p2, b = create_burrito_and_patrons
     # p2 should ack that he's on delivery
