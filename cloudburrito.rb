@@ -10,9 +10,7 @@ require 'sinatra/base'
 
 class CloudBurrito < Sinatra::Base
 
-  set :environment, :development
-
-  Mongoid.load!("config/mongoid.yml", :development)
+  Mongoid.load!("config/mongoid.yml")
 
   ##
   ## Functions
