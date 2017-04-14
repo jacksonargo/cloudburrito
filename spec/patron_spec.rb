@@ -32,7 +32,7 @@ describe "A cloud burrito patron" do
 
   it 'is not waiting when created' do
     x = Patron.new(user_id: '1')
-    expect(x.is_already_waiting?).to eq(false)
+    expect(x.is_waiting?).to eq(false)
   end
 
   it 'is greedy when created' do

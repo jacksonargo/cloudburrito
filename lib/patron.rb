@@ -19,14 +19,20 @@ class Patron
     "<@#{user_id}>"
   end
 
-  def is_on_delivery?
-    return false unless deliveries.exists?
-    deliveries.last.received == false
+  def active_delivery
+    deliveries.where({failed: false, received: false}).last
   end
 
-  def is_already_waiting?
-    return false unless burritos.exists?
-    burritos.last.received == false
+  def is_on_delivery?
+    active_delivery != nil
+  end
+
+  def incoming_burritos
+    burritos.where({failed: false, received: false}).last
+  end
+
+  def is_waiting?
+    incoming_burritos != nil
   end
 
   def time_of_last_burrito

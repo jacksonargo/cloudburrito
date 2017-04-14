@@ -6,7 +6,7 @@ require_relative 'messenger'
 class Controller
 
   # Find the next available delivery man
-  def get_next_delivery_man_for(hungry_man)
+  def self.get_next_delivery_man_for(hungry_man)
     # Get all the active patrons
     candidates = Patron.where(is_active: true)
     # Check that there are active patrons
@@ -25,7 +25,7 @@ class Controller
   end
 
   # Create a package and send it on its way
-  def send_on_delivery(delivery_man, hungry_man)
+  def self.send_on_delivery(delivery_man, hungry_man)
     # Create the new package
     package = Package.new
     package.delivery_man = delivery_man
@@ -39,32 +39,40 @@ class Controller
   end
 
   # Verify that a burrito is headed to hungry man
-  def verify_en_route(package)
+  def self.verify_en_route(package)
     hungry_man = package.hungry_man
     delivery_man = package.delivery_man
     # Loop until the package is en route or stale
     while not (package.en_route or package.is_stale?) do
+      package.reload
+      puts "Waiting for ack..."
       sleep 1
     end
     if not package.en_route
       # Mark the delivery_man inactive
+      puts "Delivery man took to long; finding another."
       delivery_man.is_active = false
       delivery_man.save
       msg = "You are too slow..."
       #Messenger.notify delivery_man, msg
       # Mark the package as failed
+      puts "Package is failed."
       package.failed = true
       package.save
       # Try to find a new delivery man
       delivery_man = get_next_delivery_man_for hungry_man
       if delivery_man
+        puts "Found another delivery man"
         package.retry = true
         package.save
         send_on_delivery delivery_man, hungry_man
       else
+        puts "Couldn't find another delivery man"
         msg = "I regret to inform you that your burrito was lost in transit."
         Messenger.notify hungry_man, msg
       end
+    else
+      puts "Burrito #{package._id} in en route!"
     end
   end
 
@@ -79,15 +87,10 @@ class Controller
       return "Please join CloudBurrito!"
     end
     hungry_man = hungry_man.first
-    if not hungry_man.is_active?
-      return "Please join the pool!"
-    elsif hungry_man.is_on_delivery?
-      return "*You* should be delivering a burrito!"
-    elsif hungry_man.is_already_waiting?
-      return "You already have a burrito coming!"
-    elsif hungry_man.is_greedy?
-      return "Stop being so greedy! You need to wait #{hungry_man.time_until_hungry}s."
-    end
+    return "Please join the pool" unless hungry_man.is_active?
+    return "*You* should be delivering a burrito!" if hungry_man.is_on_delivery?
+    return "You already have a burrito coming!" if hungry_man.is_waiting?
+    return "Stop being so greedy! Wait #{hungry_man.time_until_hungry}s." if hungry_man.is_greedy?
     
     # Check if we can find delivery man
     delivery_man = get_next_delivery_man_for hungry_man
@@ -103,14 +106,10 @@ class Controller
     # Check if the patron exists
     patron = Patron.where(:user_id => patron_id)
     return "You aren't a part of CloudBurrito..." unless patron.exists?
-    # Check if the patron has packages
+    # Check if the patron is on delivery
     patron = patron.first
-    package = patron.deliveries.where(failed: false)
-    return "You've never been asked to deliver..." unless package.exists?
-    # Check if the patron should be delivering
-    package = package.last
-    return "You aren't delivering a burrito..." if package.received
-    # Check if the package as already been acked
+    return "You aren't on a delivery..." unless patron.is_on_delivery?
+    package = patron.active_delivery
     return "You've already acked this request..." if package.en_route
     # Ack the package
     package.en_route = true
@@ -124,12 +123,10 @@ class Controller
     return "You aren't a part of CloudBurrito..." unless patron.exists?
     # Check if the patron received any burritos
     patron = patron.first
-    package = patron.burritos.where(failed: false)
-    return "You've never received a burrito from us..." unless package.exists?
-    # Has already acked this burrito
-    package = package.last
-    return "You've already acked this burrito..." if package.received
+    # Check if patron has an in coming burrito
+    return "You don't have any in coming burritos" unless patron.is_waiting?
     # Mark the package as received 
+    package = patron.incoming_burrito
     package.received = true
     package.en_route = true
     package.delivery_time = Time.now
@@ -139,13 +136,11 @@ class Controller
 
   def self.burrito_status(patron_id)
     # Check if patron exists
-    patron.where(:user_id => patron_id)
+    patron = Patron.where(:user_id => patron_id)
     return "You aren't part of CloudBurrito..." unless patron.exists?
     patron = patron.first
-    package = patron.burritos.where(failed: false)
-    return "You haven't ordered any burritos..." unless package.exists?
-    package = package.last
-    return "Your last burrito was already delivered..." if package.recevied
+    return "You don't have any in coming burritos" unless patron.is_waiting?
+    package = patron.incoming_burrito
     return "This burrito is on it's way!" if package.en_route
     "You burrito is still in the fridge"
   end
