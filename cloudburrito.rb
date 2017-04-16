@@ -52,8 +52,10 @@ class CloudBurrito < Sinatra::Base
     user_id = params["user_id"]
     halt 401 unless valid_token? token
     halt 400 unless user_id
+    # Add the user to the database if they don't already exist
+    patron = Patron.where(user_id: params["user_id"]).first_or_create!
     logger = RequestLogger.new(uri: '/slack', method: :post, params: params)
-    logger.patron = Patron.where(user_id: params["user_id"]).first
+    logger.patron = patron
     case params["text"]
     when /[Jj]oin/
       logger.controller_action = :join

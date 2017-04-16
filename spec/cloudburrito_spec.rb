@@ -99,16 +99,6 @@ describe 'The CloudBurrito app' do
     expect(last_response).to be_ok
   end
 
-  it "can't feed a user that doesn't exist" do
-    feed_patron '1'
-    expect(last_response.body).to eq("Please join CloudBurrito!")
-  end
-
-  it "can't mark a burrito en route for a dne patron" do
-    en_route_for '1'
-    expect(last_response.body).to eq("You aren't a part of CloudBurrito...")
-  end
-
   it "will mark an unacked burrito en route" do
     create_patron '1'
     create_patron '2'
@@ -118,11 +108,6 @@ describe 'The CloudBurrito app' do
     b.reload
     expect(b.en_route).to eq(true)
     expect(b.received).to eq(false)
-  end
-
-  it "can't mark a burrito received for a dne patron" do
-    received_for '1'
-    expect(last_response.body).to eq("You aren't a part of CloudBurrito...")
   end
 
   it "will mark an unrevied burrito as received" do
@@ -138,19 +123,19 @@ describe 'The CloudBurrito app' do
 
   it "can add a patron w/ user_id and token" do
     create_patron '1'
-    expect(last_response.body).to eq('Welcome new Cloud Burrito patron!')
+    expect(last_response.body).to eq('Please enjoy our fine selection of burritos!')
   end
 
   it "wont try to add the same patron twice" do
     create_patron '1'
-    expect(last_response.body).to eq('Welcome new Cloud Burrito patron!')
+    expect(last_response.body).to eq('Please enjoy our fine selection of burritos!')
     create_patron '1'
     expect(last_response.body).to eq("Please enjoy our fine selection of burritos!")
   end
 
   it "will activate an inactive user" do
     create_patron '1'
-    expect(last_response.body).to eq('Welcome new Cloud Burrito patron!')
+    expect(last_response.body).to eq('Please enjoy our fine selection of burritos!')
     zero_activated_time '1'
     create_patron '1'
     expect(last_response.body).to eq("Please enjoy our fine selection of burritos!")
@@ -158,14 +143,14 @@ describe 'The CloudBurrito app' do
 
   it "can't immediately feed a new patron" do
     create_patron '1'
-    expect(last_response.body).to eq('Welcome new Cloud Burrito patron!')
+    expect(last_response.body).to eq('Please enjoy our fine selection of burritos!')
     feed_patron '1'
     expect(last_response.body).to match(/Stop being so greedy! Wait \d+s./)
   end
 
   it "can't feed a patron if there aren't any available delivery men" do
     create_patron '1'
-    expect(last_response.body).to eq('Welcome new Cloud Burrito patron!')
+    expect(last_response.body).to eq('Please enjoy our fine selection of burritos!')
     zero_activated_time '1'
     feed_patron '1'
     expect(last_response.body).to eq("How about this? Get your own burrito.")
@@ -174,15 +159,15 @@ describe 'The CloudBurrito app' do
   it "can add 10 second patrons" do
     (0..10).each do |x|
       create_patron x.to_s
-      expect(last_response.body).to eq('Welcome new Cloud Burrito patron!')
+      expect(last_response.body).to eq('Please enjoy our fine selection of burritos!')
     end
   end
 
   it "wont let a hungry man request a second burrito" do
     create_patron '1'
-    expect(last_response.body).to eq('Welcome new Cloud Burrito patron!')
+    expect(last_response.body).to eq('Please enjoy our fine selection of burritos!')
     create_patron '2'
-    expect(last_response.body).to eq('Welcome new Cloud Burrito patron!')
+    expect(last_response.body).to eq('Please enjoy our fine selection of burritos!')
     zero_activated_time '1'
     zero_activated_time '2'
     feed_patron '1'
@@ -193,9 +178,9 @@ describe 'The CloudBurrito app' do
 
   it "wont let a delivery man request a burrito" do
     create_patron '1'
-    expect(last_response.body).to eq('Welcome new Cloud Burrito patron!')
+    expect(last_response.body).to eq('Please enjoy our fine selection of burritos!')
     create_patron '2'
-    expect(last_response.body).to eq('Welcome new Cloud Burrito patron!')
+    expect(last_response.body).to eq('Please enjoy our fine selection of burritos!')
     zero_activated_time '1'
     zero_activated_time '2'
     feed_patron '1'
