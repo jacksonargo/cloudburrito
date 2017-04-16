@@ -13,7 +13,7 @@ class Patron
 
   field :user_id, type: String
   field :_id, type: String, default: ->{ user_id }
-  field :is_active, type: Boolean, default: true
+  field :is_active, type: Boolean, default: false
   field :last_time_activated, type: Time, default: Time.now
   field :force_not_greedy, type: Boolean, default: false
   field :force_not_sleeping, type: Boolean, default: false

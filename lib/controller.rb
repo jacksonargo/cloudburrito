@@ -157,16 +157,10 @@ class Controller
 
   def self.join(params)
     patron_id = params["user_id"]
-    patron = Patron.where(:user_id => patron_id)
-    if patron.exists?
-      patron = patron.first
-      patron.is_active = true
-      patron.last_time_activated = Time.now
-      patron.save
-      "Please enjoy our fine selection of burritos!"
-    else
-      Patron.new(:user_id => patron_id).save
-      "Welcome new Cloud Burrito patron!"
-    end
+    patron = Patron.where(:user_id => patron_id).first_or_create!
+    patron.is_active = true
+    patron.last_time_activated = Time.now
+    patron.save
+    "Please enjoy our fine selection of burritos!"
   end
 end
