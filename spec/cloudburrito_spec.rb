@@ -2,22 +2,6 @@ require_relative '../cloudburrito'
 require 'rspec'
 require 'rack/test'
 
-describe 'The CloudBurrito settings' do
-  include Rack::Test::Methods
-
-  def app
-    CloudBurrito
-  end
-
-  it 'has a verification token' do
-    expect(Settings.verification_token).not_to be_empty
-  end
-  
-  it 'has an authentication token' do
-    expect(Settings.auth_token).not_to be_empty
-  end
-end
-
 describe 'The CloudBurrito app' do
   include Rack::Test::Methods
 
@@ -97,6 +81,14 @@ describe 'The CloudBurrito app' do
     token = Settings.verification_token
     post '/slack', { token: token, user_id: '1' }
     expect(last_response).to be_ok
+    expect(last_response.body).to eq("Welcome to Cloud Burrito!
+
+You can use these commands to do things:
+>*join*: Join the burrito pool party.
+>*feed*: Download a burrito from the cloud.
+>*status*: Where is my burrito at?
+>*en route*: ACK a delivery request.
+>*received*: ACK receipt of burrito.\n")
   end
 
   it "will mark an unacked burrito en route" do
