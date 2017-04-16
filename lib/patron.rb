@@ -9,6 +9,7 @@ class Patron
 
   has_many :burritos, class_name: "Package", inverse_of: :hungry_man
   has_many :deliveries, class_name: "Package", inverse_of: :delivery_man
+  has_many :requestLoggers
 
   field :user_id, type: String
   field :_id, type: String, default: ->{ user_id }

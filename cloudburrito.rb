@@ -6,6 +6,7 @@ require_relative 'lib/package'
 require_relative 'lib/settings'
 require_relative 'lib/messenger'
 require_relative 'lib/controller'
+require_relative 'lib/requestlogger'
 require 'sinatra/base'
 
 class CloudBurrito < Sinatra::Base
@@ -51,19 +52,29 @@ class CloudBurrito < Sinatra::Base
     user_id = params["user_id"]
     halt 401 unless valid_token? token
     halt 400 unless user_id
+    logger = RequestLogger.new(uri: '/slack', method: :post, params: params)
+    logger.patron = Patron.where(user_id: params["user_id"]).first
     case params["text"]
     when /[Jj]oin/
-      return Controller.join params
+      logger.controller_action = :join
+      logger.response = Controller.join params
     when /[Ff]eed ?(|me)/
-      return Controller.feed params
+      logger.controller_action = :feed
+      logger.response = Controller.feed params
     when /[Ee]n(\_| )route/
-      return Controller.en_route params
+      logger.controller_action = :en_route
+      logger.response = Controller.en_route params
     when /[Rr]eceived/
-      return Controller.received params
+      logger.controller_action = :received
+      logger.response = Controller.received params
     when /[Ss]tatus/
-      return Controller.status params
+      logger.controller_action = :status
+      logger.response = Controller.status params
     else
-      erb :slack_help
+      logger.controller_action = :help
+      logger.response = erb :slack_help
     end
+    logger.save
+    logger.response
   end
 end
