@@ -21,6 +21,13 @@ class CloudBurrito < Sinatra::Base
     token == Settings.verification_token
   end
 
+  ## Load settings
+  if File.exists? "config/settings.json"
+    settings = JSON::parse(File.read("config/settings.json"))
+    settings = settings[Sinatra::Base.environment.to_s]
+    Settings.set(settings)
+  end
+
   ##
   ## Serve burritos
   ##
