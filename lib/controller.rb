@@ -140,6 +140,9 @@ class Controller
     package.en_route = true
     package.delivery_time = Time.now
     package.save
+    # Notify delivery_man that he can order more burritos
+    msg = "Your delivery has been acked. You can request more burritos!"
+    Messenger.notify package.delivery_man, msg
     "Enjoy!"
   end
 
