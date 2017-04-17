@@ -33,7 +33,7 @@ class CloudBurrito < Sinatra::Base
   ## Serve burritos
   ##
 
-  error do
+  error 500 do
     "A nasty burrito was found!"
   end
 
@@ -44,6 +44,11 @@ class CloudBurrito < Sinatra::Base
     else
       "404: Burrito Not Found!"
     end
+  end
+
+  error 401 do
+    @content = erb :error401
+    erb :beautify
   end
 
   before '/slack' do
@@ -64,7 +69,7 @@ class CloudBurrito < Sinatra::Base
     puts "got request for /user"
     user_id = params["user_id"]
     # Require a user id
-    halt 400 unless params["user_id"]
+    halt 401 unless params["user_id"]
     # Require that the user exists
     "puts finding patron"
     begin
