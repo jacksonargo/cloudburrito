@@ -2,7 +2,7 @@ require_relative '../cloudburrito'
 require 'rspec'
 require 'rack/test'
 
-describe "Logging requests" do
+describe "Logging messages" do
   include Rack::Test::Methods
 
   def app
