@@ -189,6 +189,17 @@ You can use these commands to do things:
     feed_patron '1'
   end
 
+  it "Wont /user unless it has a user_id param" do
+    get '/user'
+    expect(last_response).not_to be_ok
+  end
+
+  it "Wont /user unless it has a token param" do
+    create_patron '1'
+    get '/user', user_id: 1
+    expect(last_response).not_to be_ok
+  end
+
   it "Can create temp tokens for users" do
     create_patron '1'
     patron = Patron.find('1')
