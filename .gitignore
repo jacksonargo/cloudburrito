@@ -2,4 +2,5 @@
 *.swp
 *.log
 *.lock
-config
+config/mongoid.yml
+config/settings.json
