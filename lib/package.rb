@@ -1,4 +1,3 @@
-require_relative 'settings'
 require 'mongoid'
 
 # Class to store data about packages
@@ -16,9 +15,10 @@ class Package
   field :failed, type: Boolean, default: false
   field :retry, type: Boolean, default: false
   field :delivery_time, type: Time
+  field :max_age, type: Integer, default: 3600
 
   def is_stale?
-    time_alive > Settings.stale_time or force_stale
+    time_alive > max_age or force_stale
   end
 
   def time_alive

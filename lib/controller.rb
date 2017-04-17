@@ -1,6 +1,5 @@
 require_relative 'patron'
 require_relative 'package'
-require_relative 'settings'
 require_relative 'messenger'
 
 class Controller

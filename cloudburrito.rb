@@ -3,7 +3,6 @@
 
 require_relative 'lib/patron'
 require_relative 'lib/package'
-require_relative 'lib/settings'
 require_relative 'lib/messenger'
 require_relative 'lib/controller'
 require_relative 'lib/requestlogger'
@@ -24,15 +23,17 @@ class CloudBurrito < Sinatra::Base
 
   puts "Environment: #{settings.environment}"
 
-  ## Load settings
-  my_settings = {}
-  if File.exist? "config/settings.json"
-    my_settings = JSON.parse(File.read("config/settings.json"))
-    my_settings = my_settings[settings.environment.to_s]
+  ## 
+  ## Load secrets
+  ##
+
+  secrets = {}
+  if File.exist? "config/secrets.yml"
+    secrets = YAML.load_file "config/secrets.yml"
+    secrets = secrets[settings.environment.to_s]
   end
-  Settings.set(my_settings)
-  slack_veri_token = my_settings["verification_token"]
-  slack_auth_token = my_settings["auth_token"]
+  slack_veri_token = secrets["slack_veri_token"]
+  slack_auth_token = secrets["slack_auth_token"]
   slack_veri_token ||= "XXX_burrito_XXX"
   slack_auth_token ||= "xoxb-???"
   set :slack_veri_token, slack_veri_token

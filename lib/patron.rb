@@ -1,4 +1,3 @@
-require_relative 'settings'
 require 'mongoid'
 
 ## Class to store data for the participants
@@ -19,6 +18,8 @@ class Patron
   field :force_not_greedy, type: Boolean, default: false
   field :force_not_sleeping, type: Boolean, default: false
   field :user_token, type: String
+  field :sleepy_time, type: Integer, default: 3600
+  field :greedy_time, type: Integer, default: 3600
 
   def to_s
     "<@#{user_id}>"
@@ -63,12 +64,12 @@ class Patron
   end
 
   def time_until_hungry
-    x = Settings.greedy_time - (Time.now - time_of_last_burrito).to_i
+    x = greedy_time - (Time.now - time_of_last_burrito).to_i
     x > 0 ? x : 0
   end
 
   def time_until_awake
-    x = Settings.sleep_time - (Time.now - time_of_last_delivery).to_i
+    x = sleepy_time - (Time.now - time_of_last_delivery).to_i
     x > 0 ? x : 0
   end
 end
