@@ -7,6 +7,7 @@ require_relative 'lib/settings'
 require_relative 'lib/messenger'
 require_relative 'lib/controller'
 require_relative 'lib/requestlogger'
+require_relative 'lib/messagelogger'
 require 'sinatra/base'
 
 class CloudBurrito < Sinatra::Base

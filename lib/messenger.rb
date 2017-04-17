@@ -13,7 +13,8 @@ class Messenger
     end
     begin
       im = @@client.im_open(user: patron.user_id).channel.id
-      @@client.chat_postMessage(channel: im, text: msg)
+      resp = @@client.chat_postMessage(channel: im, text: msg)
+      MessageLogger.new(patron: patron, slack_response: resp, message: msg).save
     rescue
       puts("Was not able to send slack pm message :c")
     end

@@ -10,27 +10,27 @@ describe "Logging requests" do
   end
 
   before(:each) do
-    RequestLogger.delete_all
+    MessageLogger.delete_all
+    Patron.delete_all
   end
 
   it "Can be created" do
-    RequestLogger.new
+    MessageLogger.new
   end
 
   it "Cannot be saved unless connected to a Patron" do
-    Patron.delete_all
     p = Patron.new user_id: '1'
-    log = RequestLogger.new
+    log = MessageLogger.new
     expect(log.save).to eq(false)
     log.patron = p
     expect(log.save).to eq(true)
   end
 
-  it "Can reference it's patron and patron can reference it" do
-    Patron.delete_all
+  it "Patron can reference it and it can reference patron" do
     p = Patron.new user_id: '1'
-    log = RequestLogger.new patron: p
-    expect(p.request_loggers.first).to eq(log)
+    log = MessageLogger.new patron: p
+    log.save
+    expect(p.message_loggers.first).to eq(log)
     expect(log.patron).to eq(p)
   end
 end
