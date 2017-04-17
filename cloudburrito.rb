@@ -76,29 +76,24 @@ class CloudBurrito < Sinatra::Base
   end
 
   get '/user' do
-    puts "got request for /user"
     user_id = params["user_id"]
     # Require a user id
     halt 401 unless params["user_id"]
     # Require that the user exists
-    "puts finding patron"
     begin
       @patron = Patron.find(user_id)
     rescue
       halt 401
     end
     # Require a matching token
-    "checking of token"
     halt 401 unless @patron.user_token
     halt 401 unless @patron.user_token == params["token"]
-    "patron token matches"
     # Render the user stats
     @content = erb :user
     erb :beautify
   end
 
   post '/slack' do
-    user_id = params["user_id"]
     # Add the user to the database if they don't already exist
     patron = Patron.where(user_id: params["user_id"]).first_or_create!
     logger = RequestLogger.new(uri: '/slack', method: :post, params: params)
