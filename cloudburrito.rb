@@ -73,13 +73,14 @@ class CloudBurrito < Sinatra::Base
     # Require that the user exists
     "puts finding patron"
     begin
-      patron = Patron.find(user_id)
+      @patron = Patron.find(user_id)
     rescue
       halt 401
     end
     # Require a matching token
     "checking of token"
-    halt 401 unless patron.user_token == params["token"]
+    halt 401 unless @patron.user_token
+    halt 401 unless @patron.user_token == params["token"]
     "patron token matches"
     # Render the user stats
     @content = erb :user
