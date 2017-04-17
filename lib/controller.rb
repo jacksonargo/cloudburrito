@@ -45,10 +45,10 @@ class Controller
     delivery_man = package.delivery_man
     # Loop until the package is en route or stale
     puts "Waiting for ack..."
-    while not (package.en_route or package.is_stale?) do
+    until (package.en_route or package.is_stale?) do
       package.reload
     end
-    if not package.en_route
+    unless package.en_route
       # Mark the delivery_man inactive
       puts "Delivery man took to long; finding another."
       delivery_man.is_active = false
@@ -88,7 +88,7 @@ class Controller
     # 2) Must be active
     # 3) Can't be a delivery man
     # 4) Can't be waiting for a burrito
-    if not hungry_man.exists?
+    unless hungry_man.exists?
       return "Please join CloudBurrito!"
     end
     hungry_man = hungry_man.first

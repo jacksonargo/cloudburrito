@@ -53,7 +53,7 @@ describe 'The CloudBurrito controller' do
   end
 
   it "Won't create a second patron with same id" do
-    (1..10).each{|x| Controller.join "user_id" => '1'}
+    (1..10).each{|_x| Controller.join "user_id" => '1'}
     expect(Patron.count).to eq(1)
   end
 
@@ -62,7 +62,7 @@ describe 'The CloudBurrito controller' do
   end
 
   it "can check the status of burritos" do
-    p1, p2, b = create_burrito_and_patrons
+    p1, _p2, _b = create_burrito_and_patrons
     Controller.status "user_id" => p1.user_id
   end
 

@@ -5,7 +5,7 @@ class Messenger
   @@client = nil
   def self.notify(patron, msg)
     # Configure slack
-    if @@client == nil
+    if @@client.nil?
       Slack.configure do |config|
         config.token = Settings.auth_token
       end
