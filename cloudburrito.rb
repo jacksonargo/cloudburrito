@@ -46,20 +46,43 @@ class CloudBurrito < Sinatra::Base
     end
   end
 
+  before '/slack' do
+    halt 401 unless valid_token? params["token"]
+    halt 400 unless params["user_id"]
+  end
+
   get '/' do
     if request.accept? "text/html"
       @content = erb :index
-      return erb :beautify
+      erb :beautify
     else
       "Welcome to Cloud Burrito!"
     end
   end
 
-  post '/slack' do
-    token = params["token"]
+  get '/user' do
+    puts "got request for /user"
     user_id = params["user_id"]
-    halt 401 unless valid_token? token
-    halt 400 unless user_id
+    # Require a user id
+    halt 400 unless params["user_id"]
+    # Require that the user exists
+    "puts finding patron"
+    begin
+      patron = Patron.find(user_id)
+    rescue
+      halt 401
+    end
+    # Require a matching token
+    "checking of token"
+    halt 401 unless patron.user_token == params["token"]
+    "patron token matches"
+    # Render the user stats
+    @content = erb :user
+    erb :beautify
+  end
+
+  post '/slack' do
+    user_id = params["user_id"]
     # Add the user to the database if they don't already exist
     patron = Patron.where(user_id: params["user_id"]).first_or_create!
     logger = RequestLogger.new(uri: '/slack', method: :post, params: params)
@@ -80,6 +103,9 @@ class CloudBurrito < Sinatra::Base
     when /[Ss]tatus/
       logger.controller_action = :status
       logger.response = Controller.status params
+    when /[Mm]y stats/
+      logger.controller_action = :my_stats
+      logger.response = Controller.my_stats params
     else
       logger.controller_action = :help
       logger.response = erb :slack_help

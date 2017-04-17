@@ -188,4 +188,24 @@ You can use these commands to do things:
     zero_activated_time '2'
     feed_patron '1'
   end
+
+  it "Can create temp tokens for users" do
+    create_patron '1'
+    patron = Patron.find('1')
+    post '/slack', { token: token, user_id: '1', text: "my stats" }
+    patron.reload
+    expect(last_response).to be_ok
+    expect(last_response.body).to eq("Use this url to see your stats.\nhttps://cloudburrito.us/user?user_id=#{patron._id}&token=#{patron.user_token}")
+  end
+
+  it "Can access user pages" do
+    create_patron '1'
+    patron = Patron.find('1')
+    post '/slack', { token: token, user_id: '1', text: "my stats" }
+    patron.reload
+    expect(last_response).to be_ok
+    expect(last_response.body).to eq("Use this url to see your stats.\nhttps://cloudburrito.us/user?user_id=#{patron._id}&token=#{patron.user_token}")
+    get '/user',  token: patron.user_token, user_id: patron.user_id
+    expect(last_response).to be_ok
+  end
 end

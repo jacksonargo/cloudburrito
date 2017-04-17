@@ -18,6 +18,7 @@ class Patron
   field :last_time_activated, type: Time, default: Time.now
   field :force_not_greedy, type: Boolean, default: false
   field :force_not_sleeping, type: Boolean, default: false
+  field :user_token, type: String
 
   def to_s
     "<@#{user_id}>"
