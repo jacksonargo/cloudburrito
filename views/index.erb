@@ -1,3 +1,19 @@
 <h1>Welcome to Cloud Burrito!</h1>
 <h3>Please check the github repo for updates.</h3>
 <h4><a href=https://github.com/jacksonargo/cloudburrito>https://github.com/jacksonargo/cloudburrito</a><h4>
+<hr>
+<h2>Current stats</h2>
+<table class="table">
+  <tr>
+    <td><strong>Participants:</strong></td>
+    <td><%= Patron.count %></td>
+  </tr>
+  <tr>
+    <td><strong>Burritos served:</strong></td>
+    <td><%= Package.where(delivered: true).count %></td>
+  </tr>
+  <tr>
+    <td><strong>Calories served:</strong></td>
+    <td><%= Package.where(delivered: true).count * 250 %> Kcal</td>
+  </tr>
+</table>
