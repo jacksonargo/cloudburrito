@@ -3,15 +3,13 @@ require 'slack-ruby-client'
 
 # Class to send messages through slack
 class Messenger
-  @@client = nil
   def self.notify(patron, msg)
     # Configure slack
-    if @@client.nil?
-      Slack.configure do |config|
-        config.token = CloudBurrito.slack_auth_token
-      end
-      @@client = Slack::Web::Client.new
+    Slack.configure do |config|
+      config.token = CloudBurrito.slack_auth_token
     end
+    client = Slack::Web::Client.new
+    # Send the message
     begin
       im = @@client.im_open(user: patron.user_id).channel.id
       resp = @@client.chat_postMessage(channel: im, text: msg)
