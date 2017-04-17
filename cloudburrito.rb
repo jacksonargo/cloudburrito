@@ -19,15 +19,24 @@ class CloudBurrito < Sinatra::Base
   ##
 
   def valid_token?(token)
-    token == Settings.verification_token
+    token == settings.slack_veri_token
   end
 
+  puts "Environment: #{settings.environment}"
+
   ## Load settings
+  my_settings = {}
   if File.exist? "config/settings.json"
-    settings = JSON.parse(File.read("config/settings.json"))
-    settings = settings[Sinatra::Base.environment.to_s]
-    Settings.set(settings)
+    my_settings = JSON.parse(File.read("config/settings.json"))
+    my_settings = my_settings[settings.environment.to_s]
   end
+  Settings.set(my_settings)
+  slack_veri_token = my_settings["verification_token"]
+  slack_auth_token = my_settings["auth_token"]
+  slack_veri_token ||= "XXX_burrito_XXX"
+  slack_auth_token ||= "xoxb-???"
+  set :slack_veri_token, slack_veri_token
+  set :slack_auth_token, slack_auth_token
 
   ##
   ## Serve burritos

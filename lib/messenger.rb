@@ -1,3 +1,4 @@
+require_relative '../cloudburrito'
 require 'slack-ruby-client'
 
 # Class to send messages through slack
@@ -7,7 +8,7 @@ class Messenger
     # Configure slack
     if @@client.nil?
       Slack.configure do |config|
-        config.token = Settings.auth_token
+        config.token = CloudBurrito.slack_auth_token
       end
       @@client = Slack::Web::Client.new
     end

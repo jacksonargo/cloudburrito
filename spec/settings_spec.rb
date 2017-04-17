@@ -10,10 +10,10 @@ describe 'The CloudBurrito settings' do
   end
 
   it 'has a verification token' do
-    expect(Settings.verification_token).not_to be_empty
+    expect(CloudBurrito.slack_veri_token).not_to be_empty
   end
 
   it 'has an authentication token' do
-    expect(Settings.auth_token).not_to be_empty
+    expect(CloudBurrito.slack_auth_token).not_to be_empty
   end
 end

@@ -14,28 +14,29 @@ describe 'The CloudBurrito app' do
     Patron.delete_all
   end
 
-  token = Settings.verification_token
+  token = CloudBurrito.slack_veri_token
+  puts token
 
   def create_patron(x)
-    token = Settings.verification_token
+    token = CloudBurrito.slack_veri_token
     post '/slack', { token: token, user_id: x, text: "join" }
     expect(last_response).to be_ok
   end
 
   def feed_patron(x)
-    token = Settings.verification_token
+    token = CloudBurrito.slack_veri_token
     post '/slack', { token: token, user_id: x, text: "feed" }
     expect(last_response).to be_ok
   end
 
   def en_route_for(x)
-    token = Settings.verification_token
+    token = CloudBurrito.slack_veri_token
     post '/slack', { token: token, user_id: x, text: "en_route" }
     expect(last_response).to be_ok
   end
 
   def received_for(x)
-    token = Settings.verification_token
+    token = CloudBurrito.slack_veri_token
     post '/slack', { token: token, user_id: x, text: "received" }
     expect(last_response).to be_ok
   end
@@ -78,7 +79,7 @@ describe 'The CloudBurrito app' do
   end
 
   it "will load the help page" do
-    token = Settings.verification_token
+    token = CloudBurrito.slack_veri_token
     post '/slack', { token: token, user_id: '1' }
     expect(last_response).to be_ok
     expect(last_response.body).to eq("Welcome to Cloud Burrito!
