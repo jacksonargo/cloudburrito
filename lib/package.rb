@@ -15,7 +15,7 @@ class Package
   field :failed, type: Boolean, default: false
   field :retry, type: Boolean, default: false
   field :delivery_time, type: Time
-  field :max_age, type: Integer, default: 3600
+  field :max_age, type: Integer, default: 300 # 5 minutes
 
   def to_s
     _id.to_s

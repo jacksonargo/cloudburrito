@@ -136,7 +136,7 @@ class SlackController
     delivery_man = package.delivery_man
     # Loop until the package is en route or stale
     puts "Waiting for ack from #{delivery_man} for delivery #{package}"
-    until (package.en_route or package.is_stale?) do
+    until (package.en_route or package.is_stale? or package.failed) do
       package.reload
     end
     unless package.en_route
