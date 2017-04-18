@@ -100,6 +100,12 @@ class CloudBurrito < Sinatra::Base
   end
 
   post '/slack' do
+    # Check if the user exists
+    unless Patron.where(user_id: params["user_id"]).exists?
+      Patron.new(user_id: params["user_id"]).save
+      return erb :slack_new_user
+    end
+
     # Create the controller
     controller = SlackController.new params
     # Log this request

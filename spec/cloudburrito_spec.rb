@@ -18,9 +18,35 @@ describe 'The CloudBurrito app' do
     CloudBurrito.slack_veri_token
   end
 
-  def create_patron(x)
-    post '/slack', { token: token, user_id: x, text: "join" }
+  def first_hit(x)
+    post '/slack', { token: token, user_id: x, text: "" }
     expect(last_response).to be_ok
+    expect(last_response.body).to eq("Welcome to the Cloud Burrito, where all your delicious dreams come true!
+Now that you're here, you'll need to know how this works.
+To join the Cloud Burrito type:
+>/cloudburrito join
+Once you are in the Cloud Burrito you will need to wait an hour before you can request a burrito, which you can do by typing in the following:
+>/cloudburrito feed
+A random person in the Cloud Burrito pool party will be selected to bring you a burrito, once you have received the burrito, you must acknowledge by typing in the following:
+>/cloudburrito full
+If you receive a request to bring someone a burrito you will need to acknowledge by typing:
+>/cloudburrito serving
+If you need a reminder of these commands, just type in:
+>/cloudburrito
+And that's it! Have fun!
+
+Check out https://cloudburrito.us/ for current stats!\n")
+  end
+
+  def join_patron(x)
+    post '/slack', token: token, user_id: x, text: "join"
+    expect(last_response).to be_ok
+    expect(last_response.body).to eq('Please enjoy our fine selection of burritos!')
+  end
+
+  def create_patron(x)
+    first_hit x
+    join_patron x
   end
 
   def feed_patron(x)
@@ -75,7 +101,12 @@ describe 'The CloudBurrito app' do
     expect(last_response).not_to be_ok
   end
 
+  it "will load the first hit page" do
+    first_hit '1'
+  end
+
   it "will load the help page" do
+    first_hit '1'
     post '/slack', { token: token, user_id: '1' }
     expect(last_response).to be_ok
     expect(last_response.body).to eq("Welcome to Cloud Burrito!
@@ -84,8 +115,13 @@ You can use these commands to do things:
 >*join*: Join the burrito pool party.
 >*feed*: Download a burrito from the cloud.
 >*status*: Where is my burrito at?
->*en route*: ACK a delivery request.
->*received*: ACK receipt of burrito.\n")
+>*serving*: ACK a delivery request.
+>*status*: ACK receipt of burrito.
+>*stats*: View your burrito stats.\n")
+  end
+
+  it "can create a user" do
+    create_patron '1'
   end
 
   it "will mark an unacked burrito en route" do
@@ -112,51 +148,45 @@ You can use these commands to do things:
 
   it "can add a patron w/ user_id and token" do
     create_patron '1'
-    expect(last_response.body).to eq('Please enjoy our fine selection of burritos!')
   end
 
   it "wont try to add the same patron twice" do
-    create_patron '1'
-    expect(last_response.body).to eq('Please enjoy our fine selection of burritos!')
-    create_patron '1'
+    first_hit '1'
+    join_patron '1'
+    post '/slack', token: token, user_id: '1', text: "join"
     expect(last_response.body).to eq("You are already part of the pool party!\nRequest a burrito with */cloudburrito feed*.")
   end
 
   it "will activate an inactive user" do
     create_patron '1'
-    expect(last_response.body).to eq('Please enjoy our fine selection of burritos!')
-    zero_activated_time '1'
-    create_patron '1'
-    expect(last_response.body).to eq("You are already part of the pool party!\nRequest a burrito with */cloudburrito feed*.")
+    p = Patron.find('1')
+    p.is_active = false
+    p.save
+    join_patron '1'
   end
 
   it "can't immediately feed a new patron" do
     create_patron '1'
-    expect(last_response.body).to eq('Please enjoy our fine selection of burritos!')
     feed_patron '1'
     expect(last_response.body).to match(/Stop being so greedy! Wait \d+s./)
   end
 
   it "can't feed a patron if there aren't any available delivery men" do
     create_patron '1'
-    expect(last_response.body).to eq('Please enjoy our fine selection of burritos!')
     zero_activated_time '1'
     feed_patron '1'
     expect(last_response.body).to eq("How about this? Get your own burrito.")
   end
 
-  it "can add 10 second patrons" do
+  it "can add 10 patrons" do
     (0..10).each do |x|
       create_patron x.to_s
-      expect(last_response.body).to eq('Please enjoy our fine selection of burritos!')
     end
   end
 
   it "wont let a hungry man request a second burrito" do
     create_patron '1'
-    expect(last_response.body).to eq('Please enjoy our fine selection of burritos!')
     create_patron '2'
-    expect(last_response.body).to eq('Please enjoy our fine selection of burritos!')
     zero_activated_time '1'
     zero_activated_time '2'
     feed_patron '1'
@@ -167,9 +197,7 @@ You can use these commands to do things:
 
   it "wont let a delivery man request a burrito" do
     create_patron '1'
-    expect(last_response.body).to eq('Please enjoy our fine selection of burritos!')
     create_patron '2'
-    expect(last_response.body).to eq('Please enjoy our fine selection of burritos!')
     zero_activated_time '1'
     zero_activated_time '2'
     feed_patron '1'
