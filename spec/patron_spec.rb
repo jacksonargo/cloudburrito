@@ -24,6 +24,11 @@ describe "A cloud burrito patron" do
     expect(x.save).to eq(true)
   end
 
+  it 'last activated time is now' do
+    x = Patron.new(user_id: '1')
+    x.last_time_activated = Time.now
+  end
+
   it 'is not on delivery when created' do
     x = Patron.new(user_id: '1')
     expect(x.is_on_delivery?).to eq(false)
@@ -51,5 +56,16 @@ describe "A cloud burrito patron" do
     x.last_time_activated = Time.at 0
     expect(x.time_until_hungry).to eq(0)
     expect(x.is_greedy?).to eq(false)
+  end
+
+  it 'is created with a user token' do
+    x = Patron.create(user_id: '1')
+    expect(x.user_token).not_to be_empty
+  end
+
+  it 'two users have different tokens when created' do
+    x = Patron.create(user_id: '1')
+    y = Patron.create(user_id: '2')
+    expect(x.user_token).not_to eq(y.user_token)
   end
 end

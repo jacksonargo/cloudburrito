@@ -15,10 +15,10 @@ class Patron
   field :user_id, type: String
   field :_id, type: String, default: ->{ user_id }
   field :is_active, type: Boolean, default: false
-  field :last_time_activated, type: Time, default: Time.now
+  field :last_time_activated, type: Time, default: ->{ Time.now }
   field :force_not_greedy, type: Boolean, default: false
   field :force_not_sleeping, type: Boolean, default: false
-  field :user_token, type: String
+  field :user_token, type: String, default: ->{ rand(1<<256).to_s(36) }
   field :sleepy_time, type: Integer, default: 3600
   field :greedy_time, type: Integer, default: 3600
   field :slack_user,  type: Boolean, default: true
@@ -76,12 +76,16 @@ class Patron
   end
 
   def new_token
-    self.user_token = rand(1<<256).to_s(36)
+    rand(1<<256).to_s(36)
+  end
+
+  def reset_token
+    self.user_token = new_token
     self.save
   end
 
   def stats_url
-    new_token
+    reset_token
     "https://cloudburrito.us/user?user_id=#{_id}&token=#{user_token}"
   end
 
