@@ -43,12 +43,10 @@ class CloudBurrito < Sinatra::Base
   ## Serve burritos
   ##
 
-  error 500 do
-    "A nasty burrito was found!"
-  end
-
   not_found do
-    if request.accept? "text/html"
+    if request.path == '/slack' and request.request_method == 'POST'
+      "404: Burrito Not Found!"
+    elsif request.accept? "text/html"
       @content = erb :error404
       return erb :beautify
     else
@@ -57,17 +55,24 @@ class CloudBurrito < Sinatra::Base
   end
 
   error 401 do
-    if request.accept? "text/html"
+    # Return text for post in /slack
+    if request.path == '/slack' and request.request_method == 'POST'
+      "401: Burrito Unauthorized!"
+    elsif request.accept? "text/html"
       @content = erb :error401
       erb :beautify
     else
-      "401: Burrito Unauthorized"
+      "401: Burrito Unauthorized!"
     end
+  end
+
+  error 500 do
+    "500: A nasty burrito was found!"
   end
 
   before '/slack' do
     halt 401 unless valid_token? params["token"]
-    halt 400 unless params["user_id"]
+    halt 401 unless params["user_id"]
   end
 
   get '/' do

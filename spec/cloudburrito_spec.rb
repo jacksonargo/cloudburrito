@@ -76,40 +76,69 @@ Check out https://cloudburrito.us/ for current stats!\n")
     return b
   end
 
-  it "can load the plain home page" do
-    header "Accept", "text/plain"
-    get '/'
-    expect(last_response).to be_ok
-    expect(last_response.body).to eq("Welcome to Cloud Burrito!")
+  context 'GET /' do
+    it "returns text/plain" do
+      header "Accept", "text/plain"
+      get '/'
+      expect(last_response).to be_ok
+      expect(last_response.body).to eq("Welcome to Cloud Burrito!")
+    end
+
+    it "returns text/html" do
+      get '/'
+      expect(last_response).to be_ok
+      expect(last_response.body).not_to eq("Welcome to Cloud Burrito!")
+    end
   end
 
-  it "the html home page is different" do
-    get '/'
-    expect(last_response).to be_ok
-    expect(last_response.body).not_to eq("Welcome to Cloud Burrito!")
+  context 'GET /notaburrito' do
+    it "returns 404 with text/plain" do
+      header "Accept", "text/plain"
+      get '/notaburrito'
+      expect(last_response.status).to eq(404)
+      expect(last_response.body).to eq("404: Burrito Not Found!")
+    end
+
+    it "returns 404 with text/html" do
+      get '/notaburrito'
+      expect(last_response.status).to eq(404)
+      expect(last_response.body).not_to eq("404: Burrito Not Found!")
+    end
   end
 
-  it "can load the 404 page" do
-    header "Accept", "text/plain"
-    get '/notapage'
-    expect(last_response).not_to be_ok
-    expect(last_response.body).to eq("404: Burrito Not Found!")
+  context 'GET /slack' do
+    it "returns 401 without user_id" do
+      get '/slack'
+      expect(last_response.status).to eq(401)
+    end
+
+    it "returns 401 without token" do
+      get '/slack', user_id: 1
+      expect(last_response.status).to eq(401)
+    end
+
+    it "returns 404 with token and user_id" do
+      get '/slack', token: token, user_id: 1
+      expect(last_response.status).to eq(404)
+    end
   end
 
-  it "will only repond to /slack if token is correct" do
-    post '/slack'
-    expect(last_response).not_to be_ok
-  end
+  context 'POST /slack' do
+    it "returns 401 without token" do
+      post '/slack'
+      expect(last_response.status).to eq(401)
+      expect(last_response.body).to eq("401: Burrito Unauthorized!")
+    end
 
-  it "will load the first hit page" do
-    first_hit '1'
-  end
+    it "will load the first hit page" do
+      first_hit '1'
+    end
 
-  it "will load the help page" do
-    first_hit '1'
-    post '/slack', { token: token, user_id: '1' }
-    expect(last_response).to be_ok
-    expect(last_response.body).to eq("Welcome to Cloud Burrito!
+    it "will load the help page" do
+      first_hit '1'
+      post '/slack', { token: token, user_id: '1' }
+      expect(last_response).to be_ok
+      expect(last_response.body).to eq("Welcome to Cloud Burrito!
 Version: #{`git describe`}
 
 You can use these commands to do things:
@@ -119,130 +148,128 @@ You can use these commands to do things:
 >*serving*: ACK a delivery request.
 >*status*: ACK receipt of burrito.
 >*stats*: View your burrito stats.\n")
-  end
+    end
 
-  it "can create a user" do
-    create_patron '1'
-  end
+    it "can create a user" do
+      create_patron '1'
+    end
 
-  it "will mark an unacked burrito en route" do
-    create_patron '1'
-    create_patron '2'
-    b = create_burrito '1', '2'
-    en_route_for '1'
-    expect(last_response.body).to eq("Make haste!")
-    b.reload
-    expect(b.en_route).to eq(true)
-    expect(b.received).to eq(false)
-  end
+    it "will mark an unacked burrito en route" do
+      create_patron '1'
+      create_patron '2'
+      b = create_burrito '1', '2'
+      en_route_for '1'
+      expect(last_response.body).to eq("Make haste!")
+      b.reload
+      expect(b.en_route).to eq(true)
+      expect(b.received).to eq(false)
+    end
 
-  it "will mark an unrevied burrito as received" do
-    create_patron '1'
-    create_patron '2'
-    b = create_burrito '1', '2'
-    received_for '2'
-    expect(last_response.body).to eq("Enjoy!")
-    b.reload
-    expect(b.received).to eq(true)
-    expect(b.en_route).to eq(true)
-  end
+    it "will mark an unrevied burrito as received" do
+      create_patron '1'
+      create_patron '2'
+      b = create_burrito '1', '2'
+      received_for '2'
+      expect(last_response.body).to eq("Enjoy!")
+      b.reload
+      expect(b.received).to eq(true)
+      expect(b.en_route).to eq(true)
+    end
 
-  it "can add a patron w/ user_id and token" do
-    create_patron '1'
-  end
+    it "can add a patron w/ user_id and token" do
+      create_patron '1'
+    end
 
-  it "wont try to add the same patron twice" do
-    first_hit '1'
-    join_patron '1'
-    post '/slack', token: token, user_id: '1', text: "join"
-    expect(last_response.body).to eq("You are already part of the pool party!\nRequest a burrito with */cloudburrito feed*.")
-  end
+    it "wont try to add the same patron twice" do
+      first_hit '1'
+      join_patron '1'
+      post '/slack', token: token, user_id: '1', text: "join"
+      expect(last_response.body).to eq("You are already part of the pool party!\nRequest a burrito with */cloudburrito feed*.")
+    end
 
-  it "will activate an inactive user" do
-    create_patron '1'
-    p = Patron.find('1')
-    p.is_active = false
-    p.save
-    join_patron '1'
-  end
+    it "will activate an inactive user" do
+      create_patron '1'
+      p = Patron.find('1')
+      p.is_active = false
+      p.save
+      join_patron '1'
+    end
 
-  it "can't immediately feed a new patron" do
-    create_patron '1'
-    feed_patron '1'
-    expect(last_response.body).to match(/Stop being so greedy! Wait \d+s./)
-  end
+    it "can't immediately feed a new patron" do
+      create_patron '1'
+      feed_patron '1'
+      expect(last_response.body).to match(/Stop being so greedy! Wait \d+s./)
+    end
 
-  it "can't feed a patron if there aren't any available delivery men" do
-    create_patron '1'
-    zero_activated_time '1'
-    feed_patron '1'
-    expect(last_response.body).to eq("How about this? Get your own burrito.")
-  end
+    it "can't feed a patron if there aren't any available delivery men" do
+      create_patron '1'
+      zero_activated_time '1'
+      feed_patron '1'
+      expect(last_response.body).to eq("How about this? Get your own burrito.")
+    end
 
-  it "can add 10 patrons" do
-    (0..10).each do |x|
-      create_patron x.to_s
+    it "can add 10 patrons" do
+      (0..10).each do |x|
+        create_patron x.to_s
+      end
+    end
+
+    it "wont let a hungry man request a second burrito" do
+      create_patron '1'
+      create_patron '2'
+      zero_activated_time '1'
+      zero_activated_time '2'
+      feed_patron '1'
+      expect(last_response.body).to eq("Burrito incoming!\nPlease use */cloudburrito full* to acknowledge that you have received your burrito.")
+      feed_patron '1'
+      expect(last_response.body).to eq("You already have a burrito coming!")
+    end
+
+    it "wont let a delivery man request a burrito" do
+      create_patron '1'
+      create_patron '2'
+      zero_activated_time '1'
+      zero_activated_time '2'
+      feed_patron '1'
+      expect(last_response.body).to eq("Burrito incoming!\nPlease use */cloudburrito full* to acknowledge that you have received your burrito.")
+      feed_patron '2'
+      expect(last_response.body).to eq("*You* should be delivering a burrito!")
+    end
+
+    it "will create a burrito for and wait for delivery_man ack" do
+      create_patron '1'
+      create_patron '2'
+      zero_activated_time '1'
+      zero_activated_time '2'
+      feed_patron '1'
+    end
+
+    it "Can create temp tokens for users" do
+      create_patron '1'
+      patron = Patron.find('1')
+      post '/slack', { token: token, user_id: '1', text: "stats" }
+      patron.reload
+      expect(last_response).to be_ok
+      expect(last_response.body).to eq("Use this url to see your stats.\nhttps://cloudburrito.us/user?user_id=#{patron._id}&token=#{patron.user_token}")
     end
   end
 
-  it "wont let a hungry man request a second burrito" do
-    create_patron '1'
-    create_patron '2'
-    zero_activated_time '1'
-    zero_activated_time '2'
-    feed_patron '1'
-    expect(last_response.body).to eq("Burrito incoming!\nPlease use */cloudburrito full* to acknowledge that you have received your burrito.")
-    feed_patron '1'
-    expect(last_response.body).to eq("You already have a burrito coming!")
-  end
+  context "GET /user" do
+    it "returns 401 without user_id" do
+      get '/user'
+      expect(last_response.status).to eq(401)
+    end
 
-  it "wont let a delivery man request a burrito" do
-    create_patron '1'
-    create_patron '2'
-    zero_activated_time '1'
-    zero_activated_time '2'
-    feed_patron '1'
-    expect(last_response.body).to eq("Burrito incoming!\nPlease use */cloudburrito full* to acknowledge that you have received your burrito.")
-    feed_patron '2'
-    expect(last_response.body).to eq("*You* should be delivering a burrito!")
-  end
+    it "returns 401 without token" do
+      Patron.create(user_id: '1')
+      get '/user', user_id: '1'
+      expect(last_response.status).to eq(401)
+    end
 
-  it "will create a burrito for and wait for delivery_man ack" do
-    create_patron '1'
-    create_patron '2'
-    zero_activated_time '1'
-    zero_activated_time '2'
-    feed_patron '1'
-  end
-
-  it "Wont /user unless it has a user_id param" do
-    get '/user'
-    expect(last_response).not_to be_ok
-  end
-
-  it "Wont /user unless it has a token param" do
-    create_patron '1'
-    get '/user', user_id: 1
-    expect(last_response).not_to be_ok
-  end
-
-  it "Can create temp tokens for users" do
-    create_patron '1'
-    patron = Patron.find('1')
-    post '/slack', { token: token, user_id: '1', text: "stats" }
-    patron.reload
-    expect(last_response).to be_ok
-    expect(last_response.body).to eq("Use this url to see your stats.\nhttps://cloudburrito.us/user?user_id=#{patron._id}&token=#{patron.user_token}")
-  end
-
-  it "Can access user pages" do
-    create_patron '1'
-    patron = Patron.find('1')
-    post '/slack', { token: token, user_id: '1', text: "stats" }
-    patron.reload
-    expect(last_response).to be_ok
-    expect(last_response.body).to eq("Use this url to see your stats.\nhttps://cloudburrito.us/user?user_id=#{patron._id}&token=#{patron.user_token}")
-    get '/user',  token: patron.user_token, user_id: patron._id
-    expect(last_response).to be_ok
+    it "Can access user pages" do
+      p = Patron.create(user_id: '1')
+      get '/user',  token: p.user_token, user_id: p._id
+      expect(last_response).to be_ok
+    end
   end
 end
