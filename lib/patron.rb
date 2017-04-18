@@ -74,8 +74,8 @@ class Patron
   end
 
   def new_token
-    user_token = rand(1<<256).to_s(36)
-    save
+    self.user_token = rand(1<<256).to_s(36)
+    self.save
   end
 
   def stats_url
