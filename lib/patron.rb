@@ -72,4 +72,14 @@ class Patron
     x = sleepy_time - (Time.now - time_of_last_delivery).to_i
     x > 0 ? x : 0
   end
+
+  def new_token
+    user_token = rand(1<<256).to_s(36)
+    save
+  end
+
+  def stats_url
+    new_token
+    "https://cloudburrito.us/user?user_id=#{_id}&token=#{user_token}"
+  end
 end

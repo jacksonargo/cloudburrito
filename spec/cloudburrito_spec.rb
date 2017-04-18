@@ -217,7 +217,7 @@ You can use these commands to do things:
     patron.reload
     expect(last_response).to be_ok
     expect(last_response.body).to eq("Use this url to see your stats.\nhttps://cloudburrito.us/user?user_id=#{patron._id}&token=#{patron.user_token}")
-    get '/user',  token: patron.user_token, user_id: patron.user_id
+    get '/user',  token: patron.user_token, user_id: patron._id
     expect(last_response).to be_ok
   end
 end

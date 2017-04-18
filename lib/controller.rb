@@ -169,8 +169,6 @@ class Controller
   def self.my_stats(params)
     patron_id = params["user_id"]
     patron = Patron.find(patron_id)
-    patron.user_token = rand(1e32).to_s(16)
-    patron.save
-    "Use this url to see your stats.\nhttps://cloudburrito.us/user?user_id=#{patron_id}&token=#{patron.user_token}"
+    "Use this url to see your stats.\n#{patron.stats_url}"
   end
 end
