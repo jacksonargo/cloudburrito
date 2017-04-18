@@ -14,30 +14,27 @@ describe 'The CloudBurrito app' do
     Patron.delete_all
   end
 
-  token = CloudBurrito.slack_veri_token
-  puts token
+  def token
+    CloudBurrito.slack_veri_token
+  end
 
   def create_patron(x)
-    token = CloudBurrito.slack_veri_token
     post '/slack', { token: token, user_id: x, text: "join" }
     expect(last_response).to be_ok
   end
 
   def feed_patron(x)
-    token = CloudBurrito.slack_veri_token
     post '/slack', { token: token, user_id: x, text: "feed" }
     expect(last_response).to be_ok
   end
 
   def en_route_for(x)
-    token = CloudBurrito.slack_veri_token
-    post '/slack', { token: token, user_id: x, text: "en_route" }
+    post '/slack', { token: token, user_id: x, text: "serving" }
     expect(last_response).to be_ok
   end
 
   def received_for(x)
-    token = CloudBurrito.slack_veri_token
-    post '/slack', { token: token, user_id: x, text: "received" }
+    post '/slack', { token: token, user_id: x, text: "full" }
     expect(last_response).to be_ok
   end
 
@@ -79,7 +76,6 @@ describe 'The CloudBurrito app' do
   end
 
   it "will load the help page" do
-    token = CloudBurrito.slack_veri_token
     post '/slack', { token: token, user_id: '1' }
     expect(last_response).to be_ok
     expect(last_response.body).to eq("Welcome to Cloud Burrito!
@@ -123,7 +119,7 @@ You can use these commands to do things:
     create_patron '1'
     expect(last_response.body).to eq('Please enjoy our fine selection of burritos!')
     create_patron '1'
-    expect(last_response.body).to eq("Please enjoy our fine selection of burritos!")
+    expect(last_response.body).to eq("You are already part of the pool party!\nRequest a burrito with */cloudburrito feed*.")
   end
 
   it "will activate an inactive user" do
@@ -131,7 +127,7 @@ You can use these commands to do things:
     expect(last_response.body).to eq('Please enjoy our fine selection of burritos!')
     zero_activated_time '1'
     create_patron '1'
-    expect(last_response.body).to eq("Please enjoy our fine selection of burritos!")
+    expect(last_response.body).to eq("You are already part of the pool party!\nRequest a burrito with */cloudburrito feed*.")
   end
 
   it "can't immediately feed a new patron" do
@@ -164,7 +160,7 @@ You can use these commands to do things:
     zero_activated_time '1'
     zero_activated_time '2'
     feed_patron '1'
-    expect(last_response.body).to eq("Burrito incoming!")
+    expect(last_response.body).to eq("Burrito incoming!\nPlease use */cloudburrito full* to acknowledge that you have received your burrito.")
     feed_patron '1'
     expect(last_response.body).to eq("You already have a burrito coming!")
   end
@@ -177,7 +173,7 @@ You can use these commands to do things:
     zero_activated_time '1'
     zero_activated_time '2'
     feed_patron '1'
-    expect(last_response.body).to eq("Burrito incoming!")
+    expect(last_response.body).to eq("Burrito incoming!\nPlease use */cloudburrito full* to acknowledge that you have received your burrito.")
     feed_patron '2'
     expect(last_response.body).to eq("*You* should be delivering a burrito!")
   end
@@ -204,7 +200,7 @@ You can use these commands to do things:
   it "Can create temp tokens for users" do
     create_patron '1'
     patron = Patron.find('1')
-    post '/slack', { token: token, user_id: '1', text: "my stats" }
+    post '/slack', { token: token, user_id: '1', text: "stats" }
     patron.reload
     expect(last_response).to be_ok
     expect(last_response.body).to eq("Use this url to see your stats.\nhttps://cloudburrito.us/user?user_id=#{patron._id}&token=#{patron.user_token}")
@@ -213,7 +209,7 @@ You can use these commands to do things:
   it "Can access user pages" do
     create_patron '1'
     patron = Patron.find('1')
-    post '/slack', { token: token, user_id: '1', text: "my stats" }
+    post '/slack', { token: token, user_id: '1', text: "stats" }
     patron.reload
     expect(last_response).to be_ok
     expect(last_response.body).to eq("Use this url to see your stats.\nhttps://cloudburrito.us/user?user_id=#{patron._id}&token=#{patron.user_token}")

@@ -17,6 +17,10 @@ class Package
   field :delivery_time, type: Time
   field :max_age, type: Integer, default: 3600
 
+  def to_s
+    _id.to_s
+  end
+
   def is_stale?
     time_alive > max_age or force_stale
   end

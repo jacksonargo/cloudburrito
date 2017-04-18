@@ -4,7 +4,7 @@
 require_relative 'lib/patron'
 require_relative 'lib/package'
 require_relative 'lib/messenger'
-require_relative 'lib/controller'
+require_relative 'lib/slack_controller'
 require_relative 'lib/requestlogger'
 require_relative 'lib/messagelogger'
 require 'sinatra/base'
@@ -57,8 +57,12 @@ class CloudBurrito < Sinatra::Base
   end
 
   error 401 do
-    @content = erb :error401
-    erb :beautify
+    if request.accept? "text/html"
+      @content = erb :error401
+      erb :beautify
+    else
+      "401: Burrito Unauthorized"
+    end
   end
 
   before '/slack' do
@@ -88,35 +92,29 @@ class CloudBurrito < Sinatra::Base
     # Require a matching token
     halt 401 unless @patron.user_token
     halt 401 unless @patron.user_token == params["token"]
+    # Log this request
+    RequestLogger.new(uri: '/user', method: :get, params: params, patron: @patron).save
     # Render the user stats
     @content = erb :user
     erb :beautify
   end
 
   post '/slack' do
-    # Add the user to the database if they don't already exist
-    patron = Patron.where(user_id: params["user_id"]).first_or_create!
-    logger = RequestLogger.new(uri: '/slack', method: :post, params: params)
-    logger.patron = patron
-    case params["text"]
-    when /[Jj]oin/
-      logger.controller_action = :join
-      logger.response = Controller.join params
-    when /[Ff]eed ?(|me)/
-      logger.controller_action = :feed
-      logger.response = Controller.feed params
-    when /[Ee]n(\_| )route/
-      logger.controller_action = :en_route
-      logger.response = Controller.en_route params
-    when /[Rr]eceived/
-      logger.controller_action = :received
-      logger.response = Controller.received params
-    when /[Ss]tatus/
-      logger.controller_action = :status
-      logger.response = Controller.status params
-    when /[Mm]y stats/
-      logger.controller_action = :my_stats
-      logger.response = Controller.my_stats params
+    # Create the controller
+    controller = SlackController.new params
+    # Log this request
+    logger = RequestLogger.new(
+      uri: '/slack',
+      method: :post,
+      params: params,
+      patron: controller.patron
+    )
+    # Do the needful
+    cmd = params["text"]
+    cmd = cmd.strip unless cmd.nil?
+    if controller.actions.include? cmd
+      logger.controller_action = cmd
+      logger.response = controller.send(cmd)
     else
       logger.controller_action = :help
       logger.response = erb :slack_help
