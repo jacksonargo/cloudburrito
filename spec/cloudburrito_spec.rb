@@ -110,6 +110,7 @@ Check out https://cloudburrito.us/ for current stats!\n")
     post '/slack', { token: token, user_id: '1' }
     expect(last_response).to be_ok
     expect(last_response.body).to eq("Welcome to Cloud Burrito!
+Version: #{`git describe`}
 
 You can use these commands to do things:
 >*join*: Join the burrito pool party.
