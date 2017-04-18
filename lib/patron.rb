@@ -1,3 +1,4 @@
+require_relative 'messenger'
 require 'mongoid'
 
 ## Class to store data for the participants
@@ -20,6 +21,7 @@ class Patron
   field :user_token, type: String
   field :sleepy_time, type: Integer, default: 3600
   field :greedy_time, type: Integer, default: 3600
+  field :slack_user,  type: Boolean, default: true
 
   def to_s
     "<@#{user_id}>"
@@ -81,5 +83,20 @@ class Patron
   def stats_url
     new_token
     "https://cloudburrito.us/user?user_id=#{_id}&token=#{user_token}"
+  end
+
+  def slack_user_info
+    return nil unless slack_user
+    Messenger.user_info(self)
+  end
+
+  def name
+    x = slack_user_info
+    return x.user.profile.first_name unless x.nil?
+    user_id
+  end
+
+  def slack_link
+    "<@#{user_id}>"
   end
 end
