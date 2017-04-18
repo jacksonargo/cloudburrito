@@ -7,14 +7,14 @@
   </tr>
   <tr>
     <td><strong>Burritos delivered:</strong></td>
-    <td><%= @patron.deliveries.where(delivered: true).count %></td>
+    <td><%= @patron.deliveries.where(received: true).count %></td>
   </tr>
   <tr>
     <td><strong>Burritos consumed:</strong></td>
-    <td><%= @patron.burritos.where(delivered: true).count %></td>
+    <td><%= @patron.burritos.where(received: true).count %></td>
   </tr>
   <tr>
     <td><strong>Calories consumed:</strong></td>
-    <td><%= @patron.burritos.where(delivered: true).count * 250 %> kCal</td>
+    <td><%= @patron.burritos.where(received: true).count * 250 %> kCal</td>
   </tr>
 </table>
