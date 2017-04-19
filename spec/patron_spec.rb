@@ -46,6 +46,26 @@ describe "A cloud burrito patron" do
     expect(patron.is_sleeping?).to eq(false)
   end
 
+  context '#active!' do
+    before(:each) { patron.active! }
+    it 'sets last time activated' do
+      expect(patron.last_time_activated.to_i).to eq(Time.now.to_i)
+    end
+    it 'sets is_active' do
+      expect(patron.is_active).to be true
+    end
+  end
+
+  context '#active?' do
+    it 'not when created' do
+      expect(patron.active?).to be false
+    end
+    it 'when activated' do
+      patron.active!
+      expect(patron.active?).to be true
+    end
+  end
+
   context "#is_sleeping?" do
     let(:other) { Patron.create user_id: '2' }
     let(:package) { Package.create hungry_man: other, delivery_man: patron }

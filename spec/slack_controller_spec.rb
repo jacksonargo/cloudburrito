@@ -14,6 +14,85 @@ describe 'The CloudBurrito controller' do
     Package.delete_all
   end
 
+  let (:patron) { Patron.create user_id: "1" }
+  let (:params) { { "user_id" => patron.user_id } }
+  let (:controller) { SlackController.new params }
+
+  context '#initialize' do
+    it 'set params' do
+      expect(controller.params).to eq(params)
+    end
+    it 'set patron' do
+      expect(controller.patron).to eq(patron)
+    end
+    it 'allows required actions' do
+      expect(controller.actions).to eq(["feed", "serving", "full", "status", "join", "stats"])
+    end
+  end
+
+  context '#feed' do
+    let(:other) { Patron.create user_id: "2" }
+    it 'patron must be active' do
+      controller.patron.is_active = false
+      expect(controller.feed).to eq("Please join the pool.")
+    end
+    it 'patron cant be on delivery' do
+      patron.active!
+      Package.create hungry_man: other, delivery_man: patron
+      expect(controller.feed).to eq("*You* should be delivering a burrito!")
+    end
+    it 'patron cant be waiting' do
+      patron.active!
+      Package.create hungry_man: patron, delivery_man: other
+      expect(controller.feed).to eq("You already have a burrito coming!")
+    end
+    it 'patron cant be greedy' do
+      patron.active!
+      expect(patron.is_greedy?).to be true
+      expect(controller.feed).to eq("Stop being so greedy! Wait #{patron.time_until_hungry}s.")
+    end
+  end
+
+  context '#stats' do
+    it 'returns url to check stats' do
+      expect(controller.stats).not_to be_empty
+    end
+    it 'returns unique url' do
+      expect(controller.stats).not_to eq(controller.stats)
+    end
+  end
+
+  context '#join' do
+    it 'checks if patron is active' do
+      controller.patron.active!
+      expect(controller.join).to eq("You are already part of the pool party!\nRequest a burrito with */cloudburrito feed*.")
+    end
+    it 'activated inactive patron' do
+      expect(controller.join).to eq("Please enjoy our fine selection of burritos!")
+      expect(controller.patron.active?).to be true
+    end
+  end
+
+  context '#serving' do
+    let (:other)  { Patron.create user_id: "2" }
+    it 'checks if patron has incoming burritos' do
+      expect(controller.serving).to eq("You aren't on a delivery...")
+    end
+    it 'check if a package has already been acked' do
+      Package.create en_route: true, hungry_man: other, delivery_man: patron
+      expect(controller.serving).to eq("You've already acked this request...")
+    end
+    it 'marks package as received' do
+      p = Package.create hungry_man: other, delivery_man: patron
+      expect(controller.serving).to eq("Make haste!")
+      p.reload
+      expect(p.en_route).to be true
+    end
+  end
+
+  context '#full' do
+  end
+
   def create_burrito_and_patrons
     # There shoudn't be any patrons or burritos
     expect(Patron.count).to eq(0)

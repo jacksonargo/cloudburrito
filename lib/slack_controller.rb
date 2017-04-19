@@ -79,12 +79,10 @@ class SlackController
   end
 
   def join
-    if @patron.is_active
+    if @patron.active?
         "You are already part of the pool party!\nRequest a burrito with */cloudburrito feed*."
     else
-        @patron.is_active = true
-        @patron.last_time_activated = Time.now
-        @patron.save
+        @patron.active!
         "Please enjoy our fine selection of burritos!"
     end
   end

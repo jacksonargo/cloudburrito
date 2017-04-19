@@ -27,6 +27,16 @@ class Patron
     "<@#{user_id}>"
   end
 
+  def active!
+    self.last_time_activated = Time.now
+    self.is_active = true
+    self.save
+  end
+
+  def active?
+    self.is_active
+  end
+
   def active_delivery
     deliveries.where({failed: false, received: false}).last
   end
