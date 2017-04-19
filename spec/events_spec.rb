@@ -17,9 +17,19 @@ describe "Event manager" do
   let(:events) { Events.new }
   let(:hman) { Patron.create user_id: '1' }
 
+  context '#stop' do
+    it 'stops the thread' do
+      events.start
+      events.stop
+      expect(events.thread.alive?).to be false
+    end
+  end
+
   context '#start' do
     it 'creates a thread' do
       events.start
+      expect(events.thread.alive?).to be true
+      events.stop
     end
 
     it 'assigns all unassigned packages' do
@@ -31,6 +41,22 @@ describe "Event manager" do
       events.start
       events.wait_for_complete
       expect(events.unassigned_packages.count).to eq 0
+      events.stop
+    end
+  end
+
+  context '#wait_for_complete' do
+    it 'returns when no more stale packages' do
+      events.start
+      events.wait_for_complete
+      expect(events.get_stale_packages).to eq []
+      events.stop
+    end
+    it 'returns when no more unassigned packages' do
+      events.start
+      events.wait_for_complete
+      expect(events.unassigned_packages.exists?).to eq false
+      events.stop
     end
   end
 
@@ -74,8 +100,44 @@ describe "Event manager" do
   end
 
   context '#get_stale_packages' do
+    let(:dman) { Patron.create user_id: '2' }
+    it 'returns [] when there are no packages' do
+      expect(events.get_stale_packages).to eq []
+    end
+    it 'returns [] when no stale packages' do
+      p = Package.create hungry_man: hman
+      p.assign! dman
+      expect(events.get_stale_packages).to eq []
+    end
+    it 'returns stale packages' do
+      p = Package.create hungry_man: hman
+      p.assign! dman
+      p.stale!
+      expect(events.get_stale_packages.first).to eq p
+    end
   end
 
-  context '#replace_stale_package' do
+  context '#replace' do
+    let(:package) { Package.create hungry_man: hman }
+    it 'marks the package as failed' do
+      events.replace package
+      expect(package.failed?).to eq true
+    end
+    it 'creates a new package for hungry_man' do
+      events.replace package
+      expect(Package.count).to eq 2
+      expect(Package.last.hungry_man).to eq hman
+    end
+  end
+
+  context '#replace_stale_packages' do
+    it 'replaces all stale packages' do
+      p1 = Package.create hungry_man: hman
+      p2 = Package.create hungry_man: hman
+      p1.stale!
+      p2.stale!
+      events.replace_stale_packages
+      expect(Package.count).to eq 4
+    end
   end
 end
