@@ -1,21 +1,92 @@
 <!DOCTYPE html>
 <html lang="en">
+
+<!--
+ _                     _ _        
+| |                   (_) |       
+| |__  _   _ _ __ _ __ _| |_ ___  
+| '_ \| | | | '__| '__| | __/ _ \ 
+| |_) | |_| | |  | |  | | || (_) |
+|_.__/ \__,_|_|  |_|  |_|\__\___/ 
+
+-->     
+
 <head>
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Cloud Burrito</title>
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+<link href="css/cloud-burrito.css" rel="stylesheet">
+<title>Cloud Burrito</title>
 </head>
 <body>
+
+
+<!-- Navigation -->
+<nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
 <div class="container">
 
+<div class="navbar-header">
+<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+ <span class="sr-only">Toggle navigation</span>
+ <span class="icon-bar"></span>
+ <span class="icon-bar"></span>
+ <span class="icon-bar"></span>
+</button>
+<a class="navbar-brand" href="/">Cloud Burrito</a>
+</div>
+<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+<ul class="nav navbar-nav">
+ <li>
+  <a href="/stats">Stats</a>
+ </li>
+ <li>
+  <a href="/rules">Rules</a>
+ </li>
+ <li>
+  <a href="/cbtp">CBTP</a>
+ </li>
+ <li>
+  <a href="https://github.com/jacksonargo/cloudburrito">GitHub</a>
+ </li>
+</ul>
+</div>
+<!-- /.navbar-collapse -->
+</div>
+<!-- /.container -->
+</nav>
+
+<!-- Full Width Image Header -->
+<header class="header-image">
+<div class="headline">
+<div class="container">
+<h2>Welcome to Cloud Burrito!<br/>
+<small>Downloading burritos from the cloud since 1995!</small>
+</h2>
+<h3><%= `git describe` %></h3>
+</div>
+</div>
+</header>
+
+
+<div class="container">
 <%= @content %>
 
+<!-- Footer -->
+<footer>
+<div class="row">
+<div class="col-lg-12">
+<p>Copyright &copy; burritocloud</p>
 </div>
+</div>
+</footer>
+
+</div>
+<!-- /.container -->
+
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
 </body>
 </html>
-

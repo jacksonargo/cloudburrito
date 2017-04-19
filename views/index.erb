@@ -1,23 +1,7 @@
-<h1>Welcome to Cloud Burrito! <small><%= `git describe` %></small></h1>
-<h3>Please check the github repo for updates.</h3>
-<h4><a href=https://github.com/jacksonargo/cloudburrito>https://github.com/jacksonargo/cloudburrito</a><h4>
-<hr>
-<h2>Current stats</h2>
-<table class="table">
-  <tr>
-    <td><strong>Participants:</strong></td>
-    <td><%= Patron.count %></td>
-  </tr>
-  <tr>
-    <td><strong>Active:</strong></td>
-    <td><%= Patron.where(is_active: true).count %></td>
-  </tr>
-  <tr>
-    <td><strong>Burritos served:</strong></td>
-    <td><%= Package.where(received: true).count %></td>
-  </tr>
-  <tr>
-    <td><strong>Calories served:</strong></td>
-    <td><%= Package.where(received: true).count * 350 %> Kcal</td>
-  </tr>
-</table>
+<!-- First Featurette -->
+<div class="featurette" id="about">
+<img class="featurette-image img-circle img-responsive pull-right" src="images/smolclerd.jpg">
+<h2 class="featurette-heading">What is Cloud Burrito?</h2>
+<p class="lead">Cloud Burrito has been released and is early alpha stage! Cloud Burrito is a manifestation of the Rackspace service culture invented by <em>3rd Shift</em> Linux Racker as a fun way to drive Engagement. You add yourself to the Cloud Burrito pool and you are instantly available to request a burrito or receive a request to serve a fellow Racker a burrito. Microwave burritos have been stocked in the freezer located at the Fueling Station and take less than 2 minutes to prepare. Cloud Burrito is an app available in Slack. Type <em>/cloudburrito help</em> in Slack for details! Stats are currently available <a href=https://cloudburrito.us/>here</a>.</p>
+</div>
+<hr class="featurette-divider">

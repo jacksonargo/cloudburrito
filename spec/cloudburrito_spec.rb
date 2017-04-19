@@ -48,6 +48,36 @@ describe 'The CloudBurrito app' do
     end
   end
 
+  context 'GET /stats' do
+    it 'returns text/html' do
+      get '/stats'
+      expect(last_response).to be_ok
+    end
+
+    it 'returns application/json' do
+      header "Accept", "application/json"
+      get '/stats'
+      expect(last_response).to be_ok
+      x = JSON.parse last_response.body
+      expect(x['ok']).to be true
+    end
+  end
+
+  context 'GET /rules' do
+    it 'returns text/html' do
+      get '/rules'
+      expect(last_response).to be_ok
+    end
+  end
+
+  context 'GET /cbtp' do
+    it 'returns text/html' do
+      get '/cbtp'
+      expect(last_response).to be_ok
+      expect(last_response.body).to match(/coming soon/)
+    end
+  end
+
   context 'GET /slack' do
     it "requires user_id" do
       get '/slack'

@@ -1,0 +1,19 @@
+<h2>Current stats</h2>
+<table class="table">
+  <tr>
+    <td><strong>Participants:</strong></td>
+    <td><%= Patron.count %></td>
+  </tr>
+  <tr>
+    <td><strong>Active:</strong></td>
+    <td><%= Patron.where(is_active: true).count %></td>
+  </tr>
+  <tr>
+    <td><strong>Burritos served:</strong></td>
+    <td><%= Package.where(received: true).count %></td>
+  </tr>
+  <tr>
+    <td><strong>Calories served:</strong></td>
+    <td><%= Package.where(received: true).count * 350 %> Kcal</td>
+  </tr>
+</table>

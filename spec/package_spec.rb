@@ -42,17 +42,17 @@ describe "A burrito in transit" do
   end
 
   context '#is_stale?' do
-    it 'is not stale when created' do
+    it 'not when created' do
       expect(package.is_stale?).to eq(false)
     end
 
-    it 'can be manually set to stale' do
+    it 'when forced' do
       package.force_stale = true
       package.save
       expect(package.is_stale?).to eq(true)
     end
 
-    it 'becomes stale after 300 seconds' do
+    it 'after 300 seconds' do
       package.created_at = Time.now - 300
       expect(package.is_stale?).to eq(true)
     end
