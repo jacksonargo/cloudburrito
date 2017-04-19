@@ -82,14 +82,14 @@ describe 'The CloudBurrito controller' do
 
   context '#serving' do
     let (:other)  { Patron.create user_id: "2" }
-    it 'checks if patron has incoming burritos' do
+    it 'checks if patron is delivering a burrito' do
       expect(controller.serving).to eq("You aren't on a delivery...")
     end
     it 'check if a package has already been acked' do
       Package.create en_route: true, hungry_man: other, delivery_man: patron
       expect(controller.serving).to eq("You've already acked this request...")
     end
-    it 'marks package as received' do
+    it 'marks package as en_route' do
       p = Package.create hungry_man: other, delivery_man: patron
       expect(controller.serving).to eq("Make haste!")
       p.reload
@@ -98,6 +98,16 @@ describe 'The CloudBurrito controller' do
   end
 
   context '#full' do
+    let (:other)  { Patron.create user_id: "2" }
+    it 'checks if patron has incoming burritos' do
+      expect(controller.full).to eq("You don't have any in coming burritos")
+    end
+    it 'marks package as received' do
+      p = Package.create hungry_man: patron, delivery_man: other
+      expect(controller.full).to eq("Enjoy!")
+      p.reload
+      expect(p.received).to be true
+    end
   end
 
   def create_burrito_and_patrons

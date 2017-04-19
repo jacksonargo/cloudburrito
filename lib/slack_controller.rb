@@ -60,14 +60,11 @@ class SlackController
     return "You don't have any in coming burritos" unless @patron.is_waiting?
     # Mark the package as received 
     puts "Package received by hungry_man #{@patron._id}."
-    package = @patron.incoming_burrito
-    package.received = true
-    package.en_route = true
-    package.delivery_time = Time.now
-    package.save
+    delivery_man = @patron.incoming_burrito.delivery_man
+    @patron.incoming_burrito.delivered!
     # Notify delivery_man that he can order more burritos
     msg = "Your delivery has been acked. You can request more burritos!"
-    Messenger.notify package.delivery_man, msg
+    Messenger.notify delivery_man, msg
     "Enjoy!"
   end
 
