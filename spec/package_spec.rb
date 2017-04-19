@@ -18,6 +18,14 @@ describe "A burrito in transit" do
   let(:dman) { Patron.create user_id: '2' }
   let(:package) { Package.create hungry_man: hman, delivery_man: dman }
 
+  context '#latency_time' do
+    it 'returns time between created and delivery' do
+      package.created_at = Time.now - 30
+      package.delivery_time = package.created_at + 30
+      expect(package.latency_time).to eq(30)
+    end
+  end
+
   context '#delivered!' do
     before(:each) { package.delivered! }
     it 'sets a delivery_time' do

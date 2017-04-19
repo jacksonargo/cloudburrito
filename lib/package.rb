@@ -17,6 +17,10 @@ class Package
   field :delivery_time, type: Time
   field :max_age, type: Integer, default: 300 # 5 minutes
 
+  def latency_time
+    delivery_time - created_at
+  end
+
   def to_s
     _id.to_s
   end
