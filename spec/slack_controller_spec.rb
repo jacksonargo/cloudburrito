@@ -26,7 +26,7 @@ describe 'The CloudBurrito controller' do
       expect(controller.patron).to eq(patron)
     end
     it 'allows required actions' do
-      expect(controller.actions).to eq(["feed", "serving", "full", "status", "join", "stats"])
+      expect(controller.actions).to eq(["feed", "serving", "full", "status", "join", "stats", "leave"])
     end
   end
 
@@ -70,6 +70,13 @@ describe 'The CloudBurrito controller' do
     it 'activated inactive patron' do
       expect(controller.join).to eq("Please enjoy our fine selection of burritos!")
       expect(controller.patron.active?).to be true
+    end
+  end
+
+  context '#leave' do
+    it 'marks a patron as inactive' do
+      expect(controller.leave).to eq("You have left the burrito pool party.")
+      expect(controller.patron.active?).to eq(false)
     end
   end
 

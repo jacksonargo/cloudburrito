@@ -12,9 +12,9 @@ class SlackController
     @patron = Patron.where(user_id: params["user_id"]).first_or_create!
     @patron.save
     # Actions list
-    @actions = ["feed", "serving", "full", "status", "join", "stats"]
+    @actions = ["feed", "serving", "full", "status", "join", "stats", "leave"]
   end
-   
+
   def feed
     puts "Trying to feed #{@patron}..."
     puts "Checking if he's allowed to get a burrito..."
@@ -85,6 +85,12 @@ class SlackController
         @patron.active!
         "Please enjoy our fine selection of burritos!"
     end
+  end
+
+  def leave
+    @patron.is_active = false
+    @patron.save
+   "You have left the burrito pool party."
   end
 
   def stats

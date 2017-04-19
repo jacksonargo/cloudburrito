@@ -144,6 +144,7 @@ Version: #{`git describe`}
 
 You can use these commands to do things:
 >*join*: Join the burrito pool party.
+>*leave*: Leave the burrito pool party.
 >*feed*: Download a burrito from the cloud.
 >*full*: ACK receipt of burrito.
 >*status*: Where is my burrito at?
@@ -186,6 +187,15 @@ You can use these commands to do things:
         post '/slack', token: token, user_id: '1', text: "join"
         expect(last_response).to be_ok
         expect(last_response.body).to eq('Please enjoy our fine selection of burritos!')
+      end
+    end
+
+    context 'leave' do
+      it 'makes a user inactive' do
+        Patron.create user_id: '1'
+        post '/slack', token: token, user_id: '1', text: "leave"
+        expect(last_response).to be_ok
+        expect(last_response.body).to eq('You have left the burrito pool party.')
       end
     end
 
