@@ -21,7 +21,11 @@
 <%
   t_total = 0
   Package.each{ |p| t_total += p.updated_at - p.created_at }
-  ttd = t_total / Package.where(received: true).count / 60
+  if Package.where(received: true).count != 0
+    ttd = t_total / Package.where(received: true).count / 60
+  else
+    ttd = -1
+  end
 %>
     <td><%= sprintf "%.2f", ttd %> min/burrito</td>
   </tr>
