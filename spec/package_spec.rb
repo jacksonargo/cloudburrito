@@ -26,6 +26,23 @@ describe "A burrito in transit" do
     end
   end
 
+  context '#failed!' do
+    before(:each) { package.failed! }
+    it 'sets failed' do
+      expect(package.failed).to be true
+    end
+  end
+
+  context '#failed?' do
+    it 'not when created' do
+      expect(package.failed?).to be false
+    end
+    it 'when failed' do
+      package.failed!
+      expect(package.failed?).to be true
+    end
+  end
+
   context '#delivered!' do
     before(:each) { package.delivered! }
     it 'sets a delivery_time' do
@@ -66,16 +83,49 @@ describe "A burrito in transit" do
     end
   end
 
-  it "Can be created and modified" do
-    b = Package.new
-    p1 = Patron.new(user_id: '1')
-    p2 = Patron.new(user_id: '2')
-    b.hungry_man = p1
-    b.delivery_man = p2
-    expect(b.save).to eq(true)
+  context '#new' do
+    it "Can be created and modified" do
+      b = Package.new
+      p1 = Patron.new(user_id: '1')
+      p2 = Patron.new(user_id: '2')
+      b.hungry_man = p1
+      b.delivery_man = p2
+      expect(b.save).to eq(true)
+    end
+
+    it "Can't be saved unless it is owned" do
+      expect(Package.new.save).to eq(false)
+    end
+
+    it "can be saved if only owned by hungry_man" do
+      p = Package.create hungry_man: hman
+      expect(p.save).to eq(true)
+    end
+
+    it "can be created with hungry_man and delivery_man" do
+      p = Package.create hungry_man: hman, delivery_man: dman
+      expect(p.hungry_man).to eq(hman)
+      expect(p.delivery_man).to eq(dman)
+    end
   end
 
-  it "Can't be saved unless it is owned" do
-    expect(Package.new.save).to eq(false)
+  context '#assigned?' do
+    it 'not when created' do
+      expect(package.assigned?).to be false
+    end
+    it 'when assigned' do
+      package.assign! dman
+      expect(package.assigned?).to be true
+    end
+  end
+
+  context '#assign!' do
+    before(:each) { package.assign! dman }
+    it 'sets delivery_man to arg' do
+      expect(package.delivery_man).to eq(dman)
+    end
+    it 'can be saved' do
+      expect(package.save).to be true
+    end
   end
 end

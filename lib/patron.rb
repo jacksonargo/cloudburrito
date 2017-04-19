@@ -17,7 +17,7 @@ class Patron
   field :is_active, type: Boolean, default: false
   field :last_time_activated, type: Time, default: ->{ Time.now }
   field :force_not_greedy, type: Boolean, default: false
-  field :force_not_sleeping, type: Boolean, default: false
+  field :force_not_sleepy, type: Boolean, default: false
   field :user_token, type: String, default: ->{ rand(1<<256).to_s(36) }
   field :sleepy_time, type: Integer, default: 3600
   field :greedy_time, type: Integer, default: 3600
@@ -34,14 +34,23 @@ class Patron
   end
 
   def active?
-    self.is_active
+    is_active
+  end
+
+  def inactive!
+    self.is_active = false
+    self.save
+  end
+
+  def inactive?
+    not is_active
   end
 
   def active_delivery
     deliveries.where({failed: false, received: false}).last
   end
 
-  def is_on_delivery?
+  def on_delivery?
     active_delivery != nil
   end
 
@@ -49,7 +58,7 @@ class Patron
     burritos.where({failed: false, received: false}).last
   end
 
-  def is_waiting?
+  def waiting?
     incoming_burrito != nil
   end
 
@@ -65,13 +74,13 @@ class Patron
     deliveries.where(received: true).last.delivery_time
   end
 
-  def is_greedy?
+  def greedy?
     return false if force_not_greedy
     time_until_hungry > 0
   end
 
-  def is_sleeping?
-    return false if force_not_sleeping
+  def sleepy?
+    return false if force_not_sleepy
     time_until_awake > 0
   end
 
@@ -83,6 +92,18 @@ class Patron
   def time_until_awake
     x = sleepy_time - (Time.now - time_of_last_delivery).to_i
     x > 0 ? x : 0
+  end
+
+  # Select delivery man based on these rules:
+  # 1) Must be active (per above)
+  # 2) Must not be on a delivery
+  # 3) Cannot be selected more than once per sleep time
+  # 4) You cannot deliver to yourself
+  def can_deliver?
+    return false if inactive?
+    return false if on_delivery?
+    return false if sleepy?
+    true
   end
 
   def new_token
