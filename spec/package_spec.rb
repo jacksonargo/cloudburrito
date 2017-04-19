@@ -14,6 +14,27 @@ describe "A burrito in transit" do
     Patron.delete_all
   end
 
+  context '#is_stale?' do
+    let(:hman) { Patron.create user_id: '1' }
+    let(:dman) { Patron.create user_id: '2' }
+    let(:package) { Package.create hungry_man: hman, delivery_man: dman }
+
+    it 'is not stale when created' do
+      expect(package.is_stale?).to eq(false)
+    end
+
+    it 'can be manually set to stale' do
+      package.force_stale = true
+      package.save
+      expect(package.is_stale?).to eq(true)
+    end
+
+    it 'becomes stale after 300 seconds' do
+      package.created_at = Time.now - 300
+      expect(package.is_stale?).to eq(true)
+    end
+  end
+
   it "Can be created and modified" do
     b = Package.new
     p1 = Patron.new(user_id: '1')
@@ -21,9 +42,6 @@ describe "A burrito in transit" do
     b.hungry_man = p1
     b.delivery_man = p2
     expect(b.save).to eq(true)
-    expect(b.is_stale?).to eq(false)
-    b.force_stale = true
-    expect(b.is_stale?).to eq(true)
   end
 
   it "Can't be saved unless it is owned" do
