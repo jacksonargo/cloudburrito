@@ -6,6 +6,10 @@
     <td><%= @patron.is_active %></td>
   </tr>
   <tr>
+    <td><strong>Seconds until you can order:</strong></td>
+    <td><%= @patron.time_until_hungry %></td>
+  </tr>
+  <tr>
     <td><strong>Burritos delivered:</strong></td>
     <td><%= @patron.deliveries.where(received: true).count %></td>
   </tr>
