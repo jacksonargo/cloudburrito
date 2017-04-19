@@ -145,9 +145,9 @@ Version: #{`git describe`}
 You can use these commands to do things:
 >*join*: Join the burrito pool party.
 >*feed*: Download a burrito from the cloud.
+>*full*: ACK receipt of burrito.
 >*status*: Where is my burrito at?
 >*serving*: ACK a delivery request.
->*status*: ACK receipt of burrito.
 >*stats*: View your burrito stats.\n")
       end
     end
