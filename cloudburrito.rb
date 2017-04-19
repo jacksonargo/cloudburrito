@@ -84,6 +84,36 @@ class CloudBurrito < Sinatra::Base
     end
   end
 
+  get '/stats' do
+    @stats = { 
+      "patrons" => { 
+        "total" => Patron.count,
+        "active" => Patron.where(is_active: true).count
+      },
+      "served" => { 
+        "burritos" => Package.where(received: true).count,
+        "calories" => Package.where(received: true).count * 350
+      }
+    }
+
+    if request.accept? "text/html"
+      @content = erb :stats
+      erb :beautify
+    elsif request.accept? "application/json"
+      return JSON.dump({ 'ok' => true, 'stats' => @stats })
+    end
+  end
+
+  get '/rules' do
+    @content = erb :rules
+    erb :beautify
+  end
+
+  get '/cbtp' do
+    @content = "This page is coming soon!"
+    erb :beautify
+  end
+
   get '/user' do
     user_id = params["user_id"]
     # Require a user id
