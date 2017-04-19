@@ -14,11 +14,34 @@ describe "A burrito in transit" do
     Patron.delete_all
   end
 
-  context '#is_stale?' do
-    let(:hman) { Patron.create user_id: '1' }
-    let(:dman) { Patron.create user_id: '2' }
-    let(:package) { Package.create hungry_man: hman, delivery_man: dman }
+  let(:hman) { Patron.create user_id: '1' }
+  let(:dman) { Patron.create user_id: '2' }
+  let(:package) { Package.create hungry_man: hman, delivery_man: dman }
 
+  context '#delivered!' do
+    before(:each) { package.delivered! }
+    it 'sets a delivery_time' do
+      expect(package.delivery_time).not_to be nil
+    end
+    it 'sets received' do
+      expect(package.received).to be true
+    end
+    it 'sets en_route' do
+      expect(package.en_route).to be true
+    end
+  end
+
+  context '#delivered?' do
+    it 'not when created' do
+      expect(package.delivered?).to be false
+    end
+    it 'when delivered' do
+      package.delivered!
+      expect(package.delivered?).to be true
+    end
+  end
+
+  context '#is_stale?' do
     it 'is not stale when created' do
       expect(package.is_stale?).to eq(false)
     end
