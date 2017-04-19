@@ -16,4 +16,13 @@
     <td><strong>Calories served:</strong></td>
     <td><%= Package.where(received: true).count * 350 %> Kcal</td>
   </tr>
+  <tr>
+    <td><strong>Average TTD:</strong></td>
+<%
+  t_total = 0
+  Package.each{ |p| t_total += p.updated_at - p.created_at }
+  ttd = t_total / Package.where(received: true).count / 60
+%>
+    <td><%= sprintf "%.2f", ttd %> min/burrito</td>
+  </tr>
 </table>
