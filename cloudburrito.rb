@@ -22,6 +22,7 @@ class CloudBurrito < Sinatra::Base
   end
 
   puts "Environment: #{settings.environment}"
+  puts "Seed: #{Random::DEFAULT.seed}"
 
   ## 
   ## Load secrets
