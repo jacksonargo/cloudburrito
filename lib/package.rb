@@ -28,4 +28,19 @@ class Package
   def time_alive
     Time.now - created_at
   end
+
+  def delivered
+    self.delivery_time = Time.now
+    self.received = true
+    self.en_route = true
+  end
+
+  def delivered!
+    delivered
+    self.save
+  end
+
+  def delivered?
+    received
+  end
 end
