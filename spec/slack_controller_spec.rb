@@ -48,7 +48,7 @@ describe 'The CloudBurrito controller' do
     end
     it 'patron cant be greedy' do
       patron.active!
-      expect(patron.is_greedy?).to be true
+      expect(patron.greedy?).to be true
       expect(controller.feed).to eq("Stop being so greedy! Wait #{patron.time_until_hungry}s.")
     end
   end
@@ -125,7 +125,7 @@ describe 'The CloudBurrito controller' do
     # Make p1 not greedy
     p1.force_not_greedy = true
     p1.save
-    expect(p1.is_greedy?).to eq(false)
+    expect(p1.greedy?).to eq(false)
     # Create a burrito for p1
     c = SlackController.new "user_id" => '1'
     c.feed
@@ -133,9 +133,9 @@ describe 'The CloudBurrito controller' do
     p2.reload
     expect(Package.count).to eq(1)
     b = Package.first
-    expect(p1.is_waiting?).to eq(true)
+    expect(p1.waiting?).to eq(true)
     expect(p1.incoming_burrito).to eq(b)
-    expect(p2.is_on_delivery?).to eq(true)
+    expect(p2.on_delivery?).to eq(true)
     expect(p2.active_delivery).to eq(b)
     expect(b.en_route).to eq(false)
     expect(b.received).to eq(false)
@@ -150,7 +150,7 @@ describe 'The CloudBurrito controller' do
     expect(Patron.count).to eq(10)
     Patron.each do |p| 
       expect(p.is_active).to eq(true)
-      expect(p.is_greedy?).to eq(true)
+      expect(p.greedy?).to eq(true)
     end
   end
 
@@ -182,8 +182,8 @@ describe 'The CloudBurrito controller' do
     b.reload
     expect(b.en_route).to eq(true)
     expect(b.received).to eq(false)
-    expect(p1.is_waiting?).to eq(true)
-    expect(p2.is_on_delivery?).to eq(true)
+    expect(p1.waiting?).to eq(true)
+    expect(p2.on_delivery?).to eq(true)
     # p1 should ack that he received the burrito
     c = SlackController.new "user_id" => '1'
     c.full
@@ -192,12 +192,12 @@ describe 'The CloudBurrito controller' do
     b.reload
     expect(b.en_route).to eq(true)
     expect(b.received).to eq(true)
-    expect(p1.is_waiting?).to eq(false)
-    expect(p2.is_on_delivery?).to eq(false)
+    expect(p1.waiting?).to eq(false)
+    expect(p2.on_delivery?).to eq(false)
     p1.force_not_greedy = false
     p1.save
-    expect(p1.is_greedy?).to eq(true)
-    expect(p2.is_sleeping?).to eq(true)
+    expect(p1.greedy?).to eq(true)
+    expect(p2.sleepy?).to eq(true)
   end
 
   it "will look for a new delivery man if package goes stale" do
@@ -227,7 +227,7 @@ describe 'The CloudBurrito controller' do
     b = Package.last
     expect(b.en_route).to eq(false)
     expect(b.received).to eq(false)
-    expect(p1.is_waiting?).to eq(true)
-    expect(p3.is_on_delivery?).to eq(true)
+    expect(p1.waiting?).to eq(true)
+    expect(p3.on_delivery?).to eq(true)
   end
 end

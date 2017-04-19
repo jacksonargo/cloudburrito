@@ -25,9 +25,9 @@ class SlackController
     # 3) Can't be waiting for a burrito
     # 4) Must wait between orders (determined by greediness)
     return "Please join the pool." unless hungry_man.is_active?
-    return "*You* should be delivering a burrito!" if hungry_man.is_on_delivery?
-    return "You already have a burrito coming!" if hungry_man.is_waiting?
-    return "Stop being so greedy! Wait #{hungry_man.time_until_hungry}s." if hungry_man.is_greedy?
+    return "*You* should be delivering a burrito!" if hungry_man.on_delivery?
+    return "You already have a burrito coming!" if hungry_man.waiting?
+    return "Stop being so greedy! Wait #{hungry_man.time_until_hungry}s." if hungry_man.greedy?
     
     # Check if we can find delivery man
     puts "#{hungry_man} passed checks."
@@ -45,7 +45,7 @@ class SlackController
 
   def serving
     # Check if the patron is on delivery
-    return "You aren't on a delivery..." unless @patron.is_on_delivery?
+    return "You aren't on a delivery..." unless @patron.on_delivery?
     package = @patron.active_delivery
     return "You've already acked this request..." if package.en_route
     # Ack the package
@@ -57,7 +57,7 @@ class SlackController
 
   def full
     # Check if patron has an in coming burrito
-    return "You don't have any in coming burritos" unless @patron.is_waiting?
+    return "You don't have any in coming burritos" unless @patron.waiting?
     # Mark the package as received 
     puts "Package received by hungry_man #{@patron._id}."
     delivery_man = @patron.incoming_burrito.delivery_man
@@ -69,7 +69,7 @@ class SlackController
   end
 
   def status
-    return "You don't have any in coming burritos" unless @patron.is_waiting?
+    return "You don't have any in coming burritos" unless @patron.waiting?
     package = @patron.incoming_burrito
     return "This burrito is on it's way!" if package.en_route
     "You burrito is still in the fridge"
@@ -108,7 +108,7 @@ class SlackController
     # 3) Cannot be selected more than once per sleep time
     # 4) You cannot deliver to yourself
     candidates = candidates.each.select do |p|
-      not (p.is_on_delivery? or p.is_sleeping? or p == hungry_man)
+      not (p.on_delivery? or p.sleepy? or p == hungry_man)
     end
     # Check if any patrons match the criteria
     return nil unless candidates.count > 0
