@@ -66,20 +66,36 @@ describe "A burrito in transit" do
     end
   end
 
-  context '#is_stale?' do
+  context '#stale?' do
     it 'not when created' do
-      expect(package.is_stale?).to eq(false)
+      expect(package.stale?).to eq(false)
     end
 
     it 'when forced' do
-      package.force_stale = true
-      package.save
-      expect(package.is_stale?).to eq(true)
+      package.stale!
+      expect(package.stale?).to eq(true)
     end
 
     it 'after 300 seconds' do
       package.created_at = Time.now - 300
-      expect(package.is_stale?).to eq(true)
+      expect(package.stale?).to eq(true)
+    end
+
+    it 'not if failed' do
+      package.failed!
+      expect(package.stale?).to be false
+    end
+
+    it 'not if delivered' do
+      package.delivered!
+      expect(package.stale?).to be false
+    end
+  end
+
+  context '#stale!' do
+    before(:each) { package.stale! }
+    it 'sets force_stale' do
+      expect(package.force_stale).to be true
     end
   end
 

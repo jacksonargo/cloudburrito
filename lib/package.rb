@@ -32,8 +32,15 @@ class Package
     _id.to_s
   end
 
-  def is_stale?
+  def stale?
+    return false if failed
+    return false if received
     time_alive > max_age or force_stale
+  end
+
+  def stale!
+    self.force_stale = true
+    self.save
   end
 
   def time_alive
