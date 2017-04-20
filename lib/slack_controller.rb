@@ -16,8 +16,6 @@ class SlackController
   end
 
   def feed
-    puts "Trying to feed #{@patron}..."
-    puts "Checking if he's allowed to get a burrito..."
     hungry_man = @patron
     # Check if hungry man is allowed to feed based on these rules:
     # 1) Must be active in the pool
@@ -42,7 +40,6 @@ class SlackController
     package = @patron.active_delivery
     return "You've already acked this request..." if package.en_route
     # Ack the package
-    puts "Package acked by delivery_man #{@patron._id}."
     package.en_route = true
     package.save
     "Make haste!"
@@ -53,7 +50,6 @@ class SlackController
     msg = "You don't have any incoming burritos. Order one with: */cloudburrito feed*"
     return msg unless @patron.waiting?
     # Mark the package as received 
-    puts "Package received by hungry_man #{@patron._id}."
     delivery_man = @patron.incoming_burrito.delivery_man
     @patron.incoming_burrito.delivered!
     # Notify delivery_man that he can order more burritos
