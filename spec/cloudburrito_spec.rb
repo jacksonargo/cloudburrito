@@ -135,7 +135,7 @@ Check out https://cloudburrito.us/ for current stats!\n")
     end
 
     context 'help' do
-      it "returns help" do
+      it "returns help by default" do
         Patron.create user_id: '1'
         post '/slack', { token: token, user_id: '1' }
         expect(last_response).to be_ok
@@ -153,102 +153,22 @@ You can use these commands to do things:
       end
     end
 
-    context 'serving' do
-      it "will mark an unacked burrito en route" do
-        h = Patron.create user_id: '1', is_active: true
-        d = Patron.create user_id: '2', is_active: true
-        Package.create hungry_man: h, delivery_man: d
-        post '/slack', { token: token, user_id: '2', text: "serving" }
+    context 'passes to slack controller' do
+      let(:patron) { Patron.create user_id: '1' }
+      let(:params) { { token: token, user_id: patron._id } }
+      after(:each) do
+        post '/slack', params
         expect(last_response).to be_ok
-        expect(last_response.body).to eq("Make haste!")
-      end
-    end
-
-    context 'full' do
-      it "will mark a burrito as received" do
-        h = Patron.create user_id: '1', is_active: true
-        d = Patron.create user_id: '2', is_active: true
-        Package.create hungry_man: h, delivery_man: d
-        post '/slack', { token: token, user_id: '1', text: "full" }
-        expect(last_response).to be_ok
-        expect(last_response.body).to eq("Enjoy!")
-      end
-    end
-
-    context 'join' do
-      it "checks if user is already pool" do
-        Patron.create user_id: '1', is_active: true
-        post '/slack', token: token, user_id: '1', text: "join"
-        expect(last_response.body).to eq("You are already part of the pool party!\nRequest a burrito with */cloudburrito feed*.")
+        expect(last_response.body).not_to match /Cloud Burrito/
       end
 
-      it "activates an inactive user" do
-        Patron.create user_id: '1'
-        post '/slack', token: token, user_id: '1', text: "join"
-        expect(last_response).to be_ok
-        expect(last_response.body).to eq('Please enjoy our fine selection of burritos!')
-      end
-    end
-
-    context 'leave' do
-      it 'makes a user inactive' do
-        Patron.create user_id: '1'
-        post '/slack', token: token, user_id: '1', text: "leave"
-        expect(last_response).to be_ok
-        expect(last_response.body).to eq('You have left the burrito pool party.')
-      end
-    end
-
-    context 'feed' do
-      it "can't immediately feed a new patron" do
-        Patron.create user_id: '1', is_active: true
-        post '/slack', { token: token, user_id: '1', text: "feed" }
-        expect(last_response).to be_ok
-        expect(last_response.body).to match(/Stop being so greedy! Wait \d+s./)
-      end
-
-      it "can't feed a patron if there aren't any available delivery men" do
-        Patron.create user_id: '1', is_active: true, force_not_greedy: true
-        post '/slack', { token: token, user_id: '1', text: "feed" }
-        expect(last_response).to be_ok
-        expect(last_response.body).to eq("How about this? Get your own burrito.")
-      end
-
-      it "will feed a hungry man" do
-        Patron.create user_id: '1', is_active: true, force_not_greedy: true
-        Patron.create user_id: '2', is_active: true
-        post '/slack', { token: token, user_id: '1', text: "feed" }
-        expect(last_response).to be_ok
-        expect(last_response.body).to eq("Burrito incoming!\nPlease use */cloudburrito full* to acknowledge that you have received your burrito.")
-      end
-
-      it "wont let a hungry man request a second burrito" do
-        h = Patron.create user_id: '1', is_active: true, force_not_greedy: true
-        d = Patron.create user_id: '2', is_active: true
-        Package.create hungry_man: h, delivery_man: d
-        post '/slack', { token: token, user_id: '1', text: "feed" }
-        expect(last_response).to be_ok
-        expect(last_response.body).to eq("You already have a burrito coming!")
-      end
-
-      it "wont let a delivery man request a burrito" do
-        h = Patron.create user_id: '1', is_active: true, force_not_greedy: true
-        d = Patron.create user_id: '2', is_active: true, force_not_greedy: true
-        Package.create hungry_man: h, delivery_man: d
-        post '/slack', { token: token, user_id: '2', text: "feed" }
-        expect(last_response).to be_ok
-        expect(last_response.body).to eq("*You* should be delivering a burrito!")
-      end
-    end
-
-    context "stats" do
-      it "returns stats url" do
-        p = Patron.create user_id: '1'
-        post '/slack', { token: token, user_id: '1', text: "stats" }
-        p.reload
-        expect(last_response).to be_ok
-        expect(last_response.body).to eq("Use this url to see your stats.\nhttps://cloudburrito.us/user?user_id=#{p._id}&token=#{p.user_token}")
-      end
+      it("join")    { params["text"] = "join" }
+      it("leave")   { params["text"] = "leave" }
+      it("feed")    { params["text"] = "feed" }
+      it("full")    { params["text"] = "full" }
+      it("status")  { params["text"] = "status" }
+      it("serving") { params["text"] = "serving" }
+      it("stats")   { params["text"] = "stats" }
     end
   end
 
