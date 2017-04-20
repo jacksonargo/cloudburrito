@@ -6,7 +6,6 @@ require_relative 'lib/package'
 require_relative 'lib/messenger'
 require_relative 'lib/slack_controller'
 require_relative 'lib/requestlogger'
-require_relative 'lib/messagelogger'
 require_relative 'lib/events'
 require 'sinatra/base'
 
@@ -150,7 +149,7 @@ class CloudBurrito < Sinatra::Base
     # Create the controller
     controller = SlackController.new params
     # Log this request
-    logger = RequestLogger.new(
+    my_logger = RequestLogger.new(
       uri: '/slack',
       method: :post,
       params: params,
@@ -160,13 +159,13 @@ class CloudBurrito < Sinatra::Base
     cmd = params["text"]
     cmd = cmd.strip unless cmd.nil?
     if controller.actions.include? cmd
-      logger.controller_action = cmd
-      logger.response = controller.send(cmd)
+      my_logger.controller_action = cmd
+      my_logger.response = controller.send(cmd)
     else
-      logger.controller_action = :help
-      logger.response = erb :slack_help
+      my_logger.controller_action = :help
+      my_logger.response = erb :slack_help
     end
-    logger.save
-    logger.response
+    my_logger.save
+    my_logger.response
   end
 end
