@@ -17,49 +17,6 @@ describe "Event manager" do
   let(:events) { Events.new }
   let(:hman) { Patron.create user_id: '1' }
 
-  context '#stop' do
-    it 'stops the thread' do
-      events.start
-      events.stop
-      expect(events.thread.alive?).to be false
-    end
-  end
-
-  context '#start' do
-    it 'creates a thread' do
-      events.start
-      expect(events.thread.alive?).to be true
-      events.stop
-    end
-
-    it 'assigns all unassigned packages' do
-      # Create patrons to be assigned as delivery men
-      (2..11).each {|x| Patron.create user_id: x.to_s, is_active: true }
-      Package.create hungry_man: hman
-      Package.create hungry_man: Patron.find('2')
-      Package.create hungry_man: Patron.find('3')
-      events.start
-      events.wait_for_complete
-      expect(events.unassigned_packages.count).to eq 0
-      events.stop
-    end
-  end
-
-  context '#wait_for_complete' do
-    it 'returns when no more stale packages' do
-      events.start
-      events.wait_for_complete
-      expect(events.get_stale_packages).to eq []
-      events.stop
-    end
-    it 'returns when no more unassigned packages' do
-      events.start
-      events.wait_for_complete
-      expect(events.unassigned_packages.exists?).to eq false
-      events.stop
-    end
-  end
-
   context '#unassigned_packages' do
     it 'returns unassigned packages' do
       (1..10).each { Package.create hungry_man: hman }
@@ -84,18 +41,24 @@ describe "Event manager" do
       events.assign_next
       expect(events.unassigned_packages.count).to eq(0)
     end
-    it 'assigns packages first in first out' do
-      # Create patron
-      p2 = Patron.create user_id: '2'
-      p3 = Patron.create user_id: '3', is_active: true
-      # Create two packages
-      b1 = Package.create hungry_man: hman
-      b2 = Package.create hungry_man: p2
-      events.assign_next
-      b1.reload
-      b2.reload
-      expect(b1.assigned?).to be true
-      expect(b2.assigned?).to be false
+    context 'assigns packages first in first out' do
+      before(:each) do
+        # Create patrons
+        p2 = Patron.create user_id: '2'
+        p3 = Patron.create user_id: '3', is_active: true
+        # Create two packages
+        b1 = Package.create hungry_man: hman
+        b2 = Package.create hungry_man: p2
+        events.assign_next
+        b1.reload
+        b2.reload
+      end
+      it 'first package is assigned' do
+        expect(b1.assigned?).to be true
+      end
+      it 'second package is unassigned' do
+        expect(b2.assigned?).to be false
+      end
     end
   end
 
@@ -138,6 +101,49 @@ describe "Event manager" do
       p2.stale!
       events.replace_stale_packages
       expect(Package.count).to eq 4
+    end
+  end
+
+   context '#stop' do
+    it 'stops the thread' do
+      events.start
+      events.stop
+      expect(events.thread.alive?).to be false
+    end
+  end
+
+  context '#start' do
+    it 'creates a thread' do
+      events.start
+      expect(events.thread.alive?).to be true
+      events.stop
+    end
+
+    it 'assigns all unassigned packages' do
+      # Create patrons to be assigned as delivery men
+      (2..11).each {|x| Patron.create user_id: x.to_s, is_active: true }
+      Package.create hungry_man: hman
+      Package.create hungry_man: Patron.find('2')
+      Package.create hungry_man: Patron.find('3')
+      events.start
+      events.wait_for_complete
+      expect(events.unassigned_packages.count).to eq 0
+      events.stop
+    end
+  end
+
+  context '#wait_for_complete' do
+    it 'returns when no more stale packages' do
+      events.start
+      events.wait_for_complete
+      expect(events.get_stale_packages).to eq []
+      events.stop
+    end
+    it 'returns when no more unassigned packages' do
+      events.start
+      events.wait_for_complete
+      expect(events.unassigned_packages.exists?).to eq false
+      events.stop
     end
   end
 end

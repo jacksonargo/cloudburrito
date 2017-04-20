@@ -15,7 +15,7 @@ class Events
 
   def stop
     @thread.kill
-    while @thread.alive? 
+    while @thread.alive?
     end
   end
 
@@ -42,8 +42,12 @@ class Events
     dman = get_delivery_man
     if dman
       package.assign! dman
-    # Tell hungry man if one isn't available
+      # Tell dman he's assigned
+      msg = "You've been volunteered to get a burrito for #{hman}. "
+      msg += "Please ACK this request by replying */cloudburrito serving*"
+      notify dman, msg
     else
+      # Tell hungry man if one isn't available
       package.failed!
       notify(hman, "Your burrito was dropped! Please try again later.")
     end
