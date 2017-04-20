@@ -1,6 +1,5 @@
-require_relative 'patron'
-require_relative 'package'
-require_relative 'messenger'
+require_relative '../models/patron'
+require_relative '../models/package'
 
 class SlackController
   attr_reader :patron, :params, :actions

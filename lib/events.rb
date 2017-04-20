@@ -1,6 +1,6 @@
-require_relative 'patron'
-require_relative 'package'
-require_relative 'message'
+require_relative '../models/patron'
+require_relative '../models/package'
+require_relative '../models/message'
 
 class Events
   attr_reader :thread

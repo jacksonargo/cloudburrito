@@ -1,4 +1,4 @@
-require_relative 'messenger'
+require_relative '../lib/messenger'
 require 'mongoid'
 
 ## Class to store data for the participants

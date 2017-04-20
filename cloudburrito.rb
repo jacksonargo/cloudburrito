@@ -1,10 +1,10 @@
 # CloudBurrito
 # Jackson Argo 2017
 
-require_relative 'lib/patron'
-require_relative 'lib/package'
+require_relative 'models/patron'
+require_relative 'models/package'
+require_relative 'controllers/slack_controller'
 require_relative 'lib/messenger'
-require_relative 'lib/slack_controller'
 require_relative 'lib/requestlogger'
 require_relative 'lib/events'
 require 'sinatra/base'
