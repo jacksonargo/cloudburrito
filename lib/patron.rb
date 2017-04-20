@@ -11,7 +11,7 @@ class Patron
   has_many :deliveries, class_name: "Package", inverse_of: :delivery_man
   has_many :request_loggers
   has_many :message_loggers
-  has_many :messages
+  has_many :messages, inverse_of: :to
 
   field :user_id, type: String
   field :_id, type: String, default: ->{ user_id }
