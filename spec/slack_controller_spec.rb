@@ -2,7 +2,7 @@ require_relative '../cloudburrito'
 require 'rspec'
 require 'rack/test'
 
-describe 'The CloudBurrito controller' do
+describe 'The SlackController class' do
   include Rack::Test::Methods
 
   def app
@@ -12,6 +12,7 @@ describe 'The CloudBurrito controller' do
   before(:each) do
     Patron.delete_all
     Package.delete_all
+    Message.delete_all
   end
 
   let (:patron) { Patron.create user_id: "1" }
@@ -184,6 +185,19 @@ describe 'The CloudBurrito controller' do
       it 'delivery man is now sleep' do
         controller.full
         expect(dman.sleepy?).to be true
+      end
+      context 'creates a message for delivery man' do
+        before(:each) { controller.full }
+        it 'and message exists.' do
+          expect(Message.last).not_to be nil
+        end
+        it 'and is assigned to delivery man.' do
+          expect(Message.last.to).to eq dman
+        end
+        it 'and says you can order.' do
+          text = "Your delivery has been acked. You can request more burritos!"
+          expect(Message.last.text).to eq text
+        end
       end
     end
   end

@@ -1,5 +1,6 @@
 require_relative 'patron'
 require_relative 'package'
+require_relative 'message'
 
 class Events
   attr_reader :thread
@@ -25,7 +26,7 @@ class Events
   end
 
   def unassigned_packages
-    Package.where(assigned: false)
+    Package.where(assigned: false, failed: false, received: false)
   end
 
   def get_delivery_man
@@ -43,13 +44,14 @@ class Events
     if dman
       package.assign! dman
       # Tell dman he's assigned
-      msg = "You've been volunteered to get a burrito for #{hman}. "
-      msg += "Please ACK this request by replying */cloudburrito serving*"
-      notify dman, msg
+      text = "You've been volunteered to get a burrito for #{hman}. "
+      text += "Please ACK this request by replying */cloudburrito serving*"
+      Message.create to: dman, text: text
     else
-      # Tell hungry man if one isn't available
       package.failed!
-      notify(hman, "Your burrito was dropped! Please try again later.")
+      # Tell hungry man if one isn't available
+      text = "Your burrito was dropped! Please try again later."
+      Message.create to: hman, text: text
     end
   end
 
@@ -65,7 +67,7 @@ class Events
     hman = stale_package.hungry_man
     # Make dman inactive
     dman.inactive!
-    notify(dman, "You've been kicked from the pool for being slow.")
+    Message.create to: dman, text: "You've been kicked from the pool!"
     # Fail the package
     stale_package.failed!
     # Create a new package for hungry man

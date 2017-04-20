@@ -12,15 +12,24 @@ describe "Event manager" do
   before(:each) do
     Patron.delete_all
     Package.delete_all
+    Message.delete_all
   end
 
   let(:events) { Events.new }
-  let(:hman) { Patron.create user_id: '1' }
 
   context '#unassigned_packages' do
+    let(:hman) { Patron.create user_id: '1' }
+    it 'does not include failed packages' do
+      (1..10).each { Package.create hungry_man: hman, failed: true }
+      expect(events.unassigned_packages.count).to be 0
+    end
+    it 'does not include received packages' do
+      (1..10).each { Package.create hungry_man: hman, received: true }
+      expect(events.unassigned_packages.count).to be 0
+    end
     it 'returns unassigned packages' do
       (1..10).each { Package.create hungry_man: hman }
-      expect(events.unassigned_packages.count).to eq(10)
+      expect(events.unassigned_packages.count).to be 10
     end
   end
 
@@ -35,34 +44,86 @@ describe "Event manager" do
   end
 
   context '#assign_next' do
-    it 'assigns packages' do
-      Package.create hungry_man: hman
-      Patron.create user_id: '2', is_active: true
-      events.assign_next
-      expect(events.unassigned_packages.count).to eq(0)
+    context 'when a new package is created,' do
+      let(:hman) { Patron.create user_id: '1' }
+      before(:each) { Package.create hungry_man: hman }
+
+      context 'if there are no delivery men,' do
+        before(:each) { events.assign_next }
+        it 'marks package as failed.' do
+          expect(Package.last.failed?).to be true
+        end
+        it 'no unassigned packages left.' do
+          expect(events.unassigned_packages.count).to be 0
+        end
+        context 'creates message for hungry man' do
+          let(:msg) { Message.last }
+          it('and message exists.') { expect(msg).not_to be(nil) }
+          it('and assigned to hungry man.') { expect(msg.to).to eq(hman) }
+          it 'and says the burrito is dropped.' do
+            expect(msg.text).to eq "Your burrito was dropped! Please try again later."
+          end
+        end
+      end
+
+      context 'there are delivery men,' do
+        before(:each) do
+          Patron.create user_id: '2', is_active: true
+          events.assign_next
+        end
+        it 'marks the package assigned.' do
+          expect(Package.last.assigned?).to be true
+        end
+        it 'no unassigned packages left.' do
+          expect(events.unassigned_packages.count).to be 0
+        end
+        it 'assigns to delivery man.' do
+          dman = Patron.last
+          expect(Package.last.delivery_man).to eq dman
+        end
+        context 'creates message for delivery man' do
+          let(:msg) { Message.last }
+          it('and message exists.') { expect(msg).not_to be(nil) }
+          it('and assigned to delivery man.') do
+            dman = Patron.last
+            expect(msg.to).to eq(dman)
+          end
+          it 'and says the you need to deliver.' do
+            text = "You've been volunteered to get a burrito for #{hman}. "
+            text += "Please ACK this request by replying */cloudburrito serving*"
+            expect(msg.text).to eq text
+          end
+        end
+      end
     end
-    context 'assigns packages first in first out' do
+
+    context 'two new packages are created' do
+      let(:patr1) { Patron.create user_id: '1' }
+      let(:patr2) { Patron.create user_id: '2' }
       before(:each) do
-        # Create patrons
-        p2 = Patron.create user_id: '2'
-        p3 = Patron.create user_id: '3', is_active: true
-        # Create two packages
-        b1 = Package.create hungry_man: hman
-        b2 = Package.create hungry_man: p2
-        events.assign_next
-        b1.reload
-        b2.reload
+        Package.create hungry_man: patr1
+        Package.create hungry_man: patr2
       end
-      it 'first package is assigned' do
-        expect(b1.assigned?).to be true
-      end
-      it 'second package is unassigned' do
-        expect(b2.assigned?).to be false
+      context 'assigns packages first in first out' do
+        before(:each) do
+          Patron.create user_id: '3', is_active: true
+          events.assign_next
+        end
+        it 'first package is assigned' do
+          expect(Package.first.assigned?).to be true
+        end
+        it 'second package is unassigned' do
+          expect(Package.last.assigned?).to be false
+        end
+        it 'one unassigned package' do
+          expect(events.unassigned_packages.count).to be 1
+        end
       end
     end
   end
 
   context '#get_stale_packages' do
+    let(:hman) { Patron.create user_id: '1' }
     let(:dman) { Patron.create user_id: '2' }
     it 'returns [] when there are no packages' do
       expect(events.get_stale_packages).to eq []
@@ -81,19 +142,36 @@ describe "Event manager" do
   end
 
   context '#replace' do
-    let(:package) { Package.create hungry_man: hman }
+    let(:hman) { Patron.create user_id: '1' }
+    let(:dman) { Patron.create user_id: '2' }
+    let(:package) { Package.create hungry_man: hman, delivery_man: dman }
+    before(:each) { events.replace package }
     it 'marks the package as failed' do
-      events.replace package
-      expect(package.failed?).to eq true
+      expect(package.failed?).to be true
     end
-    it 'creates a new package for hungry_man' do
-      events.replace package
-      expect(Package.count).to eq 2
+    it 'creates a new package' do
+      expect(Package.count).to be 2
+    end
+    it 'new package is assigned to hungry man' do
       expect(Package.last.hungry_man).to eq hman
+    end
+    it 'makes delivery man inactive' do
+      expect(dman.inactive?).to be true
+    end
+    context 'creates a message for delivery man' do
+      it('exists') { expect(Message.count).to be(1) }
+      it 'assigned to delivery man' do
+        expect(Message.last.to).to eq dman
+      end
+      it 'says you been booted' do
+        text = "You've been kicked from the pool!"
+        expect(Message.last.text).to eq text
+      end
     end
   end
 
   context '#replace_stale_packages' do
+    let(:hman) { Patron.create user_id: '1' }
     it 'replaces all stale packages' do
       p1 = Package.create hungry_man: hman
       p2 = Package.create hungry_man: hman
@@ -113,22 +191,42 @@ describe "Event manager" do
   end
 
   context '#start' do
+    let(:hman) { Patron.create user_id: '1' }
+
+    before(:each) { events.start }
+    after(:each) { events.stop }
+
     it 'creates a thread' do
-      events.start
       expect(events.thread.alive?).to be true
-      events.stop
     end
 
-    it 'assigns all unassigned packages' do
-      # Create patrons to be assigned as delivery men
-      (2..11).each {|x| Patron.create user_id: x.to_s, is_active: true }
-      Package.create hungry_man: hman
-      Package.create hungry_man: Patron.find('2')
-      Package.create hungry_man: Patron.find('3')
-      events.start
-      events.wait_for_complete
-      expect(events.unassigned_packages.count).to eq 0
-      events.stop
+    context 'when unassgined package exist,' do
+      it 'assigns them' do
+        # Create patrons to be assigned as delivery men
+        (2..11).each {|x| Patron.create user_id: x.to_s, is_active: true }
+        Package.create hungry_man: hman
+        Package.create hungry_man: Patron.find('2')
+        Package.create hungry_man: Patron.find('3')
+        events.wait_for_complete
+        expect(events.unassigned_packages.count).to eq 0
+      end
+    end
+
+    context 'when stale packages exist,' do
+      before(:each) do
+        (2..11).each {|x| Patron.create user_id: x.to_s, is_active: true }
+        Package.create hungry_man: hman, created_at: Time.at(0)
+        Package.create hungry_man: Patron.find('2'), created_at: Time.at(0)
+        Package.create hungry_man: Patron.find('3'), created_at: Time.at(0)
+      end
+      it 'marks them failed' do
+        events.wait_for_complete
+        expect(Package.where(failed: true).count).to be 3
+      end
+      it 'creates replacement packages' do
+        events.wait_for_complete
+        expect(Package.where(failed: false).count).to be 3
+      end
     end
   end
 
