@@ -7,6 +7,7 @@ require_relative 'lib/messenger'
 require_relative 'lib/slack_controller'
 require_relative 'lib/requestlogger'
 require_relative 'lib/messagelogger'
+require_relative 'lib/events'
 require 'sinatra/base'
 
 class CloudBurrito < Sinatra::Base
@@ -20,9 +21,6 @@ class CloudBurrito < Sinatra::Base
   def valid_token?(token)
     token == settings.slack_veri_token
   end
-
-  puts "Environment: #{settings.environment}"
-  puts "Seed: #{Random::DEFAULT.seed}"
 
   ## 
   ## Load secrets
@@ -43,6 +41,13 @@ class CloudBurrito < Sinatra::Base
   ##
   ## Serve burritos
   ##
+
+  puts "Environment: #{settings.environment}"
+  puts "Seed: #{Random::DEFAULT.seed}"
+
+  # Start events manager
+#  events = Events.new
+#  events.start
 
   not_found do
     if request.path == '/slack' and request.request_method == 'POST'
