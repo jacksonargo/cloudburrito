@@ -16,9 +16,9 @@ describe 'The SlackController class' do
     Message.delete_all
   end
 
-  let (:patron) { Patron.create user_id: "1" }
-  let (:params) { { "user_id" => patron.user_id } }
-  let (:controller) { SlackController.new params }
+  let(:patron) { Patron.create user_id: "1" }
+  let(:params) { { "user_id" => patron.user_id } }
+  let(:controller) { SlackController.new params }
 
   context '#initialize' do
     it 'creates dne patron' do
@@ -125,7 +125,7 @@ describe 'The SlackController class' do
   end
 
   context '#serving' do
-    let (:other)  { Patron.create user_id: "2" }
+    let(:other)  { Patron.create user_id: "2" }
     context 'patron is not on a delivery' do
       it 'tells them they arent delivering' do
         expect(controller.serving).to eq("You haven't been volunteered to deliver...")
@@ -153,7 +153,7 @@ describe 'The SlackController class' do
   end
 
   context '#full' do
-    let (:dman)  { Patron.create user_id: "2" }
+    let(:dman)  { Patron.create user_id: "2" }
     context 'patron does not have incoming burritos' do
       it 'tells them to order a burrito' do
         expect(controller.full).to eq("You don't have any incoming burritos. Order one with: */cloudburrito feed*")

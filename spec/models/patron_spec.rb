@@ -30,7 +30,7 @@ describe "The Patron class" do
       expect(patron.active_delivery).to be nil
     end
     it 'nil when all packages delivered' do
-      b = Package.create hungry_man: hman, delivery_man: patron, received: true
+      Package.create hungry_man: hman, delivery_man: patron, received: true
       expect(patron.active_delivery).to be nil
     end
     it 'is undelivered package' do
@@ -45,11 +45,11 @@ describe "The Patron class" do
       expect(patron.on_delivery?).to be false
     end
     it 'when undelivered packages exist' do
-      b = Package.create hungry_man: hman, delivery_man: patron
+      Package.create hungry_man: hman, delivery_man: patron
       expect(patron.on_delivery?).to be true
     end
     it 'not when all deliveries received' do
-      b = Package.create hungry_man: hman, delivery_man: patron, received: true
+      Package.create hungry_man: hman, delivery_man: patron, received: true
       expect(patron.on_delivery?).to be false
     end
   end
@@ -60,7 +60,7 @@ describe "The Patron class" do
       expect(patron.incoming_burrito).to be nil
     end
     it 'nil when all burritos received' do
-      b = Package.create hungry_man: patron, delivery_man: dman, received: true
+      Package.create hungry_man: patron, delivery_man: dman, received: true
       expect(patron.incoming_burrito).to be nil
     end
     it 'is unreceived burrito' do
@@ -75,11 +75,11 @@ describe "The Patron class" do
       expect(patron.waiting?).to be false
     end
     it 'when undelivered packages exist' do
-      b = Package.create hungry_man: patron, delivery_man: dman
+      Package.create hungry_man: patron, delivery_man: dman
       expect(patron.waiting?).to be true
     end
     it 'not when all deliveries received' do
-      b = Package.create hungry_man: patron, delivery_man: dman, received: true
+      Package.create hungry_man: patron, delivery_man: dman, received: true
       expect(patron.waiting?).to be false
     end
   end

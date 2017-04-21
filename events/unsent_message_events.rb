@@ -30,7 +30,7 @@ class UnsentMessageEvents < Events
   def send_slack_pm(msg)
     begin
       im = @slack_client.im_open(user: msg.to._id).channel.id
-      resp = @slack_client.chat_postMessage(channel: im, text: msg.text)
+      @slack_client.chat_postMessage(channel: im, text: msg.text)
     rescue
       puts("Was not able to send slack pm message :c")
     end

@@ -159,7 +159,7 @@ You can use these commands to do things:
       after(:each) do
         post '/slack', params
         expect(last_response).to be_ok
-        expect(last_response.body).not_to match /Cloud Burrito/
+        expect(last_response.body).not_to match(/Cloud Burrito/)
       end
 
       it("join")    { params["text"] = "join" }
