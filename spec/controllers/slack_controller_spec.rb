@@ -1,9 +1,7 @@
-require_relative '../../cloudburrito'
+require_relative '../../controllers/slack_controller'
 require 'rspec'
-require 'rack/test'
 
 describe 'The SlackController class' do
-  include Rack::Test::Methods
 
   def app
     CloudBurrito

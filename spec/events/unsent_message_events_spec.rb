@@ -1,9 +1,8 @@
+require_relative '../../cloudburrito'
 require_relative '../../events/unsent_message_events'
 require 'rspec'
-require 'rack/test'
 
 describe "The class" do
-  include Rack::Test::Methods
 
   def app
     CloudBurrito

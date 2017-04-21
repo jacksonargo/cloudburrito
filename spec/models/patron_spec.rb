@@ -1,9 +1,7 @@
-require_relative "../../cloudburrito"
+require_relative '../../models/patron'
 require 'rspec'
-require 'rack/test'
 
-describe "A cloud burrito patron" do
-  include Rack::Test::Methods
+describe "The Patron class" do
 
   def app
     CloudBurrito

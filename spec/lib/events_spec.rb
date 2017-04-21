@@ -1,4 +1,4 @@
-require_relative '../lib/events'
+require_relative '../../lib/events'
 require 'rspec'
 
 describe "The Events Class" do

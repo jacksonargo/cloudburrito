@@ -1,9 +1,8 @@
+require_relative '../../cloudburrito'
 require_relative '../../events/new_package_events'
 require 'rspec'
-require 'rack/test'
 
 describe "Event manager" do
-  include Rack::Test::Methods
 
   def app
     CloudBurrito

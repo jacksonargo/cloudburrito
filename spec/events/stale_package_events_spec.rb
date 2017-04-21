@@ -1,9 +1,8 @@
+require_relative '../../cloudburrito'
 require_relative '../../events/stale_package_events'
 require 'rspec'
-require 'rack/test'
 
 describe "The StalePackageEvent class" do
-  include Rack::Test::Methods
 
   def app
     CloudBurrito

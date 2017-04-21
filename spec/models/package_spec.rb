@@ -1,11 +1,7 @@
 require_relative '../../models/package'
-require_relative '../../models/patron'
-require_relative '../../models/message'
 require 'rspec'
-require 'rack/test'
 
 describe "The Package class" do
-  include Rack::Test::Methods
 
   def app
     CloudBurrito

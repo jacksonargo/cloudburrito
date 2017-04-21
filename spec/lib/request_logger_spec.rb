@@ -1,10 +1,8 @@
-require_relative '../cloudburrito'
+require_relative '../../cloudburrito'
+require_relative '../../lib/request_logger'
 require 'rspec'
-require 'rack/test'
 
-describe "Logging requests" do
-  include Rack::Test::Methods
-
+describe "RequestLogger class" do
   def app
     CloudBurrito
   end
