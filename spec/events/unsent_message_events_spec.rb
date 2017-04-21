@@ -20,6 +20,9 @@ RSpec.describe 'The UnsentMessageEvents class' do
     it 'creates a slack client' do
       expect(events.slack_client).not_to be nil
     end
+    it 'know the environment' do
+      expect(events.environment).to eq 'test'
+    end
   end
 
   context '#unsent_messages' do

@@ -6,7 +6,7 @@ require 'slack-ruby-client'
 require 'yaml'
 
 class UnsentMessageEvents < Events
-  attr_reader :slack_client
+  attr_reader :slack_client, :environment
 
   def initialize
     @environment = ENV['RACK_ENV']
@@ -16,8 +16,8 @@ class UnsentMessageEvents < Events
       secrets = secrets[@environment]
     end
 
-    slack_auth_token = secrets[:slack_auth_token] unless secrets.nil?
-    slack_auth_token ||= 'oxb-???'
+    slack_auth_token = secrets['slack_auth_token'] unless secrets.nil?
+    slack_auth_token ||= 'xoxb-???'
 
     Slack.configure do |config|
       config.token = slack_auth_token
