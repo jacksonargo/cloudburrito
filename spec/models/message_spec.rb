@@ -1,10 +1,9 @@
 require_relative '../../models/message'
 require 'rspec'
 
-ENV['RACK_ENV'] = 'test'
 Mongoid.load!('config/mongoid.yml')
 
-describe 'The Message class' do
+RSpec.describe 'The Message class' do
   def app
     CloudBurrito
   end

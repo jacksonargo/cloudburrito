@@ -1,7 +1,7 @@
 require_relative '../cloudburrito'
 require 'rspec'
 
-describe 'The CloudBurrito settings' do
+RSpec.describe 'The CloudBurrito settings' do
   def app
     CloudBurrito
   end

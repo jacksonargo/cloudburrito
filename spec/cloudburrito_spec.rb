@@ -2,7 +2,7 @@ require_relative '../cloudburrito'
 require 'rspec'
 require 'rack/test'
 
-describe 'The CloudBurrito app' do
+RSpec.describe 'The CloudBurrito app' do
   include Rack::Test::Methods
 
   def app

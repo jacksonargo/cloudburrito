@@ -1,10 +1,9 @@
 require_relative '../../events/stale_package_events'
 require 'rspec'
 
-ENV['RACK_ENV'] = 'test'
 Mongoid.load!('config/mongoid.yml')
 
-describe 'The StalePackageEvent class' do
+RSpec.describe 'The StalePackageEvent class' do
   def app
     CloudBurrito
   end

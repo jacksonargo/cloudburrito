@@ -1,10 +1,9 @@
 require_relative '../../controllers/slack_controller'
 require 'rspec'
 
-ENV['RACK_ENV'] = 'test'
 Mongoid.load!('config/mongoid.yml')
 
-describe 'The SlackController class' do
+RSpec.describe 'The SlackController class' do
   def app
     CloudBurrito
   end

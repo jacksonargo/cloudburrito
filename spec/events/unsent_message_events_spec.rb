@@ -1,10 +1,9 @@
 require_relative '../../events/unsent_message_events'
 require 'rspec'
 
-ENV['RACK_ENV'] = 'test'
 Mongoid.load!('config/mongoid.yml')
 
-describe 'The UnsentMessageEvents class' do
+RSpec.describe 'The UnsentMessageEvents class' do
   def app
     CloudBurrito
   end
