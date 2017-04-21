@@ -1,3 +1,4 @@
+require_relative 'patron'
 require 'mongoid'
 
 class Message

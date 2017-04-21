@@ -1,8 +1,10 @@
-require_relative '../../cloudburrito'
+require_relative '../../models/package'
+require_relative '../../models/patron'
+require_relative '../../models/message'
 require 'rspec'
 require 'rack/test'
 
-describe "A burrito in transit" do
+describe "The Package class" do
   include Rack::Test::Methods
 
   def app
@@ -67,28 +69,38 @@ describe "A burrito in transit" do
   end
 
   context '#stale?' do
-    it 'not when created' do
+    it 'not when first created' do
       expect(package.stale?).to eq(false)
     end
 
-    it 'when forced' do
-      package.stale!
+    it 'not when first assigned' do
+      package.assign! dman
+      expect(package.stale?).to eq(false)
+    end
+
+    it '300 seconds after assigned' do
+      package.assign! dman
+      package.assigned_at = Time.now - 300
       expect(package.stale?).to eq(true)
     end
 
-    it 'after 300 seconds' do
-      package.created_at = Time.now - 300
-      expect(package.stale?).to eq(true)
-    end
+    context 'when forced' do
+      before(:each) { package.stale! }
 
-    it 'not if failed' do
-      package.failed!
-      expect(package.stale?).to be false
-    end
+      context 'is stale when' do
+        it 'new package and assigned' do
+          package.assign! dman
+          package.stale!
+          expect(package.stale?).to eq(true)
+        end
+      end
 
-    it 'not if delivered' do
-      package.delivered!
-      expect(package.stale?).to be false
+      context 'is not stale when' do
+        after(:each) { expect(package.stale?).to be false }
+        it('failed')     { package.failed! }
+        it('delivered')  { package.delivered! }
+        it('unassigned') { package.assigned = false }
+      end
     end
   end
 
@@ -136,9 +148,14 @@ describe "A burrito in transit" do
   end
 
   context '#assign!' do
-    before(:each) { package.assign! dman }
+    before(:each) do
+      package.assign! dman
+    end
     it 'sets delivery_man to arg' do
       expect(package.delivery_man).to eq(dman)
+    end
+    it 'updates the assigned_at time' do
+      expect(package.assigned_at).not_to be_nil
     end
     it 'can be saved' do
       expect(package.save).to be true
