@@ -29,5 +29,6 @@ class StalePackageEvents < Events
 
   def next_action
     replace_next
+    sleep 0.1
   end
 end

@@ -1,10 +1,9 @@
 require_relative '../models/patron'
 require_relative '../models/package'
 require_relative '../models/message'
+require_relative '../lib/events'
 
 class NewPackageEvents < Events
-  attr_reader :thread
-  
   def wait_for_complete
     while unassigned_packages.count > 0
     end
@@ -41,5 +40,7 @@ class NewPackageEvents < Events
   end
 
   def next_action
+    assign_next
+    sleep 0.1
   end
 end
