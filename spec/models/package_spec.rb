@@ -2,10 +2,9 @@ require_relative '../../models/package'
 require 'rspec'
 
 ENV['RACK_ENV'] = 'test'
-Mongoid.load!("config/mongoid.yml")
+Mongoid.load!('config/mongoid.yml')
 
-describe "The Package class" do
-
+describe 'The Package class' do
   def app
     CloudBurrito
   end
@@ -111,7 +110,7 @@ describe "The Package class" do
   end
 
   context '#new' do
-    it "Can be created and modified" do
+    it 'Can be created and modified' do
       b = Package.new
       p1 = Patron.new(user_id: '1')
       p2 = Patron.new(user_id: '2')
@@ -124,12 +123,12 @@ describe "The Package class" do
       expect(Package.new.save).to eq(false)
     end
 
-    it "can be saved if only owned by hungry_man" do
+    it 'can be saved if only owned by hungry_man' do
       p = Package.create hungry_man: hman
       expect(p.save).to eq(true)
     end
 
-    it "can be created with hungry_man and delivery_man" do
+    it 'can be created with hungry_man and delivery_man' do
       p = Package.create hungry_man: hman, delivery_man: dman
       expect(p.hungry_man).to eq(hman)
       expect(p.delivery_man).to eq(dman)

@@ -1,8 +1,9 @@
+# frozen_string_literal: true
+
 require_relative '../../lib/events'
 require 'rspec'
 
-describe "The Events Class" do
-
+describe 'The Events Class' do
   def app
     CloudBurrito
   end
@@ -18,7 +19,6 @@ describe "The Events Class" do
   end
 
   context '#start' do
-
     before(:each) { events.start }
     after(:each) { events.stop }
 

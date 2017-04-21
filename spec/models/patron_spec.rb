@@ -2,10 +2,9 @@ require_relative '../../models/patron'
 require 'rspec'
 
 ENV['RACK_ENV'] = 'test'
-Mongoid.load!("config/mongoid.yml")
+Mongoid.load!('config/mongoid.yml')
 
-describe "The Patron class" do
-
+describe 'The Patron class' do
   def app
     CloudBurrito
   end
@@ -137,7 +136,7 @@ describe "The Patron class" do
     end
   end
 
-  context "#sleepy?" do
+  context '#sleepy?' do
     let(:other) { Patron.create user_id: '2' }
     let(:package) { Package.create hungry_man: other, delivery_man: patron }
     it 'not when created' do
@@ -157,7 +156,7 @@ describe "The Patron class" do
     end
   end
 
-  context "#greedy?" do
+  context '#greedy?' do
     let(:other) { Patron.create user_id: '2' }
     let(:package) { Package.create hungry_man: patron, delivery_man: other }
 
@@ -199,7 +198,7 @@ describe "The Patron class" do
     end
   end
 
-  context "#user_token" do
+  context '#user_token' do
     it 'exists' do
       expect(patron.user_token).not_to be_empty
     end

@@ -2,10 +2,9 @@ require_relative '../../events/stale_package_events'
 require 'rspec'
 
 ENV['RACK_ENV'] = 'test'
-Mongoid.load!("config/mongoid.yml")
+Mongoid.load!('config/mongoid.yml')
 
-describe "The StalePackageEvent class" do
-
+describe 'The StalePackageEvent class' do
   def app
     CloudBurrito
   end
@@ -42,7 +41,6 @@ describe "The StalePackageEvent class" do
   end
 
   context '#replace_next' do
-
     context 'no packages exist' do
       before(:each) { events.replace_next }
       it 'doesnt fail' do
@@ -54,9 +52,9 @@ describe "The StalePackageEvent class" do
       let(:dman) { Patron.create user_id: '2', is_active: true }
       before(:each) do
         Package.create(
-          hungry_man: hman, 
-          delivery_man: dman, 
-          force_stale: true, 
+          hungry_man: hman,
+          delivery_man: dman,
+          force_stale: true,
           assigned: true
         )
         events.replace_next
@@ -111,7 +109,7 @@ describe "The StalePackageEvent class" do
         Package.create hungry_man: patr2, force_stale: true, assigned: true
         events.replace_next
       end
- 
+
       context 'processes them first in fist out' do
         it 'first package should be failed' do
           expect(Package.first.failed).to be true
@@ -140,7 +138,7 @@ describe "The StalePackageEvent class" do
 
     context 'when stale packages exist,' do
       before(:each) do
-        (2..11).each {|x| Patron.create user_id: x.to_s, is_active: true }
+        (2..11).each { |x| Patron.create user_id: x.to_s, is_active: true }
         Package.create hungry_man: hman, assigned: true, force_stale: true
         Package.create hungry_man: hman, assigned: true, force_stale: true
         Package.create hungry_man: hman, assigned: true, force_stale: true

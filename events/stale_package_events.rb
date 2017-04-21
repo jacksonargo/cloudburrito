@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative '../models/patron'
 require_relative '../models/package'
 require_relative '../models/message'
@@ -10,7 +12,7 @@ class StalePackageEvents < Events
   end
 
   def stale_packages
-    Package.each.select{ |p| p.stale? }
+    Package.each.select(&:stale?)
   end
 
   def replace_next

@@ -2,10 +2,9 @@ require_relative '../../models/message'
 require 'rspec'
 
 ENV['RACK_ENV'] = 'test'
-Mongoid.load!("config/mongoid.yml")
+Mongoid.load!('config/mongoid.yml')
 
-describe "The Message class" do
-
+describe 'The Message class' do
   def app
     CloudBurrito
   end
@@ -18,9 +17,9 @@ describe "The Message class" do
   let(:patron) { Patron.create user_id: '1' }
 
   context 'can be created' do
-    let(:msg) { Message.create to: patron, text: "Hi" }
+    let(:msg) { Message.create to: patron, text: 'Hi' }
     it('belongs to a patron') { expect(msg.to).to eq(patron) }
-    it('has text') { expect(msg.text).to eq("Hi") }
+    it('has text') { expect(msg.text).to eq('Hi') }
     it('not sent') { expect(msg.sent).to be(false) }
   end
 

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative 'patron'
 require 'mongoid'
 
@@ -5,7 +7,7 @@ class Message
   include Mongoid::Document
   include Mongoid::Timestamps
 
-  belongs_to :to, class_name: "Patron"
+  belongs_to :to, class_name: 'Patron'
 
   field :text, type: String, default: ''
   field :sent, type: Boolean, default: false
@@ -15,6 +17,6 @@ class Message
   def sent!
     self.sent = true
     self.sent_at = Time.now
-    self.save
+    save
   end
 end

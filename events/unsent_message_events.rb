@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative '../models/message'
 require_relative '../lib/events'
 require 'slack-ruby-client'
@@ -10,7 +12,7 @@ class UnsentMessageEvents < Events
     @environment = ENV['RACK_ENV']
 
     if File.exist? 'config/secrets.yml'
-      secrets = YAML.load_file "config/secrets.yml"
+      secrets = YAML.load_file 'config/secrets.yml'
       secrets = secrets[@environment]
     end
 
@@ -23,7 +25,7 @@ class UnsentMessageEvents < Events
     @slack_client = Slack::Web::Client.new
   end
 
-  def unsent_messages 
+  def unsent_messages
     Message.where(sent: false)
   end
 
@@ -32,7 +34,7 @@ class UnsentMessageEvents < Events
       im = @slack_client.im_open(user: msg.to._id).channel.id
       @slack_client.chat_postMessage(channel: im, text: msg.text)
     rescue
-      puts("Was not able to send slack pm message :c")
+      puts('Was not able to send slack pm message :c')
     end
     true
   end

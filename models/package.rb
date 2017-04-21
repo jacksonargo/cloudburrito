@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative 'patron'
 require 'mongoid'
 
@@ -7,8 +9,8 @@ class Package
   include Mongoid::Document
   include Mongoid::Timestamps
 
-  belongs_to :hungry_man, class_name: "Patron", inverse_of: :burritos
-  belongs_to :delivery_man, class_name: "Patron", inverse_of: :deliveries
+  belongs_to :hungry_man, class_name: 'Patron', inverse_of: :burritos
+  belongs_to :delivery_man, class_name: 'Patron', inverse_of: :deliveries
 
   field :en_route, type: Boolean, default: false
   field :received, type: Boolean, default: false
@@ -41,12 +43,12 @@ class Package
     return false if failed
     return false if received
     return false unless assigned
-    time_alive > max_age or force_stale
+    time_alive > max_age || force_stale
   end
 
   def stale!
     self.force_stale = true
-    self.save
+    save
   end
 
   def time_alive
@@ -60,7 +62,7 @@ class Package
 
   def failed!
     self.failed = true
-    self.save
+    save
   end
 
   def delivered
@@ -71,7 +73,7 @@ class Package
 
   def delivered!
     delivered
-    self.save
+    save
   end
 
   def delivered?
@@ -79,13 +81,13 @@ class Package
   end
 
   def assigned?
-    self.assigned
-  end 
+    assigned
+  end
 
   def assign!(dm)
     self.delivery_man = dm
     self.assigned_at = Time.now
     self.assigned = true
-    self.save
+    save
   end
 end

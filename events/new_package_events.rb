@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative '../models/patron'
 require_relative '../models/package'
 require_relative '../models/message'
@@ -14,7 +16,7 @@ class NewPackageEvents < Events
   end
 
   def get_delivery_man
-    Patron.each.select{ |p| p.can_deliver? }.sample
+    Patron.each.select(&:can_deliver?).sample
   end
 
   def assign_next
@@ -29,12 +31,12 @@ class NewPackageEvents < Events
       package.assign! dman
       # Tell dman he's assigned
       text = "You've been volunteered to get a burrito for #{hman}. "
-      text += "Please ACK this request by replying */cloudburrito serving*"
+      text += 'Please ACK this request by replying */cloudburrito serving*'
       Message.create to: dman, text: text
     else
       package.failed!
       # Tell hungry man if one isn't available
-      text = "Your burrito was dropped! Please try again later."
+      text = 'Your burrito was dropped! Please try again later.'
       Message.create to: hman, text: text
     end
   end

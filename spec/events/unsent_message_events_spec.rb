@@ -2,10 +2,9 @@ require_relative '../../events/unsent_message_events'
 require 'rspec'
 
 ENV['RACK_ENV'] = 'test'
-Mongoid.load!("config/mongoid.yml")
+Mongoid.load!('config/mongoid.yml')
 
-describe "The UnsentMessageEvents class" do
-
+describe 'The UnsentMessageEvents class' do
   def app
     CloudBurrito
   end
@@ -77,7 +76,7 @@ describe "The UnsentMessageEvents class" do
         2.times { Message.create to: patron }
         events.send_next
       end
- 
+
       context 'processes them first in fist out' do
         it 'first should be sent' do
           expect(Message.first.sent).to be true

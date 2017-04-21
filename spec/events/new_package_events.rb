@@ -2,10 +2,9 @@ require_relative '../../events/new_package_events'
 require 'rspec'
 
 ENV['RACK_ENV'] = 'test'
-Mongoid.load!("config/mongoid.yml")
+Mongoid.load!('config/mongoid.yml')
 
-describe "The NewPackageEvents class" do
-
+describe 'The NewPackageEvents class' do
   def app
     CloudBurrito
   end
@@ -21,19 +20,19 @@ describe "The NewPackageEvents class" do
   context '#unassigned_packages' do
     let(:hman) { Patron.create user_id: '1' }
     it 'does not include failed packages' do
-      (1..10).each { Package.create hungry_man: hman, failed: true }
+      10.times { Package.create hungry_man: hman, failed: true }
       expect(events.unassigned_packages.count).to be 0
     end
     it 'does not include received packages' do
-      (1..10).each { Package.create hungry_man: hman, received: true }
+      10.times { Package.create hungry_man: hman, received: true }
       expect(events.unassigned_packages.count).to be 0
     end
     it 'does not include stale packages' do
-      (1..10).each { Package.create hungry_man: hman, force_stale: true }
+      10.times { Package.create hungry_man: hman, force_stale: true }
       expect(events.unassigned_packages.count).to be 0
     end
     it 'returns unassigned packages' do
-      (1..10).each { Package.create hungry_man: hman }
+      10.times { Package.create hungry_man: hman }
       expect(events.unassigned_packages.count).to be 10
     end
   end
@@ -66,7 +65,7 @@ describe "The NewPackageEvents class" do
           it('and message exists.') { expect(msg).not_to be(nil) }
           it('and assigned to hungry man.') { expect(msg.to).to eq(hman) }
           it 'and says the burrito is dropped.' do
-            expect(msg.text).to eq "Your burrito was dropped! Please try again later."
+            expect(msg.text).to eq 'Your burrito was dropped! Please try again later.'
           end
         end
       end
@@ -95,7 +94,7 @@ describe "The NewPackageEvents class" do
           end
           it 'and says the you need to deliver.' do
             text = "You've been volunteered to get a burrito for #{hman}. "
-            text += "Please ACK this request by replying */cloudburrito serving*"
+            text += 'Please ACK this request by replying */cloudburrito serving*'
             expect(msg.text).to eq text
           end
         end
@@ -148,7 +147,7 @@ describe "The NewPackageEvents class" do
     context 'when unassgined package exist,' do
       it 'assigns them' do
         # Create patrons to be assigned as delivery men
-        (2..11).each {|x| Patron.create user_id: x.to_s, is_active: true }
+        (2..11).each { |x| Patron.create user_id: x.to_s, is_active: true }
         Package.create hungry_man: hman
         Package.create hungry_man: Patron.find('2')
         Package.create hungry_man: Patron.find('3')
@@ -159,7 +158,7 @@ describe "The NewPackageEvents class" do
 
     context 'when stale packages exist,' do
       before(:each) do
-        (2..11).each {|x| Patron.create user_id: x.to_s, is_active: true }
+        (2..11).each { |x| Patron.create user_id: x.to_s, is_active: true }
         Package.create hungry_man: hman, created_at: Time.at(0)
         Package.create hungry_man: Patron.find('2'), created_at: Time.at(0)
         Package.create hungry_man: Patron.find('3'), created_at: Time.at(0)

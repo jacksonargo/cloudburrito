@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative 'package'
 require_relative 'message'
 require 'mongoid'
@@ -8,17 +10,17 @@ class Patron
   include Mongoid::Document
   include Mongoid::Timestamps
 
-  has_many :burritos, class_name: "Package", inverse_of: :hungry_man
-  has_many :deliveries, class_name: "Package", inverse_of: :delivery_man
+  has_many :burritos, class_name: 'Package', inverse_of: :hungry_man
+  has_many :deliveries, class_name: 'Package', inverse_of: :delivery_man
   has_many :messages, inverse_of: :to
 
   field :user_id, type: String
-  field :_id, type: String, default: ->{ user_id }
+  field :_id, type: String, default: -> { user_id }
   field :is_active, type: Boolean, default: false
-  field :last_time_activated, type: Time, default: ->{ Time.now }
+  field :last_time_activated, type: Time, default: -> { Time.now }
   field :force_not_greedy, type: Boolean, default: false
   field :force_not_sleepy, type: Boolean, default: false
-  field :user_token, type: String, default: ->{ rand(1<<256).to_s(36) }
+  field :user_token, type: String, default: -> { rand(1 << 256).to_s(36) }
   field :sleepy_time, type: Integer, default: 3600
   field :greedy_time, type: Integer, default: 3600
   field :slack_user,  type: Boolean, default: true
@@ -30,7 +32,7 @@ class Patron
   def active!
     self.last_time_activated = Time.now
     self.is_active = true
-    self.save
+    save
   end
 
   def active?
@@ -39,15 +41,15 @@ class Patron
 
   def inactive!
     self.is_active = false
-    self.save
+    save
   end
 
   def inactive?
-    not is_active
+    !is_active
   end
 
   def active_delivery
-    deliveries.where({failed: false, received: false}).last
+    deliveries.where(failed: false, received: false).last
   end
 
   def on_delivery?
@@ -55,7 +57,7 @@ class Patron
   end
 
   def incoming_burrito
-    burritos.where({failed: false, received: false}).last
+    burritos.where(failed: false, received: false).last
   end
 
   def waiting?
@@ -76,12 +78,12 @@ class Patron
 
   def greedy?
     return false if force_not_greedy
-    time_until_hungry > 0
+    time_until_hungry.positive?
   end
 
   def sleepy?
     return false if force_not_sleepy
-    time_until_awake > 0
+    time_until_awake.positive?
   end
 
   def time_until_hungry
@@ -107,12 +109,12 @@ class Patron
   end
 
   def new_token
-    rand(1<<256).to_s(36)
+    rand(1 << 256).to_s(36)
   end
 
   def reset_token
     self.user_token = new_token
-    self.save
+    save
   end
 
   def stats_url
