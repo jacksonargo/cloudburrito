@@ -1,10 +1,7 @@
-require_relative '../../cloudburrito'
+require_relative '../../models/message'
 require 'rspec'
-require 'rack/test'
 
 describe "Message class" do
-  include Rack::Test::Methods
-
   def app
     CloudBurrito
   end
@@ -20,5 +17,22 @@ describe "Message class" do
     let(:msg) { Message.create to: patron, text: "Hi" }
     it('belongs to a patron') { expect(msg.to).to eq(patron) }
     it('has text') { expect(msg.text).to eq("Hi") }
+    it('not sent') { expect(msg.sent).to be(false) }
+  end
+
+  it 'has empty text string by default' do
+    m = Message.create to: patron
+    expect(m.text).to eq ''
+  end
+
+  context '#sent!' do
+    let(:msg) { Message.create to: patron }
+    before(:each) { msg.sent! }
+    it 'marks message as sent' do
+      expect(msg.sent).to be true
+    end
+    it 'sets sent_at' do
+      expect(msg.sent_at).not_to be nil
+    end
   end
 end
