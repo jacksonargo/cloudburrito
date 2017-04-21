@@ -1,4 +1,3 @@
-require_relative '../lib/messenger'
 require_relative 'package'
 require_relative 'message'
 require 'mongoid'
@@ -11,7 +10,6 @@ class Patron
 
   has_many :burritos, class_name: "Package", inverse_of: :hungry_man
   has_many :deliveries, class_name: "Package", inverse_of: :delivery_man
-  has_many :request_loggers
   has_many :messages, inverse_of: :to
 
   field :user_id, type: String
@@ -120,11 +118,6 @@ class Patron
   def stats_url
     reset_token
     "https://cloudburrito.us/user?user_id=#{_id}&token=#{user_token}"
-  end
-
-  def slack_user_info
-    return nil unless slack_user
-    Messenger.user_info(self)
   end
 
   def name

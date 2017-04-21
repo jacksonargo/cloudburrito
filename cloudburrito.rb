@@ -4,9 +4,10 @@
 require_relative 'models/patron'
 require_relative 'models/package'
 require_relative 'controllers/slack_controller'
-require_relative 'lib/messenger'
-require_relative 'lib/requestlogger'
 require_relative 'lib/events'
+require_relative 'events/new_package_events'
+require_relative 'events/stale_package_events'
+require_relative 'events/unsent_message_events'
 require 'sinatra/base'
 
 class CloudBurrito < Sinatra::Base
@@ -25,11 +26,11 @@ class CloudBurrito < Sinatra::Base
   ## Load secrets
   ##
 
-  secrets = {}
   if File.exist? "config/secrets.yml"
     secrets = YAML.load_file "config/secrets.yml"
     secrets = secrets[settings.environment.to_s]
   end
+  secrets ||= {}
   slack_veri_token = secrets["slack_veri_token"]
   slack_auth_token = secrets["slack_auth_token"]
   slack_veri_token ||= "XXX_burrito_XXX"
@@ -43,10 +44,6 @@ class CloudBurrito < Sinatra::Base
 
   puts "Environment: #{settings.environment}"
   puts "Seed: #{Random::DEFAULT.seed}"
-
-  # Start events manager
-#  events = Events.new
-#  events.start
 
   not_found do
     if request.path == '/slack' and request.request_method == 'POST'
@@ -132,8 +129,6 @@ class CloudBurrito < Sinatra::Base
     # Require a matching token
     halt 401 unless @patron.user_token
     halt 401 unless @patron.user_token == params["token"]
-    # Log this request
-    RequestLogger.new(uri: '/user', method: :get, params: params, patron: @patron).save
     # Render the user stats
     @content = erb :user
     erb :beautify
@@ -148,24 +143,13 @@ class CloudBurrito < Sinatra::Base
 
     # Create the controller
     controller = SlackController.new params
-    # Log this request
-    my_logger = RequestLogger.new(
-      uri: '/slack',
-      method: :post,
-      params: params,
-      patron: controller.patron
-    )
     # Do the needful
     cmd = params["text"]
     cmd = cmd.strip unless cmd.nil?
     if controller.actions.include? cmd
-      my_logger.controller_action = cmd
-      my_logger.response = controller.send(cmd)
+      controller.send(cmd)
     else
-      my_logger.controller_action = :help
-      my_logger.response = erb :slack_help
+      erb :slack_help
     end
-    my_logger.save
-    my_logger.response
   end
 end
