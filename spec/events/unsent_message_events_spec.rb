@@ -106,11 +106,11 @@ describe "The UnsentMessageEvents class" do
 
     context 'when unsent messages exist' do
       before(:each) do
-        10.times { Message.create to: patron }
+        3.times { Message.create to: patron }
       end
       it 'marks them sent' do
         events.wait_for_complete
-        expect(Message.where(sent: true).count).to be 10
+        expect(Message.where(sent: true).count).to be 3
       end
     end
   end
