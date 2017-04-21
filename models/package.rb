@@ -37,10 +37,12 @@ class Package
   end
 
   # Failed packages aren't stale
+  # En route packages aren't stale
   # Received packages aren't stale
   # Unassigned packages aren't stale
   def stale?
     return false if failed
+    return false if en_route
     return false if received
     return false unless assigned
     time_alive > max_age || force_stale

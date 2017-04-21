@@ -82,18 +82,19 @@ RSpec.describe 'The Package class' do
     end
 
     context 'when forced' do
-      before(:each) { package.stale! }
-
+      before(:each) do
+        package.assign! dman
+        package.stale!
+      end
       context 'is stale when' do
         it 'new package and assigned' do
-          package.assign! dman
-          package.stale!
           expect(package.stale?).to eq(true)
         end
       end
 
       context 'is not stale when' do
         after(:each) { expect(package.stale?).to be false }
+        it('en route')   { package.en_route = true }
         it('failed')     { package.failed! }
         it('delivered')  { package.delivered! }
         it('unassigned') { package.assigned = false }
