@@ -1,6 +1,8 @@
 require_relative '../../models/message'
 require 'rspec'
 
+
+
 describe "The Message class" do
 
   def app

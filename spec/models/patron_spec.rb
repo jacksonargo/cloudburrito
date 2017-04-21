@@ -1,6 +1,9 @@
 require_relative '../../models/patron'
 require 'rspec'
 
+ENV['RACK_ENV'] = 'test'
+Mongoid.load!("config/mongoid.yml")
+
 describe "The Patron class" do
 
   def app

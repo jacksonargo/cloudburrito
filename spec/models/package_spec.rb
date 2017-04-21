@@ -1,6 +1,9 @@
 require_relative '../../models/package'
 require 'rspec'
 
+ENV['RACK_ENV'] = 'test'
+Mongoid.load!("config/mongoid.yml")
+
 describe "The Package class" do
 
   def app

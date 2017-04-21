@@ -1,8 +1,10 @@
-require_relative '../../cloudburrito'
 require_relative '../../events/new_package_events'
 require 'rspec'
 
-describe "Event manager" do
+ENV['RACK_ENV'] = 'test'
+Mongoid.load!("config/mongoid.yml")
+
+describe "The NewPackageEvents class" do
 
   def app
     CloudBurrito
