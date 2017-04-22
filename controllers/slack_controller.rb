@@ -2,8 +2,11 @@
 
 require_relative '../models/patron'
 require_relative '../models/package'
+require_relative '../lib/cloudburrito_logger'
 
 class SlackController
+  include CloudBurritoLogger
+
   attr_reader :patron, :params, :actions
 
   def initialize(params)
@@ -18,6 +21,7 @@ class SlackController
 
   def feed
     hungry_man = @patron
+    logger.info "Checking if #{hungry_man} can feed."
     # Check if hungry man is allowed to feed based on these rules:
     # 1) Must be active in the pool
     # 2) Can't be a delivery man
@@ -29,6 +33,7 @@ class SlackController
     return "Stop being so greedy! Wait #{hungry_man.time_until_hungry}s." if hungry_man.greedy?
 
     # Create a package for events to process
+    logger.info "Creating burrito package for #{hungry_man}."
     Package.create hungry_man: hungry_man
 
     # Let hungry man know we've received his order
@@ -43,6 +48,7 @@ class SlackController
     # Ack the package
     package.en_route = true
     package.save
+    logger.info "#{@patron} has acknowledged the delivery request."
     'Make haste!'
   end
 
@@ -53,6 +59,7 @@ class SlackController
     # Mark the package as received
     delivery_man = @patron.incoming_burrito.delivery_man
     @patron.incoming_burrito.delivered!
+    logger.info "#{@patron} has received his burrito."
     # Notify delivery_man that he can order more burritos
     text = 'Your delivery has been acked. You can request more burritos!'
     Message.create to: delivery_man, text: text
@@ -71,6 +78,7 @@ class SlackController
       "You are already part of the pool party!\nRequest a burrito with */cloudburrito feed*."
     else
       @patron.active!
+      logger.info "#{@patron} is now active."
       'Please enjoy our fine selection of burritos!'
     end
   end
@@ -78,6 +86,7 @@ class SlackController
   def leave
     @patron.is_active = false
     @patron.save
+    logger.info "#{@patron} is inactive."
     'You have left the burrito pool party.'
   end
 

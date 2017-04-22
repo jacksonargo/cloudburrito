@@ -17,6 +17,10 @@ require 'sinatra/base'
 class CloudBurrito < Sinatra::Base
   Mongoid.load!('config/mongoid.yml')
 
+  configure :production, :development do
+    enable :logging
+  end
+
   if File.exist? '.git'
     version = `git describe`
   elsif File.exist? '../../repo/HEAD'
@@ -151,6 +155,7 @@ class CloudBurrito < Sinatra::Base
   post '/slack' do
     # Check if the user exists
     unless Patron.where(user_id: params['user_id']).exists?
+      logger.info "New user #{params['user_id']}"
       Patron.new(user_id: params['user_id']).save
       return erb :slack_new_user
     end
@@ -160,6 +165,7 @@ class CloudBurrito < Sinatra::Base
     # Do the needful
     cmd = params['text']
     cmd = cmd.strip unless cmd.nil?
+    logger.info "User #{params['user_id']} requesting #{cmd}"
     if controller.actions.include? cmd
       controller.send(cmd)
     else
