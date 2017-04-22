@@ -37,7 +37,9 @@ class StalePackageEvents < Events
   end
 
   def next_action
-    replace_next
+    while stale_packages.count > 0 do
+      replace_next
+    end
     sleep 0.1
   end
 end

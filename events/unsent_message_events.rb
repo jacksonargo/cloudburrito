@@ -67,7 +67,9 @@ class UnsentMessageEvents < Events
   end
 
   def next_action
-    send_next
+    while unsent_messages.exists? do
+      send_next
+    end
     sleep 0.1
   end
 end

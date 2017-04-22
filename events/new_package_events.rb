@@ -50,7 +50,9 @@ class NewPackageEvents < Events
   end
 
   def next_action
-    assign_next
+    while unassigned_packages.exists? do
+      assign_next
+    end
     sleep 0.1
   end
 end
