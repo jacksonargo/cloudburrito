@@ -1,3 +1,5 @@
+require 'codacy-coverage'
+Codacy::Reporter.start
 ENV['RACK_ENV'] = 'test'
 RSpec.configure do |config|
   config.expect_with :rspec do |expectations|
