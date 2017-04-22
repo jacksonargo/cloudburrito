@@ -7,13 +7,7 @@ require 'fileutils'
 # A module that add a logger method.
 module CloudBurritoLogger
   def logger
-    logfile = 'log/app.log'
-    FileUtils.mkdir_p 'log'
-    if File.writable? logfile
-      @__logger ||= Logger.new('log/app.log')
-    else
-      @__logger ||= Logger.new(STDOUT)
-    end
+    @__logger ||= Logger.new(STDERR)
     @__logger
   end
 end
