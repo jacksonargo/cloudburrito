@@ -2,11 +2,14 @@
 
 require_relative '../models/message'
 require_relative '../lib/events'
+require_relative '../lib/cloudburrito_logger'
 require 'slack-ruby-client'
 require 'yaml'
 
 class UnsentMessageEvents < Events
   attr_reader :slack_client, :environment
+
+  include CloudBurritoLogger
 
   def initialize
     @environment = ENV['RACK_ENV']
@@ -33,8 +36,9 @@ class UnsentMessageEvents < Events
     begin
       im = @slack_client.im_open(user: msg.to._id).channel.id
       @slack_client.chat_postMessage(channel: im, text: msg.text)
+      logger.info "Sent slack pm to #{msg.to}."
     rescue
-      puts('Was not able to send slack pm message :c')
+      logger.error "Failed to send slack pm to #{msg.to}."
     end
     true
   end
@@ -48,6 +52,7 @@ class UnsentMessageEvents < Events
     return unless unsent_messages.exists?
     # Get the first unsent message
     msg = unsent_messages.first
+    logger.info "Sending new message for #{msg.to}."
     # Send it
     send_slack_pm msg
     # Mark sent

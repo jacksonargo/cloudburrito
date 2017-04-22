@@ -4,8 +4,11 @@ require_relative '../models/patron'
 require_relative '../models/package'
 require_relative '../models/message'
 require_relative '../lib/events'
+require_relative '../lib/cloudburrito_logger'
 
 class StalePackageEvents < Events
+  include CloudBurritoLogger
+
   def wait_for_complete
     while stale_packages.count > 0
     end
@@ -18,9 +21,11 @@ class StalePackageEvents < Events
   def replace_next
     stale_package = stale_packages.first
     return if stale_package.nil?
+    logger.info "Replacing stale package #{stale_package._id}."
     dman = stale_package.delivery_man
     hman = stale_package.hungry_man
     # Make dman inactive
+    logger.info "Patron #{dman._id} is inactive."
     dman.inactive!
     Message.create to: dman, text: "You've been kicked from the pool!"
     # Fail the package
