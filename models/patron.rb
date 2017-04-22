@@ -67,13 +67,13 @@ class Patron
   def time_of_last_burrito
     return last_time_activated unless burritos.where(received: true).exists?
     x = last_time_activated
-    y = burritos.where(received: true).last.delivery_time
+    y = burritos.where(received: true).last.received_at
     x > y ? x : y
   end
 
   def time_of_last_delivery
     return 0 unless deliveries.where(received: true).exists?
-    deliveries.where(received: true).last.delivery_time
+    deliveries.where(received: true).last.received_at
   end
 
   def greedy?

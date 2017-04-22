@@ -12,16 +12,20 @@ class Package
   belongs_to :hungry_man, class_name: 'Patron', inverse_of: :burritos
   belongs_to :delivery_man, class_name: 'Patron', inverse_of: :deliveries
 
-  field :en_route, type: Boolean, default: false
-  field :received, type: Boolean, default: false
+  field :retry, type: Boolean, default: false
   field :force_stale, type: Boolean, default: false
   field :failed, type: Boolean, default: false
-  field :retry, type: Boolean, default: false
+  field :failed_at, type: Time
   field :assigned, type: Boolean, default: false
   field :assigned_at, type: Time
-  field :delivery_time, type: Time
+  field :en_route, type: Boolean, default: false
+  field :en_route_at, type: Time
+  field :received, type: Boolean, default: false
+  field :received_at, type: Time
   field :max_age, type: Integer, default: 300 # 5 minutes
   field :slack_params, type: Hash
+
+  field :delivery_time, type: Time
 
   after_initialize do |package|
     package.delivery_man ||= package.hungry_man
@@ -63,22 +67,19 @@ class Package
   end
 
   def failed!
+    self.failed_at = Time.now
     self.failed = true
     save
   end
 
-  def delivered
-    self.delivery_time = Time.now
+  def received!
+    en_route! unless en_route?
+    self.received_at = Time.now
     self.received = true
-    self.en_route = true
-  end
-
-  def delivered!
-    delivered
     save
   end
 
-  def delivered?
+  def received?
     received
   end
 
@@ -90,6 +91,16 @@ class Package
     self.delivery_man = dm
     self.assigned_at = Time.now
     self.assigned = true
+    save
+  end
+
+  def en_route?
+    en_route
+  end
+
+  def en_route!
+    self.en_route_at = Time.now
+    self.en_route = true
     save
   end
 end

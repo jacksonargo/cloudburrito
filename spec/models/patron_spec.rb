@@ -143,13 +143,13 @@ RSpec.describe 'The Patron class' do
     end
 
     it 'after delivery' do
-      package.delivered!
+      package.received!
       expect(patron.sleepy?).to eq(true)
     end
 
     it 'not 3600s after delivery' do
-      package.delivered!
-      package.delivery_time = Time.now - 3600
+      package.received!
+      package.received_at = Time.now - 3600
       package.save
       expect(patron.sleepy?).to eq(false)
     end
@@ -169,7 +169,7 @@ RSpec.describe 'The Patron class' do
     end
 
     it 'after receiving burrito' do
-      package.delivered!
+      package.received!
       expect(patron.greedy?).to eq(true)
     end
 
@@ -190,8 +190,8 @@ RSpec.describe 'The Patron class' do
 
     it 'not after 3600 seconds after receiving burrito' do
       patron.last_time_activated = Time.now - 3600
-      package.delivered!
-      package.delivery_time = Time.now - 3600
+      package.received!
+      package.received_at = Time.now - 3600
       package.save
       expect(patron.greedy?).to eq(false)
     end

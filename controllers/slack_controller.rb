@@ -58,7 +58,7 @@ class SlackController
     return msg unless @patron.waiting?
     # Mark the package as received
     delivery_man = @patron.incoming_burrito.delivery_man
-    @patron.incoming_burrito.delivered!
+    @patron.incoming_burrito.received!
     logger.info "#{@patron} has received his burrito."
     # Notify delivery_man that he can order more burritos
     text = 'Your delivery has been acked. You can request more burritos!'

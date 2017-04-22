@@ -33,7 +33,7 @@ RSpec.describe 'The Package class' do
   end
 
   context '#failed?' do
-    it 'not when created' do
+    it 'not when first created' do
       expect(package.failed?).to be false
     end
     it 'when failed' do
@@ -42,26 +42,46 @@ RSpec.describe 'The Package class' do
     end
   end
 
-  context '#delivered!' do
-    before(:each) { package.delivered! }
-    it 'sets a delivery_time' do
-      expect(package.delivery_time).not_to be nil
+  context '#received!' do
+    before(:each) { package.received! }
+    it 'sets received at' do
+      expect(package.received_at).not_to be nil
     end
     it 'sets received' do
       expect(package.received).to be true
     end
     it 'sets en_route' do
+      expect(package.en_route?).to be true
+    end
+  end
+
+  context '#received?' do
+    it 'not when first created' do
+      expect(package.received?).to be false
+    end
+    it 'when received' do
+      package.received!
+      expect(package.received?).to be true
+    end
+  end
+
+  context '#en_route!' do
+    before(:each) { package.en_route! }
+    it 'sets en_route' do
+      expect(package.en_route).to be true
+    end
+    it 'sets en_route_at' do
       expect(package.en_route).to be true
     end
   end
 
-  context '#delivered?' do
-    it 'not when created' do
-      expect(package.delivered?).to be false
+  context '#en_route?' do
+    it 'not when first created' do
+      expect(package.en_route?).to be false
     end
-    it 'when delivered' do
-      package.delivered!
-      expect(package.delivered?).to be true
+    it 'when en_route' do
+      package.en_route!
+      expect(package.en_route?).to be true
     end
   end
 
@@ -96,7 +116,7 @@ RSpec.describe 'The Package class' do
         after(:each) { expect(package.stale?).to be false }
         it('en route')   { package.en_route = true }
         it('failed')     { package.failed! }
-        it('delivered')  { package.delivered! }
+        it('received')   { package.received! }
         it('unassigned') { package.assigned = false }
       end
     end
@@ -136,7 +156,7 @@ RSpec.describe 'The Package class' do
   end
 
   context '#assigned?' do
-    it 'not when created' do
+    it 'not when first created' do
       expect(package.assigned?).to be false
     end
     it 'when assigned' do
@@ -154,6 +174,9 @@ RSpec.describe 'The Package class' do
     end
     it 'updates the assigned_at time' do
       expect(package.assigned_at).not_to be_nil
+    end
+    it 'sets assigned' do
+      expect(package.assigned).to be true
     end
     it 'can be saved' do
       expect(package.save).to be true
