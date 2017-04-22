@@ -18,12 +18,14 @@ class CloudBurrito < Sinatra::Base
   Mongoid.load!('config/mongoid.yml')
 
   if File.exists? '.git'
-    @version = `git describe`
+    version = `git describe`
   elsif File.exists? '../repo/HEAD'
-    @version = `cd ../repo && git describe`
+    version = `cd ../repo && git describe`
   else
-    @version = Time.now
+    version = Time.now
   end
+
+  set :version, version
 
   ##
   ## Functions
@@ -53,6 +55,7 @@ class CloudBurrito < Sinatra::Base
   ## Serve burritos
   ##
 
+  puts "Version: #{@version}"
   puts "Environment: #{settings.environment}"
   puts "Seed: #{Random::DEFAULT.seed}"
 
@@ -90,6 +93,7 @@ class CloudBurrito < Sinatra::Base
 
   get '/' do
     if request.accept? 'text/html'
+      @version = settings.version
       @content = erb :index
       erb :beautify
     else
@@ -160,6 +164,7 @@ class CloudBurrito < Sinatra::Base
     if controller.actions.include? cmd
       controller.send(cmd)
     else
+      @version = settings.version
       erb :slack_help
     end
   end
