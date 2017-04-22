@@ -6,6 +6,8 @@ require_relative '../models/message'
 require_relative '../lib/events'
 require_relative '../lib/cloudburrito_logger'
 
+# NewPackageEvents
+# A class to assign new packages once they are created.
 class NewPackageEvents < Events
   include CloudBurritoLogger
 

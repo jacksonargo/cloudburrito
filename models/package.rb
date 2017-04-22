@@ -3,8 +3,8 @@
 require_relative 'patron'
 require 'mongoid'
 
-# Class to store data about packages
-
+# Package
+# A burrito/delivery that has been requested.
 class Package
   include Mongoid::Document
   include Mongoid::Timestamps

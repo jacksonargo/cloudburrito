@@ -4,8 +4,8 @@ require_relative 'package'
 require_relative 'message'
 require 'mongoid'
 
-## Class to store data for the participants
-
+# Patron
+# A cloudburrito user and volunteer.
 class Patron
   include Mongoid::Document
   include Mongoid::Timestamps

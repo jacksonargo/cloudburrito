@@ -3,6 +3,8 @@
 require_relative 'patron'
 require 'mongoid'
 
+# Message
+# A message to send to a patron.
 class Message
   include Mongoid::Document
   include Mongoid::Timestamps

@@ -6,6 +6,8 @@ require_relative '../lib/cloudburrito_logger'
 require 'slack-ruby-client'
 require 'yaml'
 
+# UnsentMessageEvents
+# A class to send new messages to users
 class UnsentMessageEvents < Events
   attr_reader :slack_client, :environment
 

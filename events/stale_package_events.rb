@@ -6,6 +6,8 @@ require_relative '../models/message'
 require_relative '../lib/events'
 require_relative '../lib/cloudburrito_logger'
 
+# StalePackageEvents
+# A class to process packages once they become stale.
 class StalePackageEvents < Events
   include CloudBurritoLogger
 

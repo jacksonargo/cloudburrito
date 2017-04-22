@@ -12,6 +12,8 @@ require_relative 'events/stale_package_events'
 require_relative 'events/unsent_message_events'
 require 'sinatra/base'
 
+# CloudBurrito
+# An app for downloading burritos from the cloud.
 class CloudBurrito < Sinatra::Base
   Mongoid.load!('config/mongoid.yml')
 

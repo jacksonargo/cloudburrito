@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+# Events
+# A meta-class that defines basic ops for my event classes.
 class Events
   attr_reader :thread
 
