@@ -3,6 +3,7 @@
 *.log
 *.lock
 *.pid
-config
+config/mongoid.yml
+config/secrets.yml
 spec/examples.txt
 coverage
