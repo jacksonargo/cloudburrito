@@ -17,6 +17,14 @@ require 'sinatra/base'
 class CloudBurrito < Sinatra::Base
   Mongoid.load!('config/mongoid.yml')
 
+  if File.exists? '.git'
+    @version = `git describe`
+  elsif File.exists? '../repo/HEAD'
+    @version = `cd ../repo && git describe`
+  else
+    @version = Time.now
+  end
+
   ##
   ## Functions
   ##
