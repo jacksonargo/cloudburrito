@@ -55,7 +55,7 @@ class CloudBurrito < Sinatra::Base
   ## Serve burritos
   ##
 
-  puts "Version: #{@version}"
+  puts "Version: #{settings.version}"
   puts "Environment: #{settings.environment}"
   puts "Seed: #{Random::DEFAULT.seed}"
 
