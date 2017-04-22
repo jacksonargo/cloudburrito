@@ -93,7 +93,6 @@ class CloudBurrito < Sinatra::Base
 
   get '/' do
     if request.accept? 'text/html'
-      @version = settings.version
       @content = erb :index
       erb :beautify
     else
@@ -164,7 +163,6 @@ class CloudBurrito < Sinatra::Base
     if controller.actions.include? cmd
       controller.send(cmd)
     else
-      @version = settings.version
       erb :slack_help
     end
   end
