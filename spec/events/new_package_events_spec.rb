@@ -26,10 +26,6 @@ RSpec.describe 'The NewPackageEvents class' do
       10.times { Package.create hungry_man: hman, received: true }
       expect(events.unassigned_packages.count).to be 0
     end
-    it 'does not include stale packages' do
-      10.times { Package.create hungry_man: hman, force_stale: true }
-      expect(events.unassigned_packages.count).to be 0
-    end
     it 'returns unassigned packages' do
       10.times { Package.create hungry_man: hman }
       expect(events.unassigned_packages.count).to be 10
@@ -152,23 +148,6 @@ RSpec.describe 'The NewPackageEvents class' do
         Package.create hungry_man: Patron.find('3')
         events.wait_for_complete
         expect(events.unassigned_packages.count).to eq 0
-      end
-    end
-
-    context 'when stale packages exist,' do
-      before(:each) do
-        (2..11).each { |x| Patron.create user_id: x.to_s, is_active: true }
-        Package.create hungry_man: hman, created_at: Time.at(0)
-        Package.create hungry_man: Patron.find('2'), created_at: Time.at(0)
-        Package.create hungry_man: Patron.find('3'), created_at: Time.at(0)
-      end
-      it 'marks them failed' do
-        events.wait_for_complete
-        expect(Package.where(failed: true).count).to be 3
-      end
-      it 'creates replacement packages' do
-        events.wait_for_complete
-        expect(Package.where(failed: false).count).to be 3
       end
     end
   end
