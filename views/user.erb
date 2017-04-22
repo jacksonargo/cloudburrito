@@ -1,3 +1,24 @@
-<h1>This feature is coming soon!</h1>
-
-<%= JSON.pretty_generate(@patron.attributes) %>
+<h1>User Statistics</h1>
+<hr>
+<table class="table">
+  <tr>
+    <td><strong>In the burrito pool:</strong></td>
+    <td><%= @patron.is_active %></td>
+  </tr>
+  <tr>
+    <td><strong>Seconds until you can order:</strong></td>
+    <td><%= @patron.time_until_hungry %></td>
+  </tr>
+  <tr>
+    <td><strong>Burritos delivered:</strong></td>
+    <td><%= @patron.deliveries.where(received: true).count %></td>
+  </tr>
+  <tr>
+    <td><strong>Burritos consumed:</strong></td>
+    <td><%= @patron.burritos.where(received: true).count %></td>
+  </tr>
+  <tr>
+    <td><strong>Calories consumed:</strong></td>
+    <td><%= @patron.burritos.where(received: true).count * 350 %> kCal</td>
+  </tr>
+</table>

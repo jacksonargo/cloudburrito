@@ -2,5 +2,7 @@
 *.swp
 *.log
 *.lock
-config/mongoid.yml
-config/settings.json
+*.pid
+config
+spec/examples.txt
+coverage
