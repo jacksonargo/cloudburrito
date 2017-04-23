@@ -33,10 +33,12 @@ class Package
     package.failed_at   ||= Time.now if package.failed
   end
 
-  def latency_time
+  def latency
     if failed
+      0 if failed_at.nil?
       failed_at - created_at
     elsif received
+      0 if received_at.nil?
       received_at - created_at
     else
       Time.now - created_at

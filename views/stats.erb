@@ -6,7 +6,7 @@
   </tr>
   <tr>
     <td><strong>Active:</strong></td>
-    <td><%= Patron.where(is_active: true).count %></td>
+    <td><%= Patron.where(active: true).count %></td>
   </tr>
   <tr>
     <td><strong>Burritos served:</strong></td>
@@ -20,12 +20,15 @@
     <td><strong>Average TTD:</strong></td>
 <%
   t_total = 0
-  Package.each{ |p| t_total += p.updated_at - p.created_at }
-  if Package.where(received: true).count != 0
-    ttd = t_total / Package.where(received: true).count / 60
-  else
-    ttd = -1
+  t_count = 0
+  Package.each do |package|
+    if package.latency.positive?
+      t_total += package.latency
+      t_count += 1
+    end
   end
+  ttd = t_total / t_count / 60 unless t_count == 0
+  ttd ||= 0
 %>
     <td><%= sprintf "%.2f", ttd %> min/burrito</td>
   </tr>

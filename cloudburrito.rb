@@ -108,7 +108,7 @@ class CloudBurrito < Sinatra::Base
     @stats = {
       'patrons' => {
         'total' => Patron.count,
-        'active' => Patron.where(is_active: true).count
+        'active' => Patron.where(active: true).count
       },
       'served' => {
         'burritos' => Package.where(received: true).count,
