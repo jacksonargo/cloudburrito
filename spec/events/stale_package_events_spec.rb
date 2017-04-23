@@ -48,7 +48,7 @@ RSpec.describe 'The StalePackageEvent class' do
 
     context 'one package becomes stale' do
       let(:hman) { Patron.create user_id: '1' }
-      let(:dman) { Patron.create user_id: '2', is_active: true }
+      let(:dman) { Patron.create user_id: '2', active: true }
       before(:each) do
         Package.create(
           hungry_man: hman,
@@ -137,7 +137,7 @@ RSpec.describe 'The StalePackageEvent class' do
 
     context 'when stale packages exist,' do
       before(:each) do
-        (2..11).each { |x| Patron.create user_id: x.to_s, is_active: true }
+        (2..11).each { |x| Patron.create user_id: x.to_s, active: true }
         Package.create hungry_man: hman, assigned: true, force_stale: true
         Package.create hungry_man: hman, assigned: true, force_stale: true
         Package.create hungry_man: hman, assigned: true, force_stale: true

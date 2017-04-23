@@ -18,10 +18,16 @@ RSpec.describe 'The Package class' do
   let(:package) { Package.create hungry_man: hman, delivery_man: dman }
 
   context '#latency_time' do
-    it 'returns time between created and delivery' do
-      package.created_at = Time.now - 30
-      package.delivery_time = package.created_at + 30
-      expect(package.latency_time).to eq(30)
+    before(:each) { package.created_at = Time.now - 30 }
+    after(:each) { expect(package.latency_time).to eq(30) }
+
+    it 'package is received' do
+      package.received!
+      package.received_at = package.created_at + 30
+    end
+    it 'package is failed' do
+      package.failed!
+      package.failed_at = package.created_at + 30
     end
   end
 
@@ -152,6 +158,23 @@ RSpec.describe 'The Package class' do
       p = Package.create hungry_man: hman, delivery_man: dman
       expect(p.hungry_man).to eq(hman)
       expect(p.delivery_man).to eq(dman)
+    end
+
+    it 'sets received_at if created w/ recevied: true' do
+      p = Package.create hungry_man: hman, delivery_man: dman, received: true
+      expect(p.received_at).not_to be nil
+    end
+    it 'sets en_route_at if created w/ recevied: true' do
+      p = Package.create hungry_man: hman, delivery_man: dman, en_route: true
+      expect(p.en_route_at).not_to be nil
+    end
+    it 'sets assigned_at if created w/ recevied: true' do
+      p = Package.create hungry_man: hman, delivery_man: dman, assigned: true
+      expect(p.assigned_at).not_to be nil
+    end
+    it 'sets failed_at if created w/ recevied: true' do
+      p = Package.create hungry_man: hman, delivery_man: dman, failed: true
+      expect(p.failed_at).not_to be nil
     end
   end
 

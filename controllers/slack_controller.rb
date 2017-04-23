@@ -14,7 +14,6 @@ class SlackController
     @params = params
     # Add the user to the database if they don't already exist
     @patron = Patron.where(user_id: params['user_id']).first_or_create!
-    @patron.save
     # Actions list
     @actions = %w[feed serving full status join stats leave]
   end
@@ -27,7 +26,7 @@ class SlackController
     # 2) Can't be a delivery man
     # 3) Can't be waiting for a burrito
     # 4) Must wait between orders (determined by greediness)
-    return 'Please join the pool.' unless hungry_man.is_active?
+    return 'Please join the pool.' unless hungry_man.active?
     return '*You* should be delivering a burrito!' if hungry_man.on_delivery?
     return 'You already have a burrito coming!' if hungry_man.waiting?
     return "Stop being so greedy! Wait #{hungry_man.time_until_hungry}s." if hungry_man.greedy?
@@ -84,7 +83,7 @@ class SlackController
   end
 
   def leave
-    @patron.is_active = false
+    @patron.active = false
     @patron.save
     logger.info "#{@patron} is inactive."
     'You have left the burrito pool party.'

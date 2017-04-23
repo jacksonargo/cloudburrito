@@ -20,6 +20,21 @@ RSpec.describe 'The Patron class' do
       x = Patron.new(user_id: '1')
       expect(x.save).to eq(true)
     end
+
+    it 'inactive when created' do
+      x = Patron.new(user_id: '1')
+      expect(x.active?).to be false
+    end
+
+    it 'active_at is nil' do
+      x = Patron.new(user_id: '1')
+      expect(x.active_at).to be nil
+    end
+
+    it 'sets active_at if created with active true' do
+      x = Patron.create user_id: '1', active: true
+      expect(x.active_at).not_to be nil
+    end
   end
 
   context '#active_delivery' do
@@ -83,9 +98,25 @@ RSpec.describe 'The Patron class' do
   end
 
   context '#time_of_last_burrito' do
+    let(:dman) { Patron.create user_id: '2' }
+    it 'returns 0 if no burritos received' do
+      expect(patron.time_of_last_burrito).to eq(Time.at(0))
+    end
+    it 'returns now if burrito just delivered' do
+      p = Package.create hungry_man: patron, delivery_man: dman, received: true
+      expect(patron.time_of_last_burrito.to_i).to eq p.received_at.to_i
+    end
   end
 
   context '#time_of_last_delivery' do
+    let(:hman) { Patron.create user_id: '2' }
+    it 'returns 0 if no deliveries completed' do
+      expect(patron.time_of_last_delivery).to eq(Time.at(0))
+    end
+    it 'returns now if burrito just delivered' do
+      p = Package.create hungry_man: hman, delivery_man: patron, received: true
+      expect(patron.time_of_last_delivery.to_i).to eq p.received_at.to_i
+    end
   end
 
   context '#time_until_hungry' do
@@ -96,11 +127,11 @@ RSpec.describe 'The Patron class' do
 
   context '#active!' do
     before(:each) { patron.active! }
-    it 'sets last time activated' do
-      expect(patron.last_time_activated.to_i).to eq(Time.now.to_i)
+    it 'sets active_at' do
+      expect(patron.active_at).not_to be nil
     end
-    it 'sets is_active' do
-      expect(patron.is_active).to be true
+    it 'sets active' do
+      expect(patron.active).to be true
     end
   end
 
@@ -108,7 +139,7 @@ RSpec.describe 'The Patron class' do
     it 'not when created' do
       expect(patron.active?).to be false
     end
-    it 'when activated' do
+    it 'when active' do
       patron.active!
       expect(patron.active?).to be true
     end
@@ -116,8 +147,11 @@ RSpec.describe 'The Patron class' do
 
   context '#inactive!' do
     before(:each) { patron.inactive! }
-    it 'unsets is_active' do
-      expect(patron.is_active).to eq(false)
+    it 'unsets active' do
+      expect(patron.active).to eq(false)
+    end
+    it 'sets inactive_at' do
+      expect(patron.inactive_at).not_to be nil
     end
   end
 
@@ -159,18 +193,18 @@ RSpec.describe 'The Patron class' do
     let(:other) { Patron.create user_id: '2' }
     let(:package) { Package.create hungry_man: patron, delivery_man: other }
 
-    it 'when created' do
+    it 'when first created' do
       expect(patron.greedy?).to eq(true)
     end
 
-    it 'when last time activated is now' do
-      patron.last_time_activated = Time.now
+    it 'when first active' do
+      patron.active!
       expect(patron.greedy?).to eq(true)
     end
 
-    it 'after receiving burrito' do
-      package.received!
-      expect(patron.greedy?).to eq(true)
+    it 'when inactive' do
+      patron.inactive!
+      expect(patron.greedy?).to be true
     end
 
     it 'not when forced not greedy' do
@@ -178,22 +212,35 @@ RSpec.describe 'The Patron class' do
       expect(patron.greedy?).to eq(false)
     end
 
-    it 'not when last act time is 0' do
-      patron.last_time_activated = Time.at 0
+    it 'not after being active for 3600 seconds' do
+      patron.active!
+      patron.active_at = Time.now - 3600
       expect(patron.greedy?).to eq(false)
     end
 
-    it 'not after 3600 seconds' do
-      patron.last_time_activated = Time.now - 3600
-      expect(patron.greedy?).to eq(false)
-    end
+    context 'active and after 3600 seconds' do
+      before(:each) do
+        patron.active!
+        patron.active_at = Time.now - 3600
+      end
 
-    it 'not after 3600 seconds after receiving burrito' do
-      patron.last_time_activated = Time.now - 3600
-      package.received!
-      package.received_at = Time.now - 3600
-      package.save
-      expect(patron.greedy?).to eq(false)
+      it 'greedy when marked inactive' do
+        patron.inactive!
+        expect(patron.greedy?).to eq(true)
+      end
+
+      it 'greedy just after receiving burrito' do
+        package.received!
+        expect(patron.greedy?).to eq(true)
+      end
+
+      it 'not greedy 3600s after receiving burrito' do
+        patron.active_at = Time.now - 3600
+        package.received!
+        package.received_at = Time.now - 3600
+        package.save
+        expect(patron.greedy?).to eq(false)
+      end
     end
   end
 

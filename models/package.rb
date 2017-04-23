@@ -25,15 +25,24 @@ class Package
   field :max_age, type: Integer, default: 300 # 5 minutes
   field :slack_params, type: Hash
 
-  field :delivery_time, type: Time
+#  field :delivery_time, type: Time
 
   after_initialize do |package|
     package.delivery_man ||= package.hungry_man
-    package.save
+    package.received_at ||= Time.now if package.received
+    package.en_route_at ||= Time.now if package.en_route
+    package.assigned_at ||= Time.now if package.assigned
+    package.failed_at   ||= Time.now if package.failed
   end
 
   def latency_time
-    delivery_time - created_at
+    if failed
+      failed_at - created_at
+    elsif received
+      received_at - created_at
+    else
+      Time.now - created_at
+    end
   end
 
   def to_s

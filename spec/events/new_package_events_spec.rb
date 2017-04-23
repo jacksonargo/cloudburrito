@@ -37,7 +37,7 @@ RSpec.describe 'The NewPackageEvents class' do
       expect(events.get_delivery_man).to be nil
     end
     it 'returns new active dman' do
-      dman = Patron.create user_id: '2', is_active: true
+      dman = Patron.create user_id: '2', active: true
       expect(events.get_delivery_man).to eq dman
     end
   end
@@ -67,7 +67,7 @@ RSpec.describe 'The NewPackageEvents class' do
 
       context 'there are delivery men,' do
         before(:each) do
-          Patron.create user_id: '2', is_active: true
+          Patron.create user_id: '2', active: true
           events.assign_next
         end
         it 'marks the package assigned.' do
@@ -105,7 +105,7 @@ RSpec.describe 'The NewPackageEvents class' do
       end
       context 'assigns packages first in first out' do
         before(:each) do
-          Patron.create user_id: '3', is_active: true
+          Patron.create user_id: '3', active: true
           events.assign_next
         end
         it 'first package is assigned' do
@@ -142,7 +142,7 @@ RSpec.describe 'The NewPackageEvents class' do
     context 'when unassgined package exist,' do
       it 'assigns them' do
         # Create patrons to be assigned as delivery men
-        (2..11).each { |x| Patron.create user_id: x.to_s, is_active: true }
+        (2..11).each { |x| Patron.create user_id: x.to_s, active: true }
         Package.create hungry_man: hman
         Package.create hungry_man: Patron.find('2')
         Package.create hungry_man: Patron.find('3')

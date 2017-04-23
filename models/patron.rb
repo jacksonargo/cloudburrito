@@ -16,8 +16,9 @@ class Patron
 
   field :user_id, type: String
   field :_id, type: String, default: -> { user_id }
-  field :is_active, type: Boolean, default: false
-  field :last_time_activated, type: Time, default: -> { Time.now }
+  field :active, type: Boolean, default: false
+  field :active_at, type: Time
+  field :inactive_at, type: Time
   field :force_not_greedy, type: Boolean, default: false
   field :force_not_sleepy, type: Boolean, default: false
   field :user_token, type: String, default: -> { rand(1 << 256).to_s(36) }
@@ -25,27 +26,34 @@ class Patron
   field :greedy_time, type: Integer, default: 3600
   field :slack_user,  type: Boolean, default: true
 
+#  field :is_active, type: Boolean, default: false
+
+  after_initialize do |patron|
+    patron.active_at ||= Time.now if patron.active
+  end
+
   def to_s
     "<@#{user_id}>"
   end
 
   def active!
-    self.last_time_activated = Time.now
-    self.is_active = true
+    self.active_at = Time.now
+    self.active = true
     save
   end
 
   def active?
-    is_active
+    active
   end
 
   def inactive!
-    self.is_active = false
+    self.inactive_at = Time.now
+    self.active = false
     save
   end
 
   def inactive?
-    !is_active
+    !active
   end
 
   def active_delivery
@@ -65,19 +73,18 @@ class Patron
   end
 
   def time_of_last_burrito
-    return last_time_activated unless burritos.where(received: true).exists?
-    x = last_time_activated
-    y = burritos.where(received: true).last.received_at
-    x > y ? x : y
+    return Time.at(0) unless burritos.where(received: true).exists?
+    burritos.where(received: true).last.received_at
   end
 
   def time_of_last_delivery
-    return 0 unless deliveries.where(received: true).exists?
+    return Time.at(0) unless deliveries.where(received: true).exists?
     deliveries.where(received: true).last.received_at
   end
 
   def greedy?
     return false if force_not_greedy
+    return true if inactive?
     time_until_hungry.positive?
   end
 
@@ -86,13 +93,38 @@ class Patron
     time_until_awake.positive?
   end
 
+  def time_since_last_burrito
+    Time.now - time_of_last_burrito
+  end
+
+  def time_since_last_delivery
+    Time.now - time_of_last_delivery
+  end
+
+  def time_since_active
+    if active_at.nil?
+      time_since_active = 0
+    else
+      time_since_active = Time.now - active_at
+    end
+  end
+
+  # Time until hungry restarts whenever 
+  # 1) you become active
+  # 2) receive a burrito
   def time_until_hungry
-    x = greedy_time - (Time.now - time_of_last_burrito).to_i
+    if time_since_last_burrito < time_since_active
+      time_since_recent_action = time_since_last_burrito
+    else
+      time_since_recent_action = time_since_active
+    end
+
+    x = greedy_time - time_since_recent_action.to_i
     x > 0 ? x : 0
   end
 
   def time_until_awake
-    x = sleepy_time - (Time.now - time_of_last_delivery).to_i
+    x = sleepy_time - time_since_last_delivery.to_i
     x > 0 ? x : 0
   end
 

@@ -52,7 +52,7 @@ RSpec.describe 'The SlackController class' do
     let(:other) { Patron.create user_id: '2' }
     context 'patron cannot feed' do
       it 'patron must be active' do
-        controller.patron.is_active = false
+        controller.patron.active = false
         expect(controller.feed).to eq('Please join the pool.')
       end
       it 'patron cant be on delivery' do
