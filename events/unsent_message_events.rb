@@ -3,32 +3,16 @@
 require_relative '../models/message'
 require_relative '../lib/events'
 require_relative '../lib/cloudburrito_logger'
+require_relative '../lib/slack_client'
 require 'slack-ruby-client'
 require 'yaml'
 
 # UnsentMessageEvents
 # A class to send new messages to users
 class UnsentMessageEvents < Events
-  attr_reader :slack_client, :environment
 
   include CloudBurritoLogger
-
-  def initialize
-    @environment = ENV['RACK_ENV']
-
-    if File.exist? 'config/secrets.yml'
-      secrets = YAML.load_file 'config/secrets.yml'
-      secrets = secrets[@environment]
-    end
-
-    slack_auth_token = secrets['slack_auth_token'] unless secrets.nil?
-    slack_auth_token ||= 'xoxb-???'
-
-    Slack.configure do |config|
-      config.token = slack_auth_token
-    end
-    @slack_client = Slack::Web::Client.new
-  end
+  include SlackClient
 
   def unsent_messages
     Message.where(sent: false)
@@ -36,8 +20,8 @@ class UnsentMessageEvents < Events
 
   def send_slack_pm(msg)
     begin
-      im = @slack_client.im_open(user: msg.to._id).channel.id
-      @slack_client.chat_postMessage(channel: im, text: msg.text)
+      im = slack_client.im_open(user: msg.to._id).channel.id
+      slack_client.chat_postMessage(channel: im, text: msg.text)
       logger.info "Sent slack pm to #{msg.to}."
     rescue
       logger.error "Failed to send slack pm to #{msg.to}."
