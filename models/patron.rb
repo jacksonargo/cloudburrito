@@ -2,6 +2,8 @@
 
 require_relative 'package'
 require_relative 'message'
+require_relative '../lib/slack_client'
+require_relative '../lib/cloudburrito_logger'
 require 'mongoid'
 
 # Patron
@@ -9,6 +11,8 @@ require 'mongoid'
 class Patron
   include Mongoid::Document
   include Mongoid::Timestamps
+  include CloudBurritoLogger
+  include SlackClient
 
   has_many :burritos, class_name: 'Package', inverse_of: :hungry_man
   has_many :deliveries, class_name: 'Package', inverse_of: :delivery_man
@@ -31,7 +35,7 @@ class Patron
   end
 
   def to_s
-    "<@#{user_id}>"
+    user_id
   end
 
   def active!
@@ -160,5 +164,23 @@ class Patron
 
   def slack_link
     "<@#{user_id}>"
+  end
+
+  def slack_user_info
+    begin
+      slack_client.users_info(user: user_id)['user']
+    rescue
+      logger.error "Failed to load slack user info for #{user_id}"
+      {}
+    end
+  end
+
+  def slack_first_name
+    info = slack_user_info
+    if info != {}
+      info['profile']['first_name']
+    else
+      user_id
+    end
   end
 end

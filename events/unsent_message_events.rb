@@ -35,10 +35,6 @@ class UnsentMessageEvents < Events
     end
   end
 
-  def slack_user_info(patron)
-    slack_client.users_info(user: patron.user_id)
-  end
-
   def send_next
     # Do nothing unless there are messages to send
     return unless unsent_messages.exists?

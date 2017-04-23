@@ -277,4 +277,29 @@ RSpec.describe 'The Patron class' do
       expect(patron.can_deliver?).to be false
     end
   end
+
+  context '#slack_link' do
+    it 'returns a link to the slack user' do
+      expect(patron.slack_link).to eq "<@#{patron.user_id}>"
+    end
+  end
+
+  context '#slack_user_info' do
+    it 'returns {} if user_id is invalid' do
+      expect(patron.slack_user_info).to eq Hash.new
+    end
+  end
+
+  context '#slack_first_name' do
+    it 'returns the name of the user in slack' do
+      user_id = ENV['SLACK_TEST_USER_ID'].dup
+      name = ENV['SLACK_TEST_USER_NAME']
+      expect(user_id).to eq 'U1G86TJ72'
+      tester = Patron.create user_id: user_id
+      expect(tester.slack_first_name).to eq name
+    end
+    it 'returns user_id if user_id is invalid' do
+      expect(patron.slack_first_name).to eq '1'
+    end
+  end
 end
