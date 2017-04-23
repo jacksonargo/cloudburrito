@@ -26,7 +26,7 @@ class Patron
   field :greedy_time, type: Integer, default: 3600
   field :slack_user,  type: Boolean, default: true
 
-#  field :is_active, type: Boolean, default: false
+  field :is_active, type: Boolean, default: false
 
   after_initialize do |patron|
     patron.active_at ||= Time.now if patron.active
