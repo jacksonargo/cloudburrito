@@ -17,9 +17,9 @@ RSpec.describe 'The Package class' do
   let(:dman) { Patron.create user_id: '2' }
   let(:package) { Package.create hungry_man: hman, delivery_man: dman }
 
-  context '#latency_time' do
+  context '#latency' do
     before(:each) { package.created_at = Time.now - 30 }
-    after(:each) { expect(package.latency_time).to eq(30) }
+    after(:each) { expect(package.latency).to eq(30) }
 
     it 'package is received' do
       package.received!
