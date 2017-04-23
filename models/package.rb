@@ -25,8 +25,6 @@ class Package
   field :max_age, type: Integer, default: 300 # 5 minutes
   field :slack_params, type: Hash
 
-  field :delivery_time, type: Time
-
   after_initialize do |package|
     package.delivery_man ||= package.hungry_man
     package.received_at ||= Time.now if package.received
