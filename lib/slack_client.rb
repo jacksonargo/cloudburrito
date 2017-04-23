@@ -1,5 +1,9 @@
 # SlackClient
 # A module to create the slack client
+
+require 'slack-ruby-client'
+require 'yaml'
+
 module SlackClient
   def slack_client
     environment = ENV['RACK_ENV']

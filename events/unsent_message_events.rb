@@ -19,18 +19,24 @@ class UnsentMessageEvents < Events
   end
 
   def send_slack_pm(msg)
+    # Don't pm when we are testing
+    if ENV['RACK_ENV'] == 'test'
+      logger.info "Not sending slack pm in test environment."
+      return true
+    end
     begin
       im = slack_client.im_open(user: msg.to._id).channel.id
       slack_client.chat_postMessage(channel: im, text: msg.text)
       logger.info "Sent slack pm to #{msg.to}."
+      true
     rescue
       logger.error "Failed to send slack pm to #{msg.to}."
+      false
     end
-    true
   end
 
   def slack_user_info(patron)
-    @slack_client.users_info(user: patron.user_id)
+    slack_client.users_info(user: patron.user_id)
   end
 
   def send_next
