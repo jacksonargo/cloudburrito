@@ -40,8 +40,8 @@ class UnsentMessageEvents < Events
     return unless unsent_messages.exists?
     # Get the first unsent message
     msg = unsent_messages.first
-    logger.info "Sending new message for #{msg.to}."
     # Send it
+    logger.info "Sending message #{msg._id} for #{msg.to}."
     send_slack_pm msg
     # Mark sent
     msg.sent!
