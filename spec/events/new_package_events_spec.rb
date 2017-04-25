@@ -88,7 +88,7 @@ RSpec.describe 'The NewPackageEvents class' do
             expect(msg.to).to eq(dman)
           end
           it 'and says the you need to deliver.' do
-            text = "You've been volunteered to get a burrito for #{hman}. "
+            text = "You've been volunteered to get a burrito for #{hman.slack_link}. "
             text += 'Please ACK this request by replying */cloudburrito serving*'
             expect(msg.text).to eq text
           end

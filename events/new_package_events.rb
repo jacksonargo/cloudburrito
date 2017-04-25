@@ -37,7 +37,7 @@ class NewPackageEvents < Events
       logger.info "Assigned #{dman} to deliver #{package}."
       package.assign! dman
       # Tell dman he's assigned
-      text = "You've been volunteered to get a burrito for #{hman}. "
+      text = "You've been volunteered to get a burrito for #{hman.slack_link}. "
       text += 'Please ACK this request by replying */cloudburrito serving*'
       Message.create to: dman, text: text
     else
