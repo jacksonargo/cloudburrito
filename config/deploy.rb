@@ -3,7 +3,6 @@ set :repo_url, "https://github.com/jacksonargo/cloudburrito.git"
 
 # Default branch is :master
 #ask :branch, `git rev-parse --abbrev-ref HEAD`.chomp
-set :branch, 'unicorn'
 
 # Default deploy_to directory is /var/www/my_app_name
 set :deploy_to, "/var/www/html/cloudburrito"
@@ -32,11 +31,10 @@ set :keep_releases, 5
 
 set :unicorn_conf, "#{current_path}/config/unicorn.rb"
 set :unicorn_pid, "#{shared_path}/log/unicorn.pid"
-set :rack_env, ENV['RACK_ENV']
 
 task :restart_unicorn do
   on roles(:web) do
-    execute "if [ -f #{fetch :unicorn_pid} ] && [ -d /proc/$(cat #{fetch :unicorn_pid}) ]; then kill -USR2 $(cat #{fetch :unicorn_pid}); else cd #{current_path} && bundle exec unicorn -c #{fetch :unicorn_conf} -E #{fetch :rack_env} -D; fi"
+    execute "if [ -f #{fetch :unicorn_pid} ] && [ -d /proc/$(cat #{fetch :unicorn_pid}) ]; then kill -USR2 $(cat #{fetch :unicorn_pid}); else cd #{current_path} && bundle exec unicorn -c #{fetch :unicorn_conf} -D; fi"
   end
 end
 
