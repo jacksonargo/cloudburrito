@@ -13,7 +13,7 @@ A slack app to download burritos from the cloud.
 
 ### Run:
 
-    bundle exec passenger
+    bundle exec unicorn -c config/unicorn.rb
 
 ### Test:
 
