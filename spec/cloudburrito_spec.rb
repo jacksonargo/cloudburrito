@@ -149,6 +149,7 @@ You can use these commands to do things:
 >*full*: ACK receipt of burrito.
 >*status*: Where is my burrito at?
 >*serving*: ACK a delivery request.
+>*reject*: Reject a delivery request.
 >*stats*: View your burrito stats.
 
 Bugs? Issues? Features? Please see the link below.
