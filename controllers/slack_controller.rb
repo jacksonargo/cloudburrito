@@ -15,7 +15,7 @@ class SlackController
     # Add the user to the database if they don't already exist
     @patron = Patron.where(user_id: params['user_id']).first_or_create!
     # Actions list
-    @actions = %w[feed serving full status join stats leave]
+    @actions = %w[feed serving full status join stats leave pool]
   end
 
   def feed
@@ -80,6 +80,19 @@ class SlackController
       logger.info "#{@patron} is now active."
       'Please enjoy our fine selection of burritos!'
     end
+  end
+
+  def pool
+    pool = param["text"].sub(/^\s*pool\s*/, '').strip
+    # Unless they give a valid pool, hit em with the list
+    unless Pool.all.pluck(:name).include? pool
+      msg = "Here is a list of valid burrito pool parties:"
+      Pool.each {|p| msg += "\n>*#{p.name}*" }
+      return msg
+    end
+    # Set the pool.
+    @patron.pool = pool
+    @patron.save
   end
 
   def leave

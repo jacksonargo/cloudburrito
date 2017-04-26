@@ -30,7 +30,27 @@ RSpec.describe 'The SlackController class' do
       expect(controller.patron).to eq(patron)
     end
     it 'allows required actions' do
-      expect(controller.actions).to eq(%w[feed serving full status join stats leave])
+      expect(controller.actions).to eq(%w[feed serving full status join stats leave pool])
+    end
+  end
+
+  context '#pool' do
+    before(:each) { Pool.create name: 'test_pool' }
+    context 'not a valid pool' do
+      it 'returns a list valid pools' do
+        expect(controller.pool).to eq("Here is a list of valid burrito pool parties:\n>*test_pool*")
+      end
+    end
+    context 'valid pool' do
+      before(:each) do
+      end
+      it 'sets patron.pool' do
+        pool = Pool.first
+        expect(patron.pool).to eq(pool)
+      end
+      it 'notifies user' do
+        expect(controller.pool).to eq("Welcome to the test_pool pool party!")
+      end
     end
   end
 
