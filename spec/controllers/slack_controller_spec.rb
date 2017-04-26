@@ -30,7 +30,7 @@ RSpec.describe 'The SlackController class' do
       expect(controller.patron).to eq(patron)
     end
     it 'allows required actions' do
-      expect(controller.actions).to eq(%w[feed serving full status join stats leave])
+      expect(controller.actions).to eq(%w[feed serving full status join stats leave reject])
     end
   end
 
@@ -146,6 +146,37 @@ RSpec.describe 'The SlackController class' do
         controller.serving
         package = Package.first
         expect(package.en_route).to be true
+      end
+    end
+  end
+
+  context '#reject' do
+    let(:other) { Patron.create user_id: '2' }
+    context 'patron is not on a delivery' do
+      it 'tells them they arent delivering' do
+        expect(controller.reject).to eq("You haven't been volunteered to deliver...")
+      end
+    end
+    context 'patron is on delivery' do
+      let(:package) do
+        Package.create hungry_man: other, delivery_man: patron, assigned: true, en_route: true
+      end
+      before(:each) do
+        package.reload
+        controller.reject
+        package.reload
+      end
+      it 'patron is inactive' do
+        expect(patron.inactive?).to be true
+      end
+      it 'the package is no en route' do
+        expect(package.en_route).to be false
+      end
+      it 'the package is assigned' do
+        expect(package.assigned?).to be true
+      end
+      it 'the package is stale' do
+        expect(package.stale?).to be true
       end
     end
   end
