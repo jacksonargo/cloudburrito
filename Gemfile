@@ -9,6 +9,7 @@ gem 'sinatra'
 gem 'slack-ruby-client'
 gem 'ZenTest'
 gem 'unicorn'
+gem 'factory_girl'
 group :development, :test do
   gem 'capistrano'
   gem 'capistrano-bundler'
