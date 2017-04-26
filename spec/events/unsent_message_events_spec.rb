@@ -11,6 +11,7 @@ RSpec.describe 'The UnsentMessageEvents class' do
   before(:each) do
     Patron.delete_all
     Message.delete_all
+    Locker.delete_all
   end
 
   let(:events) { UnsentMessageEvents.new }
@@ -55,6 +56,15 @@ RSpec.describe 'The UnsentMessageEvents class' do
       end
     end
 
+    context 'the message is locked' do
+      let(:msg) { Message.create to: patron }
+      before(:each) { Locker.lock msg }
+      it 'does not send message' do
+        events.send_next
+        expect(msg.sent).to be false
+      end
+    end
+
     context 'one message exists' do
       before(:each) do
         Message.create to: patron
@@ -67,6 +77,10 @@ RSpec.describe 'The UnsentMessageEvents class' do
 
       it 'there are no unsent messages left' do
         expect(events.unsent_messages.exists?).to be false
+      end
+
+      it 'the message is not locked' do
+        expect(Locker.unlock(Message.first)).to be false
       end
     end
 

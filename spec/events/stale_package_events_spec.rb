@@ -56,46 +56,62 @@ RSpec.describe 'The StalePackageEvent class' do
           force_stale: true,
           assigned: true
         )
-        events.replace_next
       end
 
-      it 'the first package is no longer stale' do
-        expect(Package.first.stale?).to be false
-      end
-
-      it 'there are no stale packages' do
-        expect(events.stale_packages).to eq []
-      end
-
-      it 'marks the package as failed' do
-        expect(Package.first.failed?).to be true
-      end
-
-      it 'creates a new package' do
-        expect(Package.count).to be 2
-      end
-
-      it 'the new package is not stale' do
-        expect(Package.last.stale?).to be false
-      end
-
-      it 'new package is assigned to hungry man' do
-        expect(Package.last.hungry_man).to eq hman
-      end
-
-      it 'makes delivery man inactive' do
-        dman.reload
-        expect(dman.inactive?).to be true
-      end
-
-      context 'creates a message for delivery man' do
-        it('exists') { expect(Message.count).to be(1) }
-        it 'assigned to delivery man' do
-          expect(Message.last.to).to eq dman
+      context 'the package is locked' do
+        before(:each) do
+          Locker.lock Package.first
+          events.replace_next
         end
-        it 'says you been booted' do
-          text = "You've been kicked from the pool!"
-          expect(Message.last.text).to eq text
+        it 'is not modified' do
+          expect(events.stale_packages.count).to be 1
+        end
+      end
+
+      context 'the package is not locked' do 
+        before(:each) { events.replace_next }
+        it 'the first package is no longer stale' do
+          expect(Package.first.stale?).to be false
+        end
+
+        it 'the package is not locked' do
+          expect(Locker.unlock(Package.first)).to be false
+        end
+
+        it 'there are no stale packages' do
+          expect(events.stale_packages).to eq []
+        end
+
+        it 'marks the package as failed' do
+          expect(Package.first.failed?).to be true
+        end
+
+        it 'creates a new package' do
+          expect(Package.count).to be 2
+        end
+
+        it 'the new package is not stale' do
+          expect(Package.last.stale?).to be false
+        end
+
+        it 'new package is assigned to hungry man' do
+          expect(Package.last.hungry_man).to eq hman
+        end
+
+        it 'makes delivery man inactive' do
+          dman.reload
+          expect(dman.inactive?).to be true
+        end
+
+        context 'creates a message for delivery man' do
+          it('exists') { expect(Message.count).to be(1) }
+          it 'assigned to delivery man' do
+            expect(Message.last.to).to eq dman
+          end
+          it 'says you been booted' do
+            text = "You've been kicked from the pool!"
+            expect(Message.last.text).to eq text
+          end
         end
       end
     end

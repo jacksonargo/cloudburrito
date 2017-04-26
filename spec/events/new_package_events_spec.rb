@@ -47,8 +47,21 @@ RSpec.describe 'The NewPackageEvents class' do
       let(:hman) { Patron.create user_id: '1' }
       before(:each) { Package.create hungry_man: hman }
 
+      context 'if the package is locked' do
+        before(:each) do
+          Locker.lock Package.first
+          events.assign_next
+        end
+        it 'does not modify the package' do
+          expect(events.unassigned_packages.count).to be 1
+        end
+      end
+
       context 'if there are no delivery men,' do
         before(:each) { events.assign_next }
+        it 'the package is not locked' do
+          expect(Locker.unlock(Package.last)).to be false
+        end
         it 'marks package as failed.' do
           expect(Package.last.failed?).to be true
         end
@@ -69,6 +82,9 @@ RSpec.describe 'The NewPackageEvents class' do
         before(:each) do
           Patron.create user_id: '2', active: true
           events.assign_next
+        end
+        it 'the package is not locked' do
+          expect(Locker.unlock(Package.last)).to be false
         end
         it 'marks the package assigned.' do
           expect(Package.last.assigned?).to be true

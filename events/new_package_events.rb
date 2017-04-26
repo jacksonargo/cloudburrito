@@ -3,6 +3,7 @@
 require_relative '../models/patron'
 require_relative '../models/package'
 require_relative '../models/message'
+require_relative '../models/locker'
 require_relative '../lib/events'
 require_relative '../lib/cloudburrito_logger'
 
@@ -29,6 +30,8 @@ class NewPackageEvents < Events
     return unless unassigned_packages.exists?
     # Work on the first package
     package = unassigned_packages.first
+    # Lock it
+    return unless Locker.lock package
     hman = package.hungry_man
     logger.info "New package #{package} for #{hman}."
     # Try to get a delivery man
@@ -47,6 +50,8 @@ class NewPackageEvents < Events
       text = 'Your burrito was dropped! Please try again later.'
       Message.create to: hman, text: text
     end
+    # Unlock the package
+    Locker.unlock package
   end
 
   def next_action

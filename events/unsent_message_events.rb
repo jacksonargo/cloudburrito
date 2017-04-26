@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require_relative '../models/message'
-require_relative '../models/lock'
+require_relative '../models/locker'
 require_relative '../lib/events'
 require_relative '../lib/cloudburrito_logger'
 require_relative '../lib/slack_client'
@@ -39,19 +39,17 @@ class UnsentMessageEvents < Events
   def send_next
     # Do nothing unless there are messages to send
     return unless unsent_messages.exists?
-    # Do nothing if we can't create the lock
-    return if Lock.where(event: self.class.to_s).exists?
-    # Create the lock
-    Lock.create event: self.class.to_s
     # Get the first unsent message
     msg = unsent_messages.first
+    # Return unless we can lock it
+    return unless Locker.lock msg
     # Send it
     logger.info "Sending message #{msg._id} for #{msg.to}."
     send_slack_pm msg
     # Mark sent
     msg.sent!
-    # Release the lock
-    Lock.where(event: self.class.to_s).delete
+    # Unlock the message
+    Locker.unlock msg
   end
 
   def wait_for_complete
