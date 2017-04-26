@@ -13,4 +13,8 @@ group :development, :test do
   gem 'capistrano'
   gem 'capistrano-bundler'
   gem 'capistrano-rvm'
+  gem 'chef-dk'
+  gem 'test-kitchen'
+  gem 'kitchen-docker'
+  gem 'chefspec'
 end

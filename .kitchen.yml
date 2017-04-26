@@ -1,0 +1,19 @@
+---
+driver:
+  name: docker
+
+verifier:
+  name: chefspec
+
+provisioner:
+  name: chef_zero
+
+platforms:
+  - name: centos-7
+
+suites:
+  - name: default
+    run_list:
+      - recipe[learn_chef_httpd::default]
+    attributes:
+
