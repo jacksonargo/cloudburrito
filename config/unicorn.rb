@@ -10,7 +10,7 @@ if ENV['RACK_ENV'] == "production"
 end
 
 timeout 30
-worker_processes 2
+worker_processes 1
 listen 'localhost:3000', :backlog => 1024
 
 pid pid_file
