@@ -9,20 +9,34 @@ if [ -f ${unicorn_pid_file} ]; then
 fi
 
 start() {
-    bundle exec unicorn -c ${unicorn_conf} -D
-}
-
-restart() {
-    kill -USR2 ${unicorn_pid}
+    if [ -e ${unicorn_pid} ]; then
+        bundle exec unicorn -c ${unicorn_conf} -D
+    fi
 }
 
 stop() {
-    kill -TERM ${unicorn_pid}
+    if ! [ -e ${unicorn_pid} ]; then
+        kill -TERM ${unicorn_pid}
+    fi
+}
+
+reload() {
+    if ! [ -e ${unicorn_pid} ]; then
+        kill -USR2 ${unicorn_pid}
+    else
+        start
+    fi
+}
+
+restart() {
+    stop
+    start
 }
 
 case $1 in
-    start) if [ -e ${unicorn_pid} ]; then start; fi ;;
-    restart) if [ -e ${unicorn_pid} ]; then start; else restart; fi ;;
-    stop) if ! [ -e ${unicorn_pid} ]; then stop; fi ;;
-    *) echo "Usage: ${0} start|restart|stop"
+    start) start ;;
+    stop) stop ;;
+    reload) reload ;;
+    restart) restart ;;
+    *) echo "Usage: ${0} start|restart|reload|stop"
 esac

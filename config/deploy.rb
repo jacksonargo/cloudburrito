@@ -29,12 +29,9 @@ append :linked_dirs, "log"
 # Default value for keep_releases is 5
 set :keep_releases, 5
 
-set :unicorn_conf, "#{current_path}/config/unicorn.rb"
-set :unicorn_pid, "#{shared_path}/log/unicorn.pid"
-
 task :restart_unicorn do
   on roles(:web) do
-    execute "if [ -f #{fetch :unicorn_pid} ] && [ -d /proc/$(cat #{fetch :unicorn_pid}) ]; then kill -USR2 $(cat #{fetch :unicorn_pid}); else cd #{current_path} && bundle exec unicorn -c #{fetch :unicorn_conf} -D; fi"
+    execute "cd #{current_path} && scripts/unicorn-service.sh restart"
   end
 end
 
