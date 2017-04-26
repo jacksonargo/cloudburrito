@@ -31,7 +31,7 @@ set :keep_releases, 5
 
 task :restart_unicorn do
   on roles(:web) do
-    execute "cd #{current_path} && scripts/unicorn-service.sh restart"
+    execute "cd #{current_path} && scripts/unicorn-service.sh reload"
   end
 end
 
