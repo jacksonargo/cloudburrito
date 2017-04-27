@@ -11,7 +11,8 @@ file '/etc/ssh/sshd_config' do
   group 'root'
   mode  0644
   notifies :restart, 'systemd_unit[sshd]', :delayed
-  content 'PermitRootLogin no
+  content 'Port 22
+PermitRootLogin no
 PasswordAuthentication no
 ChallengeResponseAuthentication no
 AuthorizedKeysFile .ssh/authorized_keys

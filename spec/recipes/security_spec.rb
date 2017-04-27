@@ -26,8 +26,9 @@ RSpec.describe 'cloudburrito::security' do
     end
     it 'has correct contect' do
       content = '+ : deploy : ALL
-+ root : LOCAL
-- ALL : ALL'
++ : vagrant : ALL
++ : root : LOCAL
+- : ALL : ALL'
       expect(chef_run).to create_file(fname).with(content: content)
     end
   end

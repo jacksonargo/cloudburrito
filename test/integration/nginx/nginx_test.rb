@@ -30,6 +30,6 @@ describe command 'curl http://localhost -I' do
   its('stdout') { should match /HTTP\/1.1 403 Forbidden/ }
 end
 
-describe command 'curl https://localhost -I' do
+describe command 'curl https://localhost -Ik' do
   its('stdout') { should match /HTTP\/1.1 403 Forbidden/ }
 end

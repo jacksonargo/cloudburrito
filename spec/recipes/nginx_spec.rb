@@ -51,18 +51,35 @@ RSpec.describe 'cloudburrito::nginx' do
     let(:dname) { '/etc/nginx/ssl' }
     it('is directory') { expect(chef_run).to create_directory dname }
     it 'has mode 0644' do
-      expect(chef_run).to create_directory(fname).with(mode: 0755)
+      expect(chef_run).to create_directory(dname).with(mode: 0755)
     end
     it 'owner is root' do
-      expect(chef_run).to create_directory(fname).with(owner: 'root')
+      expect(chef_run).to create_directory(dname).with(owner: 'root')
     end
     it 'group is root' do
-      expect(chef_run).to create_directory(fname).with(group: 'root')
+      expect(chef_run).to create_directory(dname).with(group: 'root')
     end
   end
 
-  context 'creates /etc/nginx/nginx.conf' do
-    let(:fname) { '/etc/nginx/nginx.conf' }
+  context 'creates /etc/nginx/ssl/key.pem' do
+    let(:fname) { '/etc/nginx/ssl/key.pem' }
+    it('is file') { expect(chef_run).to create_file fname }
+    it 'has mode 0600' do
+      expect(chef_run).to create_file(fname).with(mode: 0600)
+    end
+    it 'owner is root' do
+      expect(chef_run).to create_file(fname).with(owner: 'root')
+    end
+    it 'group is root' do
+      expect(chef_run).to create_file(fname).with(group: 'root')
+    end
+    it 'notifies nginx systemd unit' do
+      expect(chef_run.file(fname)).to notify('execute[make_nginx_priv]').to(:run).immediately
+    end
+  end
+
+  context 'creates /etc/nginx/ssl/cert.pem' do
+    let(:fname) { '/etc/nginx/ssl/cert.pem' }
     it('is file') { expect(chef_run).to create_file fname }
     it 'has mode 0644' do
       expect(chef_run).to create_file(fname).with(mode: 0644)
@@ -74,11 +91,24 @@ RSpec.describe 'cloudburrito::nginx' do
       expect(chef_run).to create_file(fname).with(group: 'root')
     end
     it 'notifies nginx systemd unit' do
-      expect(chef_run.file(fname)).to notify('systemd_unit[nginx]').to(:restart).delayed
+      expect(chef_run.file(fname)).to notify('execute[make_nginx_cert]').to(:run).immediately
     end
-    it 'has correct content' do
-      content = ''
-      expect(chef_run).to create_file(fname).with(content: content)
+  end
+
+  context 'creates /etc/nginx/nginx.conf' do
+    let(:fname) { '/etc/nginx/nginx.conf' }
+    it('is cookbook_file') { expect(chef_run).to create_cookbook_file fname }
+    it 'has mode 0644' do
+      expect(chef_run).to create_cookbook_file(fname).with(mode: 0644)
+    end
+    it 'owner is root' do
+      expect(chef_run).to create_cookbook_file(fname).with(owner: 'root')
+    end
+    it 'group is root' do
+      expect(chef_run).to create_cookbook_file(fname).with(group: 'root')
+    end
+    it 'notifies nginx systemd unit' do
+      expect(chef_run.cookbook_file(fname)).to notify('systemd_unit[nginx]').to(:restart).delayed
     end
   end
 end

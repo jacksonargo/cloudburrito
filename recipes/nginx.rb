@@ -1,3 +1,7 @@
+##
+## Install
+##
+
 # Install repo config
 yum_repository 'nginx' do
   action :create
@@ -8,8 +12,31 @@ yum_repository 'nginx' do
   enabled  true
 end
 
-# Install ssl
+# Install the package
+package('nginx') { action :install }
 package('openssl') { action :install }
+
+##
+## Configure
+##
+
+# Create the config directory
+directory '/etc/nginx' do
+  action :create
+  owner 'root'
+  group 'root'
+  mode 0755
+end
+
+# Configure nginx
+cookbook_file '/etc/nginx/nginx.conf' do
+  action :create
+  owner 'root'
+  group 'root'
+  mode  0644
+  source 'nginx/nginx.conf'
+  notifies :restart, 'systemd_unit[nginx]', :delayed
+end
 
 # Create the default certificates
 directory '/etc/nginx/ssl' do
@@ -47,21 +74,12 @@ file '/etc/nginx/ssl/cert.pem' do
   owner 'root'
   group 'root'
   mode 0644
-  notifies :run, 'execute[make_nginx_cert]', :delayed
+  notifies :run, 'execute[make_nginx_cert]', :immediately
 end
 
-# Configure nginx
-cookbook_file '/etc/nginx/nginx.conf' do
-  action :create
-  owner 'root'
-  group 'root'
-  mode  0644
-  source 'nginx/nginx.conf'
-  notifies :restart, 'systemd_unit[nginx]', :delayed
-end
-
-# Install the package
-package('nginx') { action :install }
+##
+## Start
+##
 
 # Start nginx
 systemd_unit('nginx') { action [ :start, :enable ] }
