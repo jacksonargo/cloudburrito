@@ -7,3 +7,5 @@ config/mongoid.yml
 config/secrets.yml
 spec/examples.txt
 coverage
+.kitchen/
+.kitchen.local.yml
