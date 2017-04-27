@@ -1,16 +1,18 @@
 ---
 driver:
-  name: docker
+  name: vagrant
 
 provisioner:
   name: chef_solo
 
+verifier:
+  name: inspec
+
 platforms:
-  - name: ubuntu-14.04
   - name: centos-7.2
 
 suites:
-  - name: default
+  - name: nginx
     run_list:
-      - recipe[cloudburrito::default]
+      - recipe[cloudburrito::nginx]
     attributes:

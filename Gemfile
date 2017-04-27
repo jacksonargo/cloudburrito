@@ -16,5 +16,9 @@ group :development, :test do
 end
 
 gem 'test-kitchen'
+gem 'kitchen-vagrant'
 gem 'kitchen-docker'
-gem 'busser-bats'
+gem 'kitchen-inspec'
+gem 'berkshelf'
+gem 'inspec'
+gem 'chefspec'
