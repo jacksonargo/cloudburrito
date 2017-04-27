@@ -47,6 +47,20 @@ RSpec.describe 'cloudburrito::nginx' do
     end
   end
 
+  context 'creates /etc/nginx/ssl' do
+    let(:dname) { '/etc/nginx/ssl' }
+    it('is directory') { expect(chef_run).to create_directory dname }
+    it 'has mode 0644' do
+      expect(chef_run).to create_directory(fname).with(mode: 0755)
+    end
+    it 'owner is root' do
+      expect(chef_run).to create_directory(fname).with(owner: 'root')
+    end
+    it 'group is root' do
+      expect(chef_run).to create_directory(fname).with(group: 'root')
+    end
+  end
+
   context 'creates /etc/nginx/nginx.conf' do
     let(:fname) { '/etc/nginx/nginx.conf' }
     it('is file') { expect(chef_run).to create_file fname }

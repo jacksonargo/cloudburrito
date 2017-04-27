@@ -3,7 +3,8 @@ driver:
   name: vagrant
 
 provisioner:
-  name: chef_solo
+  name: chef_zero
+  always_update_cookbooks: true
 
 verifier:
   name: inspec
@@ -15,4 +16,12 @@ suites:
   - name: nginx
     run_list:
       - recipe[cloudburrito::nginx]
-    attributes:
+  - name: sshd
+    run_list:
+      - recipe[cloudburrito::sshd]
+  - name: security
+    run_list:
+      - recipe[cloudburrito::security]
+  - name: capistrano
+    run_list:
+      - recipe[cloudburrito::capistrano]

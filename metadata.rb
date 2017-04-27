@@ -1,0 +1,5 @@
+name 'cloudburrito'
+description 'Installs/Configures cloudburrito'
+version '0.1.0'
+issues_url 'https://github.com/jacksonargo/cloudburrito/issues'
+source_url 'https://github.com/jacksonargo/cloudburrito'

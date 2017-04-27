@@ -11,7 +11,7 @@ RSpec.describe 'cloudburrito::sshd' do
   end
 
   it 'installs sshd' do
-    expect(chef_run).to install_package 'sshd'
+    expect(chef_run).to install_package 'openssh-server'
   end
 
   context 'sshd systemd unit' do

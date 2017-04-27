@@ -4,7 +4,8 @@ file '/etc/security/access.conf' do
   group 'root'
   mode 0644
   content '+ : deploy : ALL
-+ root : LOCAL
-- ALL : ALL'
++ : vagrant : ALL
++ : root : LOCAL
+- : ALL : ALL'
 end
 

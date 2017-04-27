@@ -47,6 +47,7 @@ shared_directories.each do |shared_directory|
     action :create
     owner 'deploy'
     group 'deploy'
+    recursive true
     mode 0755
   end
 end

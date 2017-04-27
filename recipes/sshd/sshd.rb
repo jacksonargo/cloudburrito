@@ -1,5 +1,5 @@
 # Install ssh
-package('sshd') { action :install }
+package('openssh-server') { action :install }
 
 # Enable ssh
 systemd_unit('sshd') { action [ :start, :enable ] }
