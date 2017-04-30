@@ -1,4 +1,6 @@
-# Create our deploy user
+##
+## Create our deploy user
+##
 
 user 'deploy' do
   action :create
@@ -36,13 +38,12 @@ end
 
 # Create our shared directories
 
-shared_directories = [
-  '/var/www/html/cloudburrito',
-  '/var/www/html/cloudburrito/shared',
-  '/var/www/html/cloudburrito/shared/log',
-  '/var/www/html/cloudburrito/shared/config'
-]
-shared_directories.each do |shared_directory|
+%w[
+  /var/www/html/cloudburrito.us
+  /var/www/html/cloudburrito.us/shared
+  /var/www/html/cloudburrito.us/shared/log
+  /var/www/html/cloudburrito.us/shared/config
+].each do |shared_directory|
   directory shared_directory do
     action :create
     owner 'deploy'
@@ -54,16 +55,30 @@ end
 
 # Create our shared files
 
-shared_files = [
-  '/var/www/html/cloudburrito/shared/config/secrets.yml',
-  '/var/www/html/cloudburrito/shared/config/mongoid.yml'
-]
-
-shared_files.each do |shared_file|
+%w[
+  /var/www/html/cloudburrito.us/shared/config/secrets.yml
+  /var/www/html/cloudburrito.us/shared/config/mongoid.yml
+].each do |shared_file|
   file shared_file do
     action :create
     owner 'deploy'
     group 'deploy'
-    mode 0644
+    mode 0600
   end
+end
+
+##
+## Deploy it
+##
+
+deploy 'cloudburrito' do
+  action :deploy
+  repo 'https://github.com/jacksonargo/cloudburrito.git'
+  user 'deploy'
+  deploy_to '/var/www/html/cloudburrito.us'
+  environment 'RACK_ENV' => 'production'
+  symlinks  'log' => 'log',
+            'config/secrets.yml' => 'config/secrets.yml',
+            'config/mongoid.yml' => 'config/mongoid.yml',
+  restart_command 'scripts/unicorn-service.sh restart'
 end
