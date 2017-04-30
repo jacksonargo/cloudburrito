@@ -1,7 +1,4 @@
 ---
-driver:
-  name: vagrant
-
 provisioner:
   name: chef_zero
   always_update_cookbooks: true
@@ -14,14 +11,18 @@ platforms:
 
 suites:
   - name: nginx
+    driver: vagrant
     run_list:
       - recipe[cloudburrito::nginx]
   - name: sshd
+    driver: vagrant
     run_list:
       - recipe[cloudburrito::sshd]
   - name: security
+    driver: docker
     run_list:
       - recipe[cloudburrito::security]
-  - name: capistrano
+  - name: deploy
+    driver: docker
     run_list:
-      - recipe[cloudburrito::capistrano]
+      - recipe[cloudburrito::deploy]
