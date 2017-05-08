@@ -1,4 +1,5 @@
 require 'codacy-coverage'
+require 'support/factory_girl'
 Codacy::Reporter.start
 ENV['RACK_ENV'] = 'test'
 RSpec.configure do |config|

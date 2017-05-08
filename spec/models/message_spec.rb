@@ -11,29 +11,31 @@ RSpec.describe 'The Message class' do
   before(:each) do
     Patron.delete_all
     Message.delete_all
+    Pool.delete_all
   end
 
-  let(:patron) { Patron.create user_id: '1' }
+  let(:patron) { create(:patron) }
 
-  context 'can be created' do
-    let(:msg) { Message.create to: patron, text: 'Hi' }
-    it('belongs to a patron') { expect(msg.to).to eq(patron) }
-    it('has text') { expect(msg.text).to eq('Hi') }
-    it('not sent') { expect(msg.sent).to be(false) }
-  end
-
-  it 'has empty text string by default' do
-    m = Message.create to: patron
-    expect(m.text).to eq ''
+  context '#new' do
+    context 'empty message' do
+      let(:msg) { build(:message) }
+      it('is empty') { expect(msg.text).to eq('') }
+      it('not sent') { expect(msg.sent).to be(false) }
+    end
+    context 'hello message' do
+      let(:msg) { build(:hello_msg) }
+      it('has text') { expect(msg.text).to eq('Oh hai') }
+      it('not sent') { expect(msg.sent).to be(false) }
+    end
   end
 
   context '#sent!' do
-    let(:msg) { Message.create to: patron }
+    let(:msg) { build(:message) }
     before(:each) { msg.sent! }
     it 'marks message as sent' do
       expect(msg.sent).to be true
     end
-    it 'sets sent_at' do
+    it 'sent_at is not nil' do
       expect(msg.sent_at).not_to be nil
     end
   end
