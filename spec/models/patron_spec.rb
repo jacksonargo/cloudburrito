@@ -4,118 +4,189 @@ require 'rspec'
 Mongoid.load!('config/mongoid.yml')
 
 RSpec.describe 'The Patron class' do
-  def app
-    CloudBurrito
-  end
-
-  let(:patron) { Patron.create user_id: '1' }
+  let(:patron) { create(:valid_patron, user_id: 'patron', _id: 'patron') }
 
   before(:each) do
-    Package.each.map(&:delete)
-    Patron.each.map(&:delete)
+    Pool.delete_all
+    Patron.delete_all
+    Package.delete_all
   end
 
   context '#new' do
-    it 'can be created with string id' do
-      x = Patron.new(user_id: '1')
-      expect(x.save).to eq(true)
+    context 'valid' do
+      it 'can be created' do
+        expect(patron.save).to eq(true)
+      end
+
+      context 'default' do
+        it 'inactive' do
+          expect(patron.active?).to be false
+        end
+
+        it 'active_at is nil' do
+          expect(patron.active_at).to be nil
+        end
+      end
+
+      context 'created with active true' do
+        let(:patron) { create(:valid_patron, active: true) }
+        it 'active_at is not nil' do
+          expect(patron.active_at).not_to be nil
+        end
+      end
     end
 
-    it 'inactive when created' do
-      x = Patron.new(user_id: '1')
-      expect(x.active?).to be false
-    end
-
-    it 'active_at is nil' do
-      x = Patron.new(user_id: '1')
-      expect(x.active_at).to be nil
-    end
-
-    it 'sets active_at if created with active true' do
-      x = Patron.create user_id: '1', active: true
-      expect(x.active_at).not_to be nil
+    context 'invalid' do
+      context 'pool is nil' do
+        it 'cant be saved' do
+          expect(build(:patron, pool: nil).save).to be false
+        end
+      end
     end
   end
 
   context '#active_delivery' do
-    let(:hman) { Patron.create user_id: '2' }
-    it 'nil when created' do
-      expect(patron.active_delivery).to be nil
+    context 'no deliveries assigned' do
+      it 'returns nil' do
+        expect(patron.active_delivery).to be nil
+      end
     end
-    it 'nil when all packages delivered' do
-      Package.create hungry_man: hman, delivery_man: patron, received: true
-      expect(patron.active_delivery).to be nil
-    end
-    it 'is undelivered package' do
-      b = Package.create hungry_man: hman, delivery_man: patron
-      expect(patron.active_delivery).to eq(b)
+
+    context 'deliveries have been assigned' do
+      before(:each) do
+        create_list(:received_pack, 15, delivery_man: patron)
+      end
+
+      context 'all packages delivered' do
+        it 'returns nil' do
+          expect(patron.active_delivery).to be nil
+        end
+      end
+
+      context 'undelivered package exists' do
+        let(:package) { create(:assigned_pack, delivery_man: patron) }
+        before(:each) { package.reload }
+        it 'returns active delivery' do
+          expect(patron.active_delivery).to eq(package)
+        end
+      end
     end
   end
 
   context '#on_delivery?' do
-    let(:hman) { Patron.create user_id: '2' }
-    it 'not when created' do
-      expect(patron.on_delivery?).to be false
+    context 'no deliveries assigned' do
+      it 'returns false' do
+        expect(patron.on_delivery?).to be false
+      end
     end
-    it 'when undelivered packages exist' do
-      Package.create hungry_man: hman, delivery_man: patron
-      expect(patron.on_delivery?).to be true
-    end
-    it 'not when all deliveries received' do
-      Package.create hungry_man: hman, delivery_man: patron, received: true
-      expect(patron.on_delivery?).to be false
+
+    context 'deliveries have been assigned' do
+      before(:each) do
+        create_list(:received_pack, 15, delivery_man: patron)
+      end
+
+      context 'all packages delivered' do
+        it 'returns false' do
+          expect(patron.on_delivery?).to be false
+        end
+      end
+
+      context 'undelivered package exists' do
+        it 'returns true' do
+          create(:package, delivery_man: patron)
+          expect(patron.on_delivery?).to be true
+        end
+      end
     end
   end
 
   context '#incoming_burrito' do
-    let(:dman) { Patron.create user_id: '2' }
-    it 'nil when created' do
-      expect(patron.incoming_burrito).to be nil
+    context 'has no burritos' do
+      it 'returns nil' do
+        expect(patron.incoming_burrito).to be nil
+      end
     end
-    it 'nil when all burritos received' do
-      Package.create hungry_man: patron, delivery_man: dman, received: true
-      expect(patron.incoming_burrito).to be nil
-    end
-    it 'is unreceived burrito' do
-      b = Package.create hungry_man: patron, delivery_man: dman
-      expect(patron.incoming_burrito).to eq(b)
+
+    context 'has burritos' do
+      before(:each) do
+        create_list(:received_pack, 15, hungry_man: patron)
+      end
+
+      context 'all burritos received' do
+        it 'returns nil' do
+          expect(patron.incoming_burrito).to be nil
+        end
+      end
+
+      context 'incoming burrito exists' do
+        let(:package) { create(:package, hungry_man: patron) }
+        before(:each) { package.reload }
+        it 'returns incoming burrito' do
+          expect(patron.incoming_burrito).to eq(package)
+        end
+      end
     end
   end
 
   context '#waiting?' do
-    let(:dman) { Patron.create user_id: '2' }
-    it 'not when created' do
-      expect(patron.waiting?).to be false
+    context 'no burritos ordered' do
+      it 'returns false' do
+        expect(patron.waiting?).to be false
+      end
     end
-    it 'when undelivered packages exist' do
-      Package.create hungry_man: patron, delivery_man: dman
-      expect(patron.waiting?).to be true
+
+    context 'no incoming burrito' do
+      it 'returns false' do
+        create(:received_pack, hungry_man: patron)
+        expect(patron.waiting?).to be false
+      end
     end
-    it 'not when all deliveries received' do
-      Package.create hungry_man: patron, delivery_man: dman, received: true
-      expect(patron.waiting?).to be false
+
+    context 'has incoming burrito' do
+      it 'returns true' do
+        create(:package, hungry_man: patron)
+        expect(patron.waiting?).to be true
+      end
     end
   end
 
   context '#time_of_last_burrito' do
-    let(:dman) { Patron.create user_id: '2' }
-    it 'returns 0 if no burritos received' do
-      expect(patron.time_of_last_burrito).to eq(Time.at(0))
+    context 'no burritos ordered' do
+      it 'returns 0' do
+        expect(patron.time_of_last_burrito).to eq(Time.at(0))
+      end
     end
-    it 'returns now if burrito just delivered' do
-      p = Package.create hungry_man: patron, delivery_man: dman, received: true
-      expect(patron.time_of_last_burrito.to_i).to eq p.received_at.to_i
+
+    context 'just received burrito' do
+      let(:burrito) { create(:received_pack, hungry_man: patron) }
+      before(:each) { burrito.reload }
+      it 'doesnt return 0' do
+        expect(patron.time_of_last_burrito).not_to eq(Time.at(0))
+      end
+
+      it 'equals burrito.received_at' do
+        expect(patron.time_of_last_burrito).to eq(burrito.received_at)
+      end
     end
   end
 
   context '#time_of_last_delivery' do
-    let(:hman) { Patron.create user_id: '2' }
-    it 'returns 0 if no deliveries completed' do
-      expect(patron.time_of_last_delivery).to eq(Time.at(0))
+    context 'no deliveries' do
+      it 'returns 0' do
+        expect(patron.time_of_last_delivery).to eq(Time.at(0))
+      end
     end
-    it 'returns now if burrito just delivered' do
-      p = Package.create hungry_man: hman, delivery_man: patron, received: true
-      expect(patron.time_of_last_delivery.to_i).to eq p.received_at.to_i
+
+    context 'just delivered burrito' do
+      let(:delivery) { create(:received_pack, delivery_man: patron) }
+      before(:each) { delivery.reload }
+      it 'doesnt return 0' do
+        expect(patron.time_of_last_delivery).not_to eq(Time.at(0))
+      end
+
+      it 'equals delivery.received_at' do
+        expect(patron.time_of_last_delivery).to eq(delivery.received_at)
+      end
     end
   end
 
@@ -170,8 +241,7 @@ RSpec.describe 'The Patron class' do
   end
 
   context '#sleepy?' do
-    let(:other) { Patron.create user_id: '2' }
-    let(:package) { Package.create hungry_man: other, delivery_man: patron }
+    let(:package) { create(:package, delivery_man: patron) }
     it 'not when created' do
       expect(patron.sleepy?).to eq(false)
     end
@@ -190,8 +260,7 @@ RSpec.describe 'The Patron class' do
   end
 
   context '#greedy?' do
-    let(:other) { Patron.create user_id: '2' }
-    let(:package) { Package.create hungry_man: patron, delivery_man: other }
+    let(:package) { create(:package, hungry_man: patron) }
 
     it 'when first created' do
       expect(patron.greedy?).to eq(true)
@@ -250,13 +319,12 @@ RSpec.describe 'The Patron class' do
     end
 
     it 'is unique' do
-      y = Patron.create(user_id: '2')
+      y = create(:valid_patron)
       expect(patron.user_token).not_to eq(y.user_token)
     end
   end
 
   context '#can_deliver?' do
-    let(:hman) { Patron.create user_id: '2' }
     it 'when active' do
       patron.active!
       expect(patron.can_deliver?).to be true
@@ -269,11 +337,11 @@ RSpec.describe 'The Patron class' do
       expect(patron.can_deliver?).to be false
     end
     it 'not if on delivery' do
-      Package.create hungry_man: hman, delivery_man: patron
+      create(:package, delivery_man: patron)
       expect(patron.can_deliver?).to be false
     end
     it 'not if sleeping after delivery' do
-      Package.create hungry_man: hman, delivery_man: patron, received: true
+      create(:received_pack, delivery_man: patron)
       expect(patron.can_deliver?).to be false
     end
   end
@@ -295,11 +363,11 @@ RSpec.describe 'The Patron class' do
       user_id = ENV['SLACK_TEST_USER_ID'].dup
       name = ENV['SLACK_TEST_USER_NAME']
       expect(user_id).to eq 'U1G86TJ72'
-      tester = Patron.create user_id: user_id
+      tester = create(:valid_patron, user_id: user_id)
       expect(tester.slack_first_name).to eq name
     end
     it 'returns user_id if user_id is invalid' do
-      expect(patron.slack_first_name).to eq '1'
+      expect(patron.slack_first_name).to eq(patron.user_id)
     end
   end
 end

@@ -18,6 +18,28 @@ RSpec.describe 'The Package class' do
   let(:dman) { create(:dman) }
   let(:package) { create(:package, hungry_man: hman, delivery_man: dman) }
 
+  context '#create' do
+    context 'received is true' do
+      let(:package) { create(:received_pack) }
+      it('received_at is not nil') { expect(package.received_at).not_to be(nil) }
+    end
+
+    context 'en route is true' do
+      let(:package) { create(:en_route_pack) }
+      it('en_route_at is not nil') { expect(package.en_route_at).not_to be(nil) }
+    end
+
+    context 'assigned is true' do
+      let(:package) { create(:assigned_pack) }
+      it('assigned_at is not nil') { expect(package.assigned_at).not_to be(nil) }
+    end
+
+    context 'failed is true' do
+      let(:package) { create(:failed_pack) }
+      it('failed_at is not nil') { expect(package.failed_at).not_to be(nil) }
+    end
+  end
+
   context '#latency' do
     before(:each) { package.created_at = Time.now - 30 }
     after(:each) { expect(package.latency).to eq(30) }

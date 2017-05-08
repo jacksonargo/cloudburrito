@@ -32,13 +32,46 @@ FactoryGirl.define do
   end
 
   factory :package do
-    association :hungry_man, factory: :hman
-    association :delivery_man, factory: :dman
 
-    factory(:received_pack) { received true }
-    factory(:en_route_pack) { en_route true }
-    factory(:assigned_pack) { assigned true }
+    # A received package
+    factory(:received_pack) do
+      received true
+      en_route true
+      assigned true
+      failed false
+    end
+
+    # A package en route
+    factory(:en_route_pack) do
+      received false
+      en_route true
+      assigned true
+      failed false
+    end
+
+    # An assigned package
+    factory(:assigned_pack) do
+      received false
+      en_route false
+      assigned true
+      failed false
+    end
+
+    # A failed package
     factory(:failed_pack) { failed true }
+
+    before(:create) do |package|
+      # Set the default hungry man
+      if package.hungry_man.nil?
+        create(:hman) unless Patron.where(user_id: 'hman').exists?
+        package.hungry_man = Patron.find('hman')
+      end
+      # Set the default delivery man
+      if package.delivery_man.nil?
+        create(:dman) unless Patron.where(user_id: 'dman').exists?
+        package.delivery_man = Patron.find('dman')
+      end
+    end
   end
 
   # Create a patron

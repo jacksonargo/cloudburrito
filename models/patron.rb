@@ -32,7 +32,7 @@ class Patron
   field :greedy_time, type: Integer, default: 3600
   field :slack_user,  type: Boolean, default: true
 
-  after_initialize do |patron|
+  before_create do |patron|
     patron.active_at ||= Time.now if patron.active
   end
 

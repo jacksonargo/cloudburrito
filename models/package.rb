@@ -27,6 +27,9 @@ class Package
 
   after_initialize do |package|
     package.delivery_man ||= package.hungry_man
+  end
+
+  before_create do |package|
     package.received_at ||= Time.now if package.received
     package.en_route_at ||= Time.now if package.en_route
     package.assigned_at ||= Time.now if package.assigned
