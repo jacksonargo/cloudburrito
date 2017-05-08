@@ -9,13 +9,14 @@ RSpec.describe 'The Package class' do
   end
 
   before(:each) do
+    Pool.delete_all
     Package.delete_all
     Patron.delete_all
   end
 
-  let(:hman) { Patron.create user_id: '1' }
-  let(:dman) { Patron.create user_id: '2' }
-  let(:package) { Package.create hungry_man: hman, delivery_man: dman }
+  let(:hman) { create(:hman) }
+  let(:dman) { create(:dman) }
+  let(:package) { create(:package, hungry_man: hman, delivery_man: dman) }
 
   context '#latency' do
     before(:each) { package.created_at = Time.now - 30 }

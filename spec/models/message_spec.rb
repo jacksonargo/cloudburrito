@@ -14,7 +14,7 @@ RSpec.describe 'The Message class' do
     Pool.delete_all
   end
 
-  let(:patron) { create(:patron) }
+  let(:patron) { create(:valid_patron) }
 
   context '#new' do
     context 'empty message' do
