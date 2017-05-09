@@ -20,8 +20,6 @@ class Patron
   has_many :messages, inverse_of: :to
   belongs_to :pool
 
-  field :user_id, type: String
-  field :_id, type: String, default: -> { user_id }
   field :active, type: Boolean, default: false
   field :active_at, type: Time
   field :inactive_at, type: Time
@@ -31,15 +29,15 @@ class Patron
   field :sleepy_time, type: Integer, default: 3600
   field :greedy_time, type: Integer, default: 3600
   field :slack_user,  type: Boolean, default: true
+  field :slack_user_id, type: String
 
   before_create do |patron|
-    patron._id ||= patron.user_id
     patron.active_at ||= Time.now if patron.active
   end
 
-  def to_s
-    user_id
-  end
+  validates :sleepy_time, numericality: true
+  validates :greedy_time, numericality: true
+  validates :slack_user_id, presence: true, if: :slack_user
 
   def active!
     self.active_at = Time.now
@@ -156,24 +154,25 @@ class Patron
 
   def stats_url
     reset_token
-    "https://cloudburrito.us/user?user_id=#{_id}&token=#{user_token}"
+    "https://cloudburrito.us/user?_id=#{_id}&token=#{user_token}"
   end
 
   def name
     x = slack_user_info
     return x.user.profile.first_name unless x.nil?
-    user_id
+    _id
   end
 
   def slack_link
-    "<@#{user_id}>"
+    "<@#{slack_user_id}>"
   end
 
   def slack_user_info
+    return {} unless slack_user
     begin
-      slack_client.users_info(user: user_id)['user']
+      slack_client.users_info(user: slack_user_id)['user']
     rescue
-      logger.error "Failed to load slack user info for #{user_id}"
+      logger.error "Failed to load slack user info for #{slack_user_id}"
       {}
     end
   end
@@ -183,7 +182,7 @@ class Patron
     if info != {}
       info['profile']['first_name']
     else
-      user_id
+      slack_user_id
     end
   end
 end

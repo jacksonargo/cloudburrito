@@ -4,12 +4,25 @@ require 'rspec'
 Mongoid.load!('config/mongoid.yml')
 
 RSpec.describe 'The Patron class' do
-  let(:patron) { create(:valid_patron, user_id: 'patron', _id: 'patron') }
+  let(:patron) { create(:patron) }
 
   before(:each) do
     Pool.delete_all
     Patron.delete_all
     Package.delete_all
+  end
+
+  context '#valid?' do
+    context 'returns false when' do
+      let(:patron) { build(:patron) }
+      after(:each) { expect(patron.valid?).to be(false) }
+      it('sleepy_time is not integer') { patron.sleepy_time = '3600' }
+      it('greedy_time is not integer') { patron.greedy_time = '3600' }
+      context 'slack_user is true' do
+        let(:patron) { build(:patron, slack_user: true) }
+        it('slack_user_id is empty') { patron.slack_user_id = nil }
+      end
+    end
   end
 
   context '#new' do
@@ -29,7 +42,7 @@ RSpec.describe 'The Patron class' do
       end
 
       context 'created with active true' do
-        let(:patron) { create(:valid_patron, active: true) }
+        let(:patron) { create(:patron, active: true) }
         it 'active_at is not nil' do
           expect(patron.active_at).not_to be nil
         end
@@ -38,8 +51,9 @@ RSpec.describe 'The Patron class' do
 
     context 'invalid' do
       context 'pool is nil' do
+        let(:patron) { build(:patron, pool: nil) }
         it 'cant be saved' do
-          expect(build(:patron, pool: nil).save).to be false
+          expect(patron.save).to be false
         end
       end
     end
@@ -319,7 +333,7 @@ RSpec.describe 'The Patron class' do
     end
 
     it 'is unique' do
-      y = create(:valid_patron)
+      y = create(:patron)
       expect(patron.user_token).not_to eq(y.user_token)
     end
   end
@@ -348,26 +362,25 @@ RSpec.describe 'The Patron class' do
 
   context '#slack_link' do
     it 'returns a link to the slack user' do
-      expect(patron.slack_link).to eq "<@#{patron.user_id}>"
+      expect(patron.slack_link).to eq "<@#{patron.slack_user_id}>"
     end
   end
 
   context '#slack_user_info' do
-    it 'returns {} if user_id is invalid' do
+    it 'returns {} if slack_user_id is invalid' do
       expect(patron.slack_user_info).to eq Hash.new
     end
   end
 
   context '#slack_first_name' do
     it 'returns the name of the user in slack' do
-      user_id = ENV['SLACK_TEST_USER_ID'].dup
-      name = ENV['SLACK_TEST_USER_NAME']
-      expect(user_id).to eq 'U1G86TJ72'
-      tester = create(:valid_patron, user_id: user_id)
-      expect(tester.slack_first_name).to eq name
+      slack_user_id = ENV['SLACK_TEST_USER_ID'].dup
+      name = ENV['SLACK_TEST_USER_NAME'].dup
+      tester = create(:patron, slack_user_id: slack_user_id)
+      expect(tester.slack_first_name).to eq(name)
     end
-    it 'returns user_id if user_id is invalid' do
-      expect(patron.slack_first_name).to eq(patron.user_id)
+    it 'returns slack_user_id if slack_user_id is invalid' do
+      expect(patron.slack_first_name).to eq(patron.slack_user_id)
     end
   end
 end

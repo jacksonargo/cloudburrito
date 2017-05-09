@@ -64,12 +64,12 @@ FactoryGirl.define do
     before(:create) do |package|
       # Set the default hungry man
       if package.hungry_man.nil?
-        create(:hman) unless Patron.where(user_id: 'hman').exists?
+        create(:hman) unless Patron.where(_id: 'hman').exists?
         package.hungry_man = Patron.find('hman')
       end
       # Set the default delivery man
       if package.delivery_man.nil?
-        create(:dman) unless Patron.where(user_id: 'dman').exists?
+        create(:dman) unless Patron.where(_id: 'dman').exists?
         package.delivery_man = Patron.find('dman')
       end
     end
@@ -77,29 +77,25 @@ FactoryGirl.define do
 
   # Create a patron
   factory :patron do
-    # Invalid patrons do not have a pool
-    factory(:invalid_patron) { pool nil }
+    slack_user false
 
-    # Valid patrons are in a pool
-    factory :valid_patron do
-      # Delivery man
-      factory(:dman) do
-        user_id 'dman'
-        _id 'dman'
-      end
+    # Delivery man
+    factory(:dman) do
+      slack_user_id 'dman'
+      _id 'dman'
+    end
 
-      # Hungry man
-      factory(:hman) do
-        user_id 'hman'
-        _id 'hman'
-      end
+    # Hungry man
+    factory(:hman) do
+      slack_user_id 'hman'
+      _id 'hman'
+    end
 
-      # Automatically add the patron to a pool, creating the pool if needed.
-      before(:create) do |patron|
-        if patron.pool.nil?
-          create(:default_pool) unless Pool.where(name: 'default_pool').exists?
-          patron.pool = Pool.find('default_pool')
-        end
+    # Automatically add the patron to a pool, creating the pool if needed.
+    before(:create) do |patron|
+      if patron.pool.nil?
+        create(:default_pool) unless Pool.where(name: 'default_pool').exists?
+        patron.pool = Pool.where(name: 'default_pool').first
       end
     end
   end
