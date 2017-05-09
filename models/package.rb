@@ -36,6 +36,9 @@ class Package
     package.failed_at   ||= Time.now if package.failed
   end
 
+  validates :received, exclusion: { in: [true] }, if: :failed?
+  validates :failed, exclusion: { in: [true] }, if: :received?
+
   def latency
     if failed
       0 if failed_at.nil?

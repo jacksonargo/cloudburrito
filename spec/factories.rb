@@ -28,7 +28,7 @@ FactoryGirl.define do
   end
 
   factory :message do
-    association :to, factory: :valid_patron
+    association :to, factory: :patron
     factory(:hello_msg) { text 'Oh hai' }
   end
 

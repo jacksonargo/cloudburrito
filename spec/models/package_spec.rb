@@ -4,10 +4,6 @@ require 'rspec'
 Mongoid.load!('config/mongoid.yml')
 
 RSpec.describe 'The Package class' do
-  def app
-    CloudBurrito
-  end
-
   before(:each) do
     Pool.delete_all
     Package.delete_all
@@ -17,6 +13,23 @@ RSpec.describe 'The Package class' do
   let(:hman) { create(:hman) }
   let(:dman) { create(:dman) }
   let(:package) { create(:package, hungry_man: hman, delivery_man: dman) }
+
+  context '#valid?' do
+    context 'returns false when' do
+      let(:package) { create(:package) }
+      after(:each) { expect(package.valid?).to be(false) }
+
+      context 'failed is true and' do
+        before(:each) { package.failed = true }
+        it('received is true') { package.received = true }
+      end
+
+      context 'received is true and' do
+        before(:each) { package.received = true }
+        it('failed is true') { package.failed = true }
+      end
+    end
+  end
 
   context '#create' do
     context 'received is true' do
@@ -160,12 +173,7 @@ RSpec.describe 'The Package class' do
 
   context '#new' do
     it 'Can be created and modified' do
-      b = Package.new
-      p1 = Patron.new(user_id: '1')
-      p2 = Patron.new(user_id: '2')
-      b.hungry_man = p1
-      b.delivery_man = p2
-      expect(b.save).to eq(true)
+      expect(create(:package).save).to eq(true)
     end
 
     it "Can't be saved unless it is owned" do
@@ -173,31 +181,28 @@ RSpec.describe 'The Package class' do
     end
 
     it 'can be saved if only owned by hungry_man' do
-      p = Package.create hungry_man: hman
-      expect(p.save).to eq(true)
+      expect(create(:package, delivery_man: nil).save).to eq(true)
     end
 
     it 'can be created with hungry_man and delivery_man' do
-      p = Package.create hungry_man: hman, delivery_man: dman
+      hman = create(:hman)
+      dman = create(:dman)
+      p = create(:package)
       expect(p.hungry_man).to eq(hman)
       expect(p.delivery_man).to eq(dman)
     end
 
-    it 'sets received_at if created w/ recevied: true' do
-      p = Package.create hungry_man: hman, delivery_man: dman, received: true
-      expect(p.received_at).not_to be nil
+    it 'sets received_at if created w/ received: true' do
+      expect(create(:received_pack).received_at).not_to be nil
     end
-    it 'sets en_route_at if created w/ recevied: true' do
-      p = Package.create hungry_man: hman, delivery_man: dman, en_route: true
-      expect(p.en_route_at).not_to be nil
+    it 'sets en_route_at if created w/ en_route: true' do
+      expect(create(:en_route_pack).en_route_at).not_to be nil
     end
-    it 'sets assigned_at if created w/ recevied: true' do
-      p = Package.create hungry_man: hman, delivery_man: dman, assigned: true
-      expect(p.assigned_at).not_to be nil
+    it 'sets assigned_at if created w/ assigned: true' do
+      expect(create(:assigned_pack).assigned_at).not_to be nil
     end
-    it 'sets failed_at if created w/ recevied: true' do
-      p = Package.create hungry_man: hman, delivery_man: dman, failed: true
-      expect(p.failed_at).not_to be nil
+    it 'sets failed_at if created w/ failed: true' do
+      expect(create(:failed_pack).failed_at).not_to be nil
     end
   end
 

@@ -4,17 +4,19 @@ require 'rspec'
 Mongoid.load!('config/mongoid.yml')
 
 RSpec.describe 'The Message class' do
-  def app
-    CloudBurrito
-  end
-
   before(:each) do
     Patron.delete_all
     Message.delete_all
     Pool.delete_all
   end
 
-  let(:patron) { create(:valid_patron) }
+  context '#valid?' do
+    context 'returns false when' do
+      let(:msg) { build(:message) }
+      after(:each) { expect(msg.valid?).to be(false) }
+      it('to is nil') { msg.to = nil }
+    end
+  end
 
   context '#new' do
     context 'empty message' do
