@@ -4,52 +4,57 @@ require 'rspec'
 Mongoid.load!('config/mongoid.yml')
 
 RSpec.describe 'The SlackController class' do
-  def app
-    CloudBurrito
-  end
-
   before(:each) do
+    Pool.delete_all
     Patron.delete_all
     Package.delete_all
     Message.delete_all
   end
 
-  let(:patron) { Patron.create user_id: '1' }
+  let(:pool) { create(:pool, name: 'test_pool') }
+  let(:patron) { create(:valid_patron, user_id: '1', pool: pool) }
   let(:params) { { 'user_id' => patron.user_id } }
   let(:controller) { SlackController.new params }
 
   context '#initialize' do
-    it 'creates dne patron' do
-      SlackController.new 'user_id' => '2'
-      expect(Patron.last).to eq Patron.find('2')
+    context 'patron does not exist' do
+      it 'creates patron' do
+        SlackController.new 'user_id' => '2'
+        expect(Patron.last).to eq Patron.find('2')
+      end
     end
+
     it 'set params' do
       expect(controller.params).to eq(params)
     end
+
     it 'set patron' do
       expect(controller.patron).to eq(patron)
     end
+
     it 'allows required actions' do
       expect(controller.actions).to eq(%w[feed serving full status join stats leave pool])
     end
   end
 
   context '#pool' do
-    before(:each) { Pool.create name: 'test_pool' }
     context 'not a valid pool' do
+      before(:each) { params['text'] = "pool #{pool.name}zzz" }
       it 'returns a list valid pools' do
-        expect(controller.pool).to eq("Here is a list of valid burrito pool parties:\n>*test_pool*")
+        expect(controller.pool).to eq("Here is a list of valid burrito pool parties:\n>*#{pool.name}*")
       end
     end
+  
     context 'valid pool' do
-      before(:each) do
-      end
-      it 'sets patron.pool' do
-        pool = Pool.first
-        expect(patron.pool).to eq(pool)
-      end
+      let(:pool) { create(:pool, name: 'other_pool', _id: 'other_pool') }
+      before(:each) { params['text'] = "pool #{pool.name}" }
       it 'notifies user' do
-        expect(controller.pool).to eq("Welcome to the test_pool pool party!")
+        expect(controller.pool).to eq("Welcome to the #{pool.name} pool party!")
+      end
+
+      it 'controller.patron.pool equals pool' do
+        controller.pool
+        expect(controller.patron.pool).to eq(pool)
       end
     end
   end
@@ -59,11 +64,11 @@ RSpec.describe 'The SlackController class' do
       expect(controller.status).to eq "You don't have any in coming burritos."
     end
     it 'knows when delivery isnt acked' do
-      Package.create hungry_man: patron
+      create(:package, hungry_man: patron)
       expect(controller.status).to eq 'You burrito is still in the fridge.'
     end
     it 'knows when burrito should be coming' do
-      Package.create hungry_man: patron, en_route: true
+      create(:en_route_pack, hungry_man: patron)
       expect(controller.status).to eq "This burrito is on it's way!"
     end
   end
@@ -143,7 +148,6 @@ RSpec.describe 'The SlackController class' do
   end
 
   context '#serving' do
-    let(:other) { Patron.create user_id: '2' }
     context 'patron is not on a delivery' do
       it 'tells them they arent delivering' do
         expect(controller.serving).to eq("You haven't been volunteered to deliver...")
@@ -151,13 +155,13 @@ RSpec.describe 'The SlackController class' do
     end
     context 'package is already acked' do
       it 'tells patron this package is acked' do
-        Package.create en_route: true, hungry_man: other, delivery_man: patron
+        create(:en_route_pack, delivery_man: patron)
         expect(controller.serving).to eq("You've already acked this request...")
       end
     end
     context 'patron needs to ack' do
       before(:each) do
-        Package.create hungry_man: other, delivery_man: patron
+        create(:package, delivery_man: patron)
       end
       it 'tells patron to make haste' do
         expect(controller.serving).to eq('Make haste!')
@@ -171,40 +175,48 @@ RSpec.describe 'The SlackController class' do
   end
 
   context '#full' do
-    let(:dman) { Patron.create user_id: '2' }
     context 'patron does not have incoming burritos' do
       it 'tells them to order a burrito' do
         expect(controller.full).to eq("You don't have any incoming burritos. Order one with: */cloudburrito feed*")
       end
     end
+
     context 'patron has incoming burritos' do
+      let(:dman) { create(:dman) }
       before(:each) do
-        Package.create hungry_man: patron, delivery_man: dman
+        create(:package, hungry_man: patron, delivery_man: dman)
       end
+
       it 'tells patron to enjoy' do
         expect(controller.full).to eq 'Enjoy!'
       end
+
       it 'marks package as received' do
         controller.full
         package = Package.first
         expect(package.received).to be true
       end
+
       it 'patron is no longer waiting' do
         controller.full
         expect(patron.waiting?).to be false
       end
+
       it 'patron is now greedy' do
         controller.full
         expect(patron.greedy?).to be true
       end
+
       it 'delivery man is no longer on delivery' do
         controller.full
         expect(dman.on_delivery?).to be false
       end
+
       it 'delivery man is now sleep' do
         controller.full
         expect(dman.sleepy?).to be true
       end
+
       context 'creates a message for delivery man' do
         before(:each) { controller.full }
         it 'and message exists.' do

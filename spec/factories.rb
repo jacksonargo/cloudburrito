@@ -7,12 +7,10 @@ require 'securerandom'
 
 FactoryGirl.define do
   factory :pool do
-    _id 'empty_pool'
     name 'empty_pool'
 
     # Create a pool with patrons
     factory :pool_with_patrons do
-      _id 'busy_pool'
       name 'busy_pool'
       after(:create) do |pool|
         create_list(:patron, 5, pool: pool)
@@ -21,8 +19,11 @@ FactoryGirl.define do
 
     # Throw patrons in this pool by default
     factory :default_pool do
-      _id 'default_pool'
       name 'default_pool'
+    end
+
+    after(:create) do |pool|
+      pool.save
     end
   end
 
@@ -76,7 +77,6 @@ FactoryGirl.define do
 
   # Create a patron
   factory :patron do
-
     # Invalid patrons do not have a pool
     factory(:invalid_patron) { pool nil }
 

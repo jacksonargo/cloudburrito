@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 require_relative '../models/patron'
 require_relative '../models/package'
 require_relative '../lib/cloudburrito_logger'
@@ -13,7 +11,11 @@ class SlackController
     # Save the params
     @params = params
     # Add the user to the database if they don't already exist
-    @patron = Patron.where(user_id: params['user_id']).first_or_create!
+    @patron = Patron.where(user_id: params['user_id']).first
+    if @patron.nil?
+      pool = Pool.first_or_create!(name: 'default_pool')
+      @patron = Patron.create!(user_id: params['user_id'], pool: Pool.find('default_pool'))
+    end
     # Actions list
     @actions = %w[feed serving full status join stats leave pool]
   end
@@ -83,7 +85,11 @@ class SlackController
   end
 
   def pool
-    pool = param["text"].sub(/^\s*pool\s*/, '').strip
+    if @params["text"].nil?
+      pool = ''
+    else
+      pool = @params["text"].sub(/^\s*pool\s*/, '').strip
+    end
     # Unless they give a valid pool, hit em with the list
     unless Pool.all.pluck(:name).include? pool
       msg = "Here is a list of valid burrito pool parties:"
@@ -91,8 +97,10 @@ class SlackController
       return msg
     end
     # Set the pool.
-    @patron.pool = pool
+    @patron.pool = Pool.find(pool)
     @patron.save
+    # Tell the patron
+    "Welcome to the #{pool} pool party!"
   end
 
   def leave

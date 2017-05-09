@@ -10,4 +10,8 @@ class Pool
 
   field :name, type: String
   field :_id, type: String, default: ->{ name }
+
+  before_save do |pool|
+    pool._id ||= pool.name
+  end
 end

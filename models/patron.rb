@@ -33,6 +33,7 @@ class Patron
   field :slack_user,  type: Boolean, default: true
 
   before_create do |patron|
+    patron._id ||= patron.user_id
     patron.active_at ||= Time.now if patron.active
   end
 

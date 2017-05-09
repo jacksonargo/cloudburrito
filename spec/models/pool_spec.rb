@@ -12,12 +12,19 @@ RSpec.describe 'Pool model' do
   let(:pool) { create(:pool) }
   let(:pool_with_patrons) { create(:pool_with_patrons) }
 
-  context '#new' do
+  context '#create' do
     it 'can be saved' do
       expect(pool.save).to be true
     end
+
     it 'can be created with patrons' do
       expect(pool_with_patrons.patrons.count).to be 5
+    end
+
+    context '_id not specificied' do
+      let(:pool) { create(:pool, name: 'fancy') }
+      before(:each) { pool.reload }
+      it('_id equals name') { expect(pool._id).to eq(pool.name) }
     end
   end
 end
