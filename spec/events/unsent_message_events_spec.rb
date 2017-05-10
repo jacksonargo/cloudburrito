@@ -15,7 +15,7 @@ RSpec.describe 'The UnsentMessageEvents class' do
   end
 
   let(:events) { UnsentMessageEvents.new }
-  let(:patron) { Patron.create user_id: '1' }
+  let(:patron) { create(:patron) }
 
   context 'initialize' do
     it 'creates a slack client' do
