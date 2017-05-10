@@ -12,15 +12,15 @@ RSpec.describe 'The SlackController class' do
   end
 
   let(:pool) { create(:pool, name: 'test_pool') }
-  let(:patron) { create(:valid_patron, user_id: '1', pool: pool) }
-  let(:params) { { 'user_id' => patron.user_id } }
+  let(:patron) { create(:patron,  pool: pool) }
+  let(:params) { { 'user_id' => patron.slack_user_id } }
   let(:controller) { SlackController.new params }
 
   context '#initialize' do
     context 'patron does not exist' do
       it 'creates patron' do
         SlackController.new 'user_id' => '2'
-        expect(Patron.last).to eq Patron.find('2')
+        expect(Patron.last).to eq Patron.where(slack_user_id: '2').first
       end
     end
 
@@ -74,7 +74,7 @@ RSpec.describe 'The SlackController class' do
   end
 
   context '#feed' do
-    let(:other) { Patron.create user_id: '2' }
+    let(:other) { create(:patron) }
     context 'patron cannot feed' do
       it 'patron must be active' do
         controller.patron.active = false
@@ -82,12 +82,12 @@ RSpec.describe 'The SlackController class' do
       end
       it 'patron cant be on delivery' do
         patron.active!
-        Package.create hungry_man: other, delivery_man: patron
+        create(:package, hungry_man: other, delivery_man: patron)
         expect(controller.feed).to eq('*You* should be delivering a burrito!')
       end
       it 'patron cant be waiting' do
         patron.active!
-        Package.create hungry_man: patron, delivery_man: other
+        create(:package, hungry_man: patron, delivery_man: other)
         expect(controller.feed).to eq('You already have a burrito coming!')
       end
       it 'patron cant be greedy' do

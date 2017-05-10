@@ -11,10 +11,10 @@ class SlackController
     # Save the params
     @params = params
     # Add the user to the database if they don't already exist
-    @patron = Patron.where(user_id: params['user_id']).first
+    @patron = Patron.where(slack_user_id: params['user_id']).first
     if @patron.nil?
       pool = Pool.first_or_create!(name: 'default_pool')
-      @patron = Patron.create!(user_id: params['user_id'], pool: Pool.find('default_pool'))
+      @patron = Patron.create!(slack_user_id: params['user_id'], pool: pool)
     end
     # Actions list
     @actions = %w[feed serving full status join stats leave pool]
