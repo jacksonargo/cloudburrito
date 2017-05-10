@@ -388,7 +388,7 @@ RSpec.describe 'The Patron class' do
     it 'returns valid stats url' do
       stats_url = patron.stats_url
       expected_url = "https://cloudburrito.us/user?id=#{patron._id}&token=#{patron.user_token}"
-      expect(stats.url).to eq(expected_url)
+      expect(stats_url).to eq(expected_url)
     end
   end
 end

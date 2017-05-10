@@ -17,17 +17,17 @@ RSpec.describe 'The NewPackageEvents class' do
   let(:events) { NewPackageEvents.new }
 
   context '#unassigned_packages' do
-    let(:hman) { Patron.create user_id: '1' }
+    let(:hman) { create(:hman) }
     it 'does not include failed packages' do
-      10.times { Package.create hungry_man: hman, failed: true }
+      10.times { create(:failed_pack) }
       expect(events.unassigned_packages.count).to be 0
     end
     it 'does not include received packages' do
-      10.times { Package.create hungry_man: hman, received: true }
+      10.times { create(:received_pack) }
       expect(events.unassigned_packages.count).to be 0
     end
     it 'returns unassigned packages' do
-      10.times { Package.create hungry_man: hman }
+      10.times { create(:package) }
       expect(events.unassigned_packages.count).to be 10
     end
   end
@@ -37,15 +37,15 @@ RSpec.describe 'The NewPackageEvents class' do
       expect(events.get_delivery_man).to be nil
     end
     it 'returns new active dman' do
-      dman = Patron.create user_id: '2', active: true
+      dman = create(:active_patron)
       expect(events.get_delivery_man).to eq dman
     end
   end
 
   context '#assign_next' do
     context 'when a new package is created,' do
-      let(:hman) { Patron.create user_id: '1' }
-      before(:each) { Package.create hungry_man: hman }
+      let(:hman) { create(:hman) }
+      before(:each) { create(:package, hungry_man: hman) }
 
       context 'if the package is locked' do
         before(:each) do
@@ -80,7 +80,7 @@ RSpec.describe 'The NewPackageEvents class' do
 
       context 'there are delivery men,' do
         before(:each) do
-          Patron.create user_id: '2', active: true
+          create(:active_patron)
           events.assign_next
         end
         it 'the package is not locked' do
@@ -113,15 +113,15 @@ RSpec.describe 'The NewPackageEvents class' do
     end
 
     context 'two new packages are created' do
-      let(:patr1) { Patron.create user_id: '1' }
-      let(:patr2) { Patron.create user_id: '2' }
+      let(:patr1) { create(:patron) }
+      let(:patr2) { create(:patron) }
       before(:each) do
-        Package.create hungry_man: patr1
-        Package.create hungry_man: patr2
+        create(:package, hungry_man: patr1)
+        create(:package, hungry_man: patr2)
       end
       context 'assigns packages first in first out' do
         before(:each) do
-          Patron.create user_id: '3', active: true
+          create(:active_patron)
           events.assign_next
         end
         it 'first package is assigned' do
@@ -146,7 +146,7 @@ RSpec.describe 'The NewPackageEvents class' do
   end
 
   context '#start' do
-    let(:hman) { Patron.create user_id: '1' }
+    let(:hman) { create(:hman) }
 
     before(:each) { events.start }
     after(:each) { events.stop }
@@ -158,10 +158,9 @@ RSpec.describe 'The NewPackageEvents class' do
     context 'when unassgined package exist,' do
       it 'assigns them' do
         # Create patrons to be assigned as delivery men
-        (2..11).each { |x| Patron.create user_id: x.to_s, active: true }
-        Package.create hungry_man: hman
-        Package.create hungry_man: Patron.find('2')
-        Package.create hungry_man: Patron.find('3')
+        10.times { create(:active_patron) }
+        # Create some packages
+        3.times { create(:package) }
         events.wait_for_complete
         expect(events.unassigned_packages.count).to eq 0
       end
