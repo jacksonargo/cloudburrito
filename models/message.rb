@@ -31,7 +31,7 @@ class Message
   end
 
   # Sends the message
-  def send
+  def send_message
     case via
     when 'slack_dm'
       send_slack_dm_message
@@ -63,8 +63,8 @@ class Message
 
   # Send message via slack url
   def send_slack_url_message
-    headers = 'Content-Type': 'application/json'
-    payload = 'response_type': response_type, 'text': text
+    headers = { 'Content-Type': 'application/json' }
+    payload = { response_type: response_type, text: text }
     logger.info "Sent slack url response to #{to}."
     Typhoeus.post(response_url, headers: headers, body: payload)
   end
