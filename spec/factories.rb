@@ -61,6 +61,13 @@ FactoryGirl.define do
     # A failed package
     factory(:failed_pack) { failed true }
 
+    # A stale package
+    factory(:stale_pack) do
+      assigned true
+      failed false
+      force_stale true
+    end
+
     before(:create) do |package|
       # Set the default hungry man
       if package.hungry_man.nil?
@@ -79,6 +86,8 @@ FactoryGirl.define do
   factory :patron do
     slack_user false
 
+    factory(:active_patron) { active true }
+
     # Slack patron
     factory(:slack_patron) do
       slack_user_id 'xxx'
@@ -89,12 +98,16 @@ FactoryGirl.define do
     factory(:dman) do
       slack_user_id 'dman'
       _id 'dman'
+
+      factory(:active_dman) { active true }
     end
 
     # Hungry man
     factory(:hman) do
       slack_user_id 'hman'
       _id 'hman'
+
+      factory(:active_hman) { active true }
     end
 
     # Automatically add the patron to a pool, creating the pool if needed.

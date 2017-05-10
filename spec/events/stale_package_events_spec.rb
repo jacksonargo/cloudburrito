@@ -17,25 +17,31 @@ RSpec.describe 'The StalePackageEvent class' do
   let(:events) { StalePackageEvents.new }
 
   context '#stale_packages' do
-    let(:hman) { Patron.create user_id: '1' }
-    let(:dman) { Patron.create user_id: '2' }
-    it 'returns [] when there are no packages' do
-      expect(events.stale_packages).to eq []
+    context 'no packages' do
+      it('returns []') { expect(events.stale_packages).to eq([]) }
     end
-    it 'returns [] when there are no assigned packages' do
-      Package.create hungry_man: hman
-      expect(events.stale_packages).to eq []
-    end
-    it 'returns [] when no stale packages' do
-      p = Package.create hungry_man: hman
-      p.assign! dman
-      expect(events.stale_packages).to eq []
-    end
-    it 'returns stale packages' do
-      p = Package.create hungry_man: hman
-      p.assign! dman
-      p.stale!
-      expect(events.stale_packages.first).to eq p
+
+    context 'packages exist' do
+      before(:each) { create(:package) }
+
+      context 'no assigned packages' do
+        it('returns []') { expect(events.stale_packages).to eq([]) }
+      end
+
+      context 'assigned packages exist' do
+        before(:each) { create(:assigned_pack) }
+        context 'no stale packages' do
+          it('returns []') { expect(events.stale_packages).to eq([]) }
+        end
+
+        context 'stale package exist' do
+          before(:each) { create(:stale_pack) }
+          it('doesnt return []') { expect(events.stale_packages).not_to eq([]) }
+          it('returns stale packages') do
+            expect(events.stale_packages).to eq([Package.last])
+          end
+        end
+      end
     end
   end
 
@@ -47,16 +53,9 @@ RSpec.describe 'The StalePackageEvent class' do
     end
 
     context 'one package becomes stale' do
-      let(:hman) { Patron.create user_id: '1' }
-      let(:dman) { Patron.create user_id: '2', active: true }
-      before(:each) do
-        Package.create(
-          hungry_man: hman,
-          delivery_man: dman,
-          force_stale: true,
-          assigned: true
-        )
-      end
+      let(:hman) { create(:hman) }
+      let(:dman) { create(:dman) }
+      before(:each) { create(:stale_pack, hungry_man: hman, delivery_man: dman) }
 
       context 'the package is locked' do
         before(:each) do
@@ -117,11 +116,11 @@ RSpec.describe 'The StalePackageEvent class' do
     end
 
     context 'two packages become stale' do
-      let(:patr1) { Patron.create user_id: '1' }
-      let(:patr2) { Patron.create user_id: '2' }
+      let(:patr1) { create(:patron) }
+      let(:patr2) { create(:patron) }
       before(:each) do
-        Package.create hungry_man: patr1, force_stale: true, assigned: true
-        Package.create hungry_man: patr2, force_stale: true, assigned: true
+        create(:stale_pack, hungry_man: patr1)
+        create(:stale_pack, hungry_man: patr2)
         events.replace_next
       end
 
@@ -142,7 +141,7 @@ RSpec.describe 'The StalePackageEvent class' do
   end
 
   context '#start' do
-    let(:hman) { Patron.create user_id: '1' }
+    let(:hman) { create(:hman) }
 
     before(:each) { events.start }
     after(:each) { events.stop }
@@ -153,10 +152,8 @@ RSpec.describe 'The StalePackageEvent class' do
 
     context 'when stale packages exist,' do
       before(:each) do
-        (2..11).each { |x| Patron.create user_id: x.to_s, active: true }
-        Package.create hungry_man: hman, assigned: true, force_stale: true
-        Package.create hungry_man: hman, assigned: true, force_stale: true
-        Package.create hungry_man: hman, assigned: true, force_stale: true
+        10.times { create(:active_patron) }
+        3.times { create(:stale_pack, hungry_man: hman) }
       end
       it 'marks them failed' do
         events.wait_for_complete
