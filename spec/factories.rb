@@ -79,6 +79,12 @@ FactoryGirl.define do
   factory :patron do
     slack_user false
 
+    # Slack patron
+    factory(:slack_patron) do
+      slack_user_id 'xxx'
+      slack_user = true
+    end
+
     # Delivery man
     factory(:dman) do
       slack_user_id 'dman'
