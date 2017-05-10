@@ -383,4 +383,12 @@ RSpec.describe 'The Patron class' do
       expect(patron.slack_first_name).to eq(patron.slack_user_id)
     end
   end
+
+  context '#stats_url' do
+    it 'returns valid stats url' do
+      stats_url = patron.stats_url
+      expected_url = "https://cloudburrito.us/user?id=#{patron._id}&token=#{patron.user_token}"
+      expect(stats.url).to eq(expected_url)
+    end
+  end
 end
