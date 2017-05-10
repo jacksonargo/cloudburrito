@@ -135,12 +135,12 @@ class CloudBurrito < Sinatra::Base
   end
 
   get '/user' do
-    user_id = params['user_id']
+    id = params['id']
     # Require a user id
-    halt 401 unless params['user_id']
+    halt 401 unless params['id']
     # Require that the user exists
     begin
-      @patron = Patron.find(user_id)
+      @patron = Patron.find(id)
     rescue
       halt 401
     end
@@ -154,9 +154,10 @@ class CloudBurrito < Sinatra::Base
 
   post '/slack' do
     # Check if the user exists
-    unless Patron.where(user_id: params['user_id']).exists?
+    unless Patron.where(slack_user_id: params['user_id']).exists?
       logger.info "New user #{params['user_id']}"
-      Patron.new(user_id: params['user_id']).save
+      pool = Pool.first_or_create!(name: 'default_pool')
+      Patron.create!(slack_user_id: params['user_id'], pool: pool)
       return erb :slack_new_user
     end
 

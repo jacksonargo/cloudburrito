@@ -102,7 +102,7 @@ RSpec.describe 'The CloudBurrito app' do
     end
 
     it 'requires token' do
-      post '/slack', user_id: 1
+      post '/slack', user_id: '1'
       expect(last_response.status).to eq(401)
       expect(last_response.body).to eq('401: Burrito Unauthorized!')
     end
@@ -136,7 +136,7 @@ Check out https://cloudburrito.us/ for current stats!\n")
 
     context 'help' do
       it 'returns help by default' do
-        Patron.create user_id: '1'
+        create(:patron, slack_user_id: '1')
         post '/slack', token: token, user_id: '1'
         expect(last_response).to be_ok
         expect(last_response.body).to eq("Welcome to Cloud Burrito!
@@ -158,8 +158,8 @@ https://github.com/jacksonargo/cloudburrito/issues/new
     end
 
     context 'passes to slack controller' do
-      let(:patron) { Patron.create user_id: '1' }
-      let(:params) { { token: token, user_id: patron._id } }
+      let(:patron) { create(:slack_patron) }
+      let(:params) { { token: token, user_id: patron.slack_user_id } }
       after(:each) do
         post '/slack', params
         expect(last_response).to be_ok
@@ -177,20 +177,19 @@ https://github.com/jacksonargo/cloudburrito/issues/new
   end
 
   context 'GET /user' do
-    it 'returns 401 without user_id' do
+    let(:patron) { create(:slack_patron) }
+    it 'returns 401 without id' do
       get '/user'
       expect(last_response.status).to eq(401)
     end
 
     it 'returns 401 without token' do
-      Patron.create(user_id: '1')
-      get '/user', user_id: '1'
+      get '/user', id: patron._id
       expect(last_response.status).to eq(401)
     end
 
     it 'Can access user pages' do
-      p = Patron.create(user_id: '1')
-      get '/user', token: p.user_token, user_id: p._id
+      get '/user', token: patron.user_token, id: patron._id
       expect(last_response).to be_ok
     end
   end
