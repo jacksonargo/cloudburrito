@@ -10,6 +10,7 @@ gem 'slack-ruby-client'
 gem 'ZenTest'
 gem 'unicorn'
 gem 'factory_girl'
+gem 'typhoeus'
 group :development, :test do
   gem 'capistrano'
   gem 'capistrano-bundler'
