@@ -21,8 +21,8 @@ class NewPackageEvents < Events
     Package.where(assigned: false, failed: false, received: false)
   end
 
-  def get_delivery_man
-    Patron.each.select(&:can_deliver?).sample
+  def get_delivery_man(pool)
+    Patron.where(pool: pool).each.select(&:can_deliver?).sample
   end
 
   def assign_next
@@ -35,7 +35,7 @@ class NewPackageEvents < Events
     hman = package.hungry_man
     logger.info "New package #{package} for #{hman}."
     # Try to get a delivery man
-    dman = get_delivery_man
+    dman = get_delivery_man hman.pool
     if dman
       logger.info "Assigned #{dman} to deliver #{package}."
       package.assign! dman

@@ -34,30 +34,30 @@ RSpec.describe 'The NewPackageEvents class' do
   end
 
   context '#get_delivery_man' do
+    let(:pool) { create(:pool) }
     context 'no patrons in hungry_man pool' do
-      after(:each) { expect(events.get_delivery_man).to be(nil) }
+      after(:each) { expect(events.get_delivery_man(pool)).to be(nil) }
       context('no patrons at all') do
         it('returns nill') { }
       end
 
       context('some patrons in other pools') do
+        let(:otherpool) { create(:pool, name: 'otherpool') }
         it('returns nill') do
-          pool = create(:pool)
-          create(:active_patron, pool: pool)
+          create(:active_patron, pool: otherpool)
         end
       end
     end
 
     context 'one patron in hungry_man pool' do
-      let(:pool) { create(:pool) }
       let(:patron) { create(:patron, pool: pool) }
       context 'patron cant deliver' do
         before(:each) { patron.inactive! }
-        it('returns nil') { expect(events.get_delivery_man).to be(nil) }
+        it('returns nil') { expect(events.get_delivery_man(pool)).to be(nil) }
       end
       context 'patron can deliver' do
         before(:each) { patron.active! }
-        it('returns patron') { expect(events.get_delivery_man).to eq(patron) }
+        it('returns patron') { expect(events.get_delivery_man(pool)).to eq(patron) }
       end
     end
   end
