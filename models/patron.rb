@@ -39,6 +39,10 @@ class Patron
   validates :greedy_time, numericality: true
   validates :slack_user_id, presence: true, if: :slack_user
 
+  def to_s
+    _id.to_s
+  end
+
   def active!
     self.active_at = Time.now
     self.active = true
