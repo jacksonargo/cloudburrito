@@ -165,7 +165,8 @@ class CloudBurrito < Sinatra::Base
     # Do the needful
     cmd = params['text']
     cmd = cmd.strip unless cmd.nil?
-    logger.info "User #{params['user_id']} requesting #{cmd}"
+    cmd = cmd.split(' ')[0] unless cmd.nil?
+    logger.info "User #{params['user_id']} requesting #{params['text']}"
     if controller.actions.include? cmd
       controller.send(cmd)
     else
