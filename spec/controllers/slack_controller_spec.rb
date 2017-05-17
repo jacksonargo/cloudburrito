@@ -33,7 +33,7 @@ RSpec.describe 'The SlackController class' do
     end
 
     it 'allows required actions' do
-      expect(controller.actions).to eq(%w[feed serving full status join stats leave pool])
+      expect(controller.actions).to eq(%w[feed serving full status join stats leave pool reject])
     end
   end
 
@@ -171,6 +171,27 @@ RSpec.describe 'The SlackController class' do
         package = Package.first
         expect(package.en_route).to be true
       end
+    end
+  end
+
+  context '#reject' do
+    context 'patron is not on a delivery' do
+      it 'tells them they arent delivering' do
+        expect(controller.reject).to eq("You haven't been volunteered to deliver...")
+      end
+    end
+    context 'patron is on delivery' do
+      let(:package) { create(:assigned_pack, delivery_man: patron) }
+      before(:each) do
+        package.reload
+        controller.reject
+        package.reload
+      end
+      it('patron is inactive') { expect(patron.inactive?).to be(true) }
+      it('the package is not en route') { expect(package.en_route).to be(false) }
+      it('the package is assigned') { expect(package.assigned?).to be(true) }
+      it('force stale is true') { expect(package.force_stale).to be(true) }
+      it('the package is stale') { expect(package.stale?).to be(true) }
     end
   end
 

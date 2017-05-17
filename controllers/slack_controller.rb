@@ -17,7 +17,7 @@ class SlackController
       @patron = Patron.create!(slack_user_id: params['user_id'], pool: pool)
     end
     # Actions list
-    @actions = %w[feed serving full status join stats leave pool]
+    @actions = %w[feed serving full status join stats leave pool reject]
   end
 
   def feed
@@ -51,6 +51,16 @@ class SlackController
     package.save
     logger.info "#{@patron} has acknowledged the delivery request."
     'Make haste!'
+  end
+
+  def reject
+    return "You haven't been volunteered to deliver..." unless @patron.on_delivery?
+    package = @patron.active_delivery
+    # Unack and mark the package as stale
+    package.force_stale = true
+    package.en_route = false
+    package.save
+    logger.info "#{@patron} has rejected the delivery request for #{@package}."
   end
 
   def full
