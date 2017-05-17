@@ -129,7 +129,7 @@ class CloudBurrito < Sinatra::Base
   end
 
   get '/cbtp' do
-    @content = 'This page is coming soon!'
+    @content = erb :cbtp
     erb :beautify
   end
 
