@@ -74,7 +74,6 @@ RSpec.describe 'The CloudBurrito app' do
     it 'returns text/html' do
       get '/cbtp'
       expect(last_response).to be_ok
-      expect(last_response.body).to match(/coming soon/)
     end
   end
 
