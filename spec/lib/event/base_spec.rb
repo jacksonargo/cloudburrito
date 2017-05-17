@@ -1,14 +1,10 @@
 # frozen_string_literal: true
 
-require_relative '../../lib/events'
+require_relative '../../../lib/event'
 require 'rspec'
 
-RSpec.describe 'The Events Class' do
-  def app
-    CloudBurrito
-  end
-
-  let(:events) { Events.new }
+RSpec.describe 'Event::Base' do
+  let(:events) { Event::Base.new }
 
   context '#stop' do
     it 'stops the thread' do

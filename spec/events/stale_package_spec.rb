@@ -1,20 +1,16 @@
-require_relative '../../events/stale_package_events'
+require_relative '../../events/stale_package'
 require 'rspec'
 
 Mongoid.load!('config/mongoid.yml')
 
-RSpec.describe 'The StalePackageEvent class' do
-  def app
-    CloudBurrito
-  end
-
+RSpec.describe 'Event::StalePackage' do
   before(:each) do
     Patron.delete_all
     Package.delete_all
     Message.delete_all
   end
 
-  let(:events) { StalePackageEvents.new }
+  let(:events) { Event::StalePackage.new }
 
   context '#stale_packages' do
     context 'no packages' do

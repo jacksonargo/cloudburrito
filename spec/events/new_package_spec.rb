@@ -1,9 +1,9 @@
-require_relative '../../events/new_package_events'
+require_relative '../../events/new_package'
 require 'rspec'
 
 Mongoid.load!('config/mongoid.yml')
 
-RSpec.describe 'The NewPackageEvents class' do
+RSpec.describe 'Event::NewPackage' do
   def app
     CloudBurrito
   end
@@ -15,7 +15,7 @@ RSpec.describe 'The NewPackageEvents class' do
     Message.delete_all
   end
 
-  let(:events) { NewPackageEvents.new }
+  let(:events) { Event::NewPackage.new }
 
   context '#unassigned_packages' do
     let(:hman) { create(:hman) }

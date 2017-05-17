@@ -1,9 +1,9 @@
-require_relative '../../events/unsent_message_events'
+require_relative '../../events/unsent_message'
 require 'rspec'
 
 Mongoid.load!('config/mongoid.yml')
 
-RSpec.describe 'The UnsentMessageEvents class' do
+RSpec.describe 'Event::UnsentMessage' do
   def app
     CloudBurrito
   end
@@ -14,7 +14,7 @@ RSpec.describe 'The UnsentMessageEvents class' do
     Locker.delete_all
   end
 
-  let(:events) { UnsentMessageEvents.new }
+  let(:events) { Event::UnsentMessage.new }
   let(:patron) { create(:patron) }
 
   context 'initialize' do
