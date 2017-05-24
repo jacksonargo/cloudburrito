@@ -53,6 +53,8 @@
     y = glutton.burritos.where(failed: false, received: true).count
     glutton = patron if x > y
   end
+  glutton_name = glutton.slack_first_name unless glutton.nil?
+  glutton_name ||= ''
 
   # Minion
   minion = Patron.first
@@ -61,6 +63,8 @@
     y = minion.deliveries.where(failed: false, received: true).count
     minion = patron if x > y
   end
+  minion_name ||= ''
+  minion_name = minion.slack_first_name unless minion.nil?
 
   # Unsatisfied
   unsat = Patron.first
@@ -69,6 +73,8 @@
     y = unsat.burritos.where(failed: true, received: false).count
     unsat = patron if x > y
   end
+  unsat_name = unsat.slack_first_name unless unsat.nil?
+  unsat_name ||= ''
 
   # Butterfingers
   butter = Patron.first
@@ -77,24 +83,26 @@
     y = butter.deliveries.where(failed: true, received: false).count
     butter = patron if x > y
   end
+  butter_name = butter.slack_first_name unless butter.nil?
+  butter_name ||= ''
 %>
 
 <table class="table">
   <tr>
     <td><strong>Glutton:</strong></td>
-    <td><%= glutton.slack_first_name %></td>
+    <td><%= glutton_name %></td>
   </tr>
   <tr>
     <td><strong>Minion:</strong></td>
-    <td><%= minion.slack_first_name %></td>
+    <td><%= minion_name %></td>
   </tr>
   <tr>
     <td><strong>Unsatisfied:</strong></td>
-    <td><%= unsat.slack_first_name %></td>
+    <td><%= unsat_name %></td>
   </tr>
   <tr>
     <td><strong>Butter fingers:</strong></td>
-    <td><%= butter.slack_first_name %></td>
+    <td><%= butter_name %></td>
   </tr>
 </table>
 
