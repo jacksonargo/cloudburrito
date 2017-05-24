@@ -90,7 +90,7 @@ RSpec.describe 'Event::LostPackage' do
             let(:message) { Message.where(to: dman).last }
             it('exists') { expect(message).not_to be(nil) }
             it('says the burrito was lost') do
-              text = "<@#{hman.slack_user_id}> never said he received his burrito. "
+              text = "It appears <@#{hman.slack_user_id}> never received the burrito. "
               text += "Since it has been an hour, you can order burritos again, but you don't get points for the last delivery."
               expect(message.text).to eq text
             end

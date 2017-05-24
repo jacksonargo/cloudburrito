@@ -39,7 +39,7 @@ module Event
       text += "with _/cloudburrito full_ or you wont get points."
       Message.create to: hman, text: text
       # Send a message to delivery man
-      text = "<@#{hman.slack_user_id}> never said he received his burrito. "
+      text = "It appears <@#{hman.slack_user_id}> never received the burrito. "
       text += "Since it has been an hour, you can order burritos again, "
       text += "but you don't get points for the last delivery."
       Message.create to: dman, text: text
