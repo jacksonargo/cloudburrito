@@ -25,11 +25,10 @@
     <td><strong>Average TTD:</strong></td>
 <%
   t_total = 0
-  t_count = 0
+  t_count = Package.where(received: true).count
   Package.each do |package|
     if package.latency.positive?
       t_total += package.latency
-      t_count += 1
     end
   end
   ttd = t_total / t_count / 60 unless t_count == 0
