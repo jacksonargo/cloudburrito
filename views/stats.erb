@@ -1,7 +1,9 @@
 <div class="featurette" id="stats">
-<h2 class="featurette-heading">Current Stats</h2>
 <img class="featurette-image img-circle img-responsive pull-right" src="images/smolclerd.jpg">
 <div class="lead col-md-6">
+
+<h2 class="featurette-heading">Current Stats</h2>
+
 <table class="table">
   <tr>
     <td><strong>Participants:</strong></td>
@@ -36,6 +38,66 @@
     <td><%= sprintf "%.2f", ttd %> min/burrito</td>
   </tr>
 </table>
+
+<h2 class="featurette-heading">Leaderboard</h2>
+
+<%
+  ##
+  ## Leaderboard
+  ##
+
+  # Glutton
+  glutton = Patron.first
+  Patron.each do |patron|
+    x = patron.burritos.where(failed: false, received: true).count
+    y = glutton.burritos.where(failed: false, received: true).count
+    glutton = patron if x > y
+  end
+
+  # Minion
+  minion = Patron.first
+  Patron.each do |patron|
+    x = patron.deliveries.where(failed: false, received: true).count
+    y = minion.deliveries.where(failed: false, received: true).count
+    minion = patron if x > y
+  end
+
+  # Unsatisfied
+  unsat = Patron.first
+  Patron.each do |patron|
+    x = patron.burritos.where(failed: true, received: false).count
+    y = unsat.burritos.where(failed: true, received: false).count
+    unsat = patron if x > y
+  end
+
+  # Butterfingers
+  butter = Patron.first
+  Patron.each do |patron|
+    x = patron.deliveries.where(failed: true, received: false).count
+    y = butter.deliveries.where(failed: true, received: false).count
+    butter = patron if x > y
+  end
+%>
+
+<table class="table">
+  <tr>
+    <td><strong>Glutton:</strong></td>
+    <td><%= glutton.slack_first_name %></td>
+  </tr>
+  <tr>
+    <td><strong>Minion:</strong></td>
+    <td><%= minion.slack_first_name %></td>
+  </tr>
+  <tr>
+    <td><strong>Unsatisfied:</strong></td>
+    <td><%= unsat.slack_first_name %></td>
+  </tr>
+  <tr>
+    <td><strong>Butter fingers:</strong></td>
+    <td><%= butter.slack_first_name %></td>
+  </tr>
+</table>
+
 </div>
 <div class="col-md-6">
 </div>
