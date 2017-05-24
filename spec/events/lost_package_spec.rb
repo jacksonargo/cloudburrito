@@ -41,9 +41,9 @@ RSpec.describe 'Event::LostPackage' do
     end
   end
 
-  context '#replace_next' do
+  context '#fail_next' do
     context 'no packages exist' do
-      before(:each) { events.replace_next }
+      before(:each) { events.fail_next }
       it 'doesnt fail' do
       end
     end
@@ -56,7 +56,7 @@ RSpec.describe 'Event::LostPackage' do
       context 'the package is locked' do
         before(:each) do
           Locker.lock Package.first
-          events.replace_next
+          events.fail_next
         end
         it 'is not modified' do
           expect(events.lost_packages.count).to be 1
@@ -64,7 +64,7 @@ RSpec.describe 'Event::LostPackage' do
       end
 
       context 'the package is not locked' do 
-        before(:each) { events.replace_next }
+        before(:each) { events.fail_next }
         it 'the first package is no longer lost' do
           expect(Package.first.lost?).to be false
         end
@@ -81,21 +81,8 @@ RSpec.describe 'Event::LostPackage' do
           expect(Package.first.failed?).to be true
         end
 
-        it 'creates a new package' do
-          expect(Package.count).to be 2
-        end
-
         it 'the new package is not lost' do
           expect(Package.last.lost?).to be false
-        end
-
-        it 'new package is assigned to hungry man' do
-          expect(Package.last.hungry_man).to eq hman
-        end
-
-        it 'makes delivery man inactive' do
-          dman.reload
-          expect(dman.inactive?).to be true
         end
 
         context 'creates messages' do
@@ -105,7 +92,7 @@ RSpec.describe 'Event::LostPackage' do
             it('says the burrito was lost') do
               text = "<@#{hman.slack_user_id}> never said he received his burrito. "
               text += "Since it has been an hour, you can order burritos again, but you don't get points for the last delivery."
-              expect(Message.last.text).to eq text
+              expect(message.text).to eq text
             end
           end
           context 'for hungry man' do
@@ -115,7 +102,7 @@ RSpec.describe 'Event::LostPackage' do
               text = "It doesn't look like you received your burrito. "
               text += "Since it has been an hour, you can order another burrito. "
               text += "When you receive the burrito, be sure to tell Cloudburrito with _/cloudburrito full_ or you wont get points."
-              expect(Message.last.text).to eq text
+              expect(message.text).to eq text
             end
           end
         end
@@ -128,17 +115,12 @@ RSpec.describe 'Event::LostPackage' do
       before(:each) do
         create(:lost_pack, hungry_man: patr1)
         create(:lost_pack, hungry_man: patr2)
-        events.replace_next
+        events.fail_next
       end
 
       context 'processes them first in fist out' do
         it 'first package should be failed' do
           expect(Package.first.failed).to be true
-        end
-        it 'last package should have same hungry man' do
-          p1 = Package.first
-          p3 = Package.last
-          expect(p1.hungry_man).to eq(p3.hungry_man)
         end
         it 'next lost package is different from first package' do
           expect(events.lost_packages.first).not_to eq(Package.first)
@@ -165,10 +147,6 @@ RSpec.describe 'Event::LostPackage' do
       it 'marks them failed' do
         events.wait_for_complete
         expect(Package.where(failed: true).count).to be 3
-      end
-      it 'creates replacement packages' do
-        events.wait_for_complete
-        expect(Package.where(failed: false).count).to be 3
       end
     end
   end
