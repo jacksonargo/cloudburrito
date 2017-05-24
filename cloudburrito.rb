@@ -3,13 +3,15 @@
 # CloudBurrito
 # Jackson Argo 2017
 
-require_relative 'models/patron'
-require_relative 'models/package'
-require_relative 'controllers/slack_controller'
-require_relative 'events/new_package'
-require_relative 'events/stale_package'
-require_relative 'events/unsent_message'
-require_relative 'events/lost_package'
+# Require models
+Dir[File.dirname(__FILE__) + '/models/*.rb'].each {|file| require file }
+
+# Require controllers
+Dir[File.dirname(__FILE__) + '/controllers/*.rb'].each {|file| require file }
+
+# Require events
+Dir[File.dirname(__FILE__) + '/events/*.rb'].each {|file| require file }
+
 require 'sinatra/base'
 
 # CloudBurrito
