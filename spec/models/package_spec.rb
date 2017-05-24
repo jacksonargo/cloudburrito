@@ -174,30 +174,14 @@ RSpec.describe 'The Package class' do
   context '#lost?' do
     context 'unassigned package' do
       let(:package) { create(:package) }
-      context 'less than 1 hour since assigned' do
-        before(:each) { package.assigned_at = Time.now }
-        context 'not received' do
-          before(:each) { package.received = false }
-          it('is not lost') { expect(package.lost?).to be(false) }
-        end
-
-        context 'received' do
-          before(:each) { package.received = true }
-          it('is not lost') { expect(package.lost?).to be(false) }
-        end
+      context 'not received' do
+        before(:each) { package.received = false }
+        it('is not lost') { expect(package.lost?).to be(false) }
       end
 
-      context 'greater than 1 hour since assigned' do
-        before(:each) { package.assigned_at -= 3600 }
-        context 'not received' do
-          before(:each) { package.received = false }
-          it('is not lost') { expect(package.lost?).to be(false) }
-        end
-
-        context 'received' do
-          before(:each) { package.received = true }
-          it('is not lost') { expect(package.lost?).to be(false) }
-        end
+      context 'received' do
+        before(:each) { package.received = true }
+        it('is not lost') { expect(package.lost?).to be(false) }
       end
     end
 

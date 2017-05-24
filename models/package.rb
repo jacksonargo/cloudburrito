@@ -118,4 +118,8 @@ class Package
     self.en_route = true
     save
   end
+
+  def lost?
+    assigned && Time.now - assigned_at > 3600 && ! received
+  end
 end
