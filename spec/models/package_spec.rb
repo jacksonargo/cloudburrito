@@ -174,42 +174,100 @@ RSpec.describe 'The Package class' do
   context '#lost?' do
     context 'unassigned package' do
       let(:package) { create(:package) }
-      context 'not received' do
-        before(:each) { package.received = false }
-        it('is not lost') { expect(package.lost?).to be(false) }
+
+      context 'failed' do
+        before(:each) { package.failed = true }
+
+        context 'not received' do
+          before(:each) { package.received = false }
+          it('is not lost') { expect(package.lost?).to be(false) }
+        end
+
+        context 'received' do
+          before(:each) { package.received = true }
+          it('is not lost') { expect(package.lost?).to be(false) }
+        end
       end
 
-      context 'received' do
-        before(:each) { package.received = true }
-        it('is not lost') { expect(package.lost?).to be(false) }
+      context 'not failed' do
+        before(:each) { package.failed = false }
+
+        context 'not received' do
+          before(:each) { package.received = false }
+          it('is not lost') { expect(package.lost?).to be(false) }
+        end
+
+        context 'received' do
+          before(:each) { package.received = true }
+          it('is not lost') { expect(package.lost?).to be(false) }
+        end
       end
     end
 
     context 'assigned package' do
       let(:package) { create(:assigned_pack) }
+
       context 'less than 1 hour since assigned' do
         before(:each) { package.assigned_at = Time.now }
-        context 'not received' do
-          before(:each) { package.received = false }
-          it('is not lost') { expect(package.lost?).to be(false) }
+
+        context 'not failed' do
+          before(:each) { package.failed = false }
+
+          context 'not received' do
+            before(:each) { package.received = false }
+            it('is not lost') { expect(package.lost?).to be(false) }
+          end
+
+          context 'received' do
+            before(:each) { package.received = true }
+            it('is not lost') { expect(package.lost?).to be(false) }
+          end
         end
 
-        context 'received' do
-          before(:each) { package.received = true }
-          it('is not lost') { expect(package.lost?).to be(false) }
+        context 'failed' do
+          before(:each) { package.failed = true }
+
+          context 'not received' do
+            before(:each) { package.received = false }
+            it('is not lost') { expect(package.lost?).to be(false) }
+          end
+
+          context 'received' do
+            before(:each) { package.received = true }
+            it('is not lost') { expect(package.lost?).to be(false) }
+          end
         end
       end
 
       context 'greater than 1 hour since assigned' do
         before(:each) { package.assigned_at -= 3600 }
-        context 'not received' do
-          before(:each) { package.received = false }
-          it('is lost') { expect(package.lost?).to be(true) }
+
+        context 'not failed' do
+          before(:each) { package.failed = false }
+
+          context 'not received' do
+            before(:each) { package.received = false }
+            it('is lost') { expect(package.lost?).to be(true) }
+          end
+
+          context 'received' do
+            before(:each) { package.received = true }
+            it('is not lost') { expect(package.lost?).to be(false) }
+          end
         end
 
-        context 'received' do
-          before(:each) { package.received = true }
-          it('is not lost') { expect(package.lost?).to be(false) }
+        context 'failed' do
+          before(:each) { package.failed = true }
+
+          context 'not received' do
+            before(:each) { package.received = false }
+            it('is not lost') { expect(package.lost?).to be(false) }
+          end
+
+          context 'received' do
+            before(:each) { package.received = true }
+            it('is not lost') { expect(package.lost?).to be(false) }
+          end
         end
       end
     end
