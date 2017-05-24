@@ -18,9 +18,9 @@ module Event
     end
 
     def send_slack_pm(msg)
-      # Don't pm when we are testing
-      if ENV['RACK_ENV'] == 'test'
-        logger.info "Not sending slack pm in test environment."
+      # Only send pm in production
+      unless ENV['RACK_ENV'] == 'production'
+        logger.info "Not sending slack pm in #{ENV['RACK_ENV']} environment."
         return true
       end
       begin
