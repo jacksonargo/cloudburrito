@@ -144,6 +144,7 @@ class Patron
     return false if inactive?
     return false if on_delivery?
     return false if sleepy?
+    return false if waiting?
     true
   end
 

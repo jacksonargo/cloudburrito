@@ -351,11 +351,18 @@ RSpec.describe 'The Patron class' do
       expect(patron.can_deliver?).to be false
     end
     it 'not if on delivery' do
+      patron.active!
       create(:package, delivery_man: patron)
       expect(patron.can_deliver?).to be false
     end
     it 'not if sleeping after delivery' do
+      patron.active!
       create(:received_pack, delivery_man: patron)
+      expect(patron.can_deliver?).to be false
+    end
+    it 'not if waiting for a burrito' do
+      patron.active!
+      create(:package, hungry_man: patron)
       expect(patron.can_deliver?).to be false
     end
   end
