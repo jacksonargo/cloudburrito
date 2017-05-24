@@ -68,6 +68,13 @@ FactoryGirl.define do
       force_stale true
     end
 
+    # A lost package do
+    factory(:lost_pack) do
+      assigned true
+      assigned_at Time.at(0)
+      failed false
+    end
+
     before(:create) do |package|
       # Set the default hungry man
       if package.hungry_man.nil?
