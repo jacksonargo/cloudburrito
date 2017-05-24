@@ -9,6 +9,7 @@ require_relative 'controllers/slack_controller'
 require_relative 'events/new_package'
 require_relative 'events/stale_package'
 require_relative 'events/unsent_message'
+require_relative 'events/lost_package'
 require 'sinatra/base'
 
 # CloudBurrito
