@@ -275,29 +275,14 @@ RSpec.describe 'The Patron class' do
 
   context '#greedy?' do
 
-    it 'when first created' do
-      expect(patron.greedy?).to eq(true)
-    end
-
-    it 'when first active' do
-      patron.active!
-      expect(patron.greedy?).to eq(true)
-    end
-
-    it 'when inactive' do
-      patron.inactive!
-      expect(patron.greedy?).to eq(true)
-    end
-
     it 'not when forced not greedy' do
       patron.force_not_greedy = true
       expect(patron.greedy?).to eq(false)
     end
 
-    it 'not after being active for 3600 seconds' do
-      patron.active!
-      patron.active_at = Time.now - 3600
-      expect(patron.greedy?).to eq(false)
+    context 'inactive' do
+      before(:each) { patron.inactive! }
+      it('is greedy') { expect(patron.greedy?).to eq(true) }
     end
 
     context 'active' do
@@ -315,12 +300,14 @@ RSpec.describe 'The Patron class' do
           before(:each) { package.received! }
 
           context 'within 3600 seconds' do
-            before(:each) { package.received_at = Time.now }
             it('is not greedy') { expect(patron.greedy?).to eq(false) }
           end
 
           context 'over 3600 seconds ago' do
-            before(:each) { package.received_at = Time.now - 3600 }
+            before(:each) do
+              package.received_at = Time.now - 3600
+              package.save
+            end
             it('is greedy') { expect(patron.greedy?).to eq(true) }
           end
         end
