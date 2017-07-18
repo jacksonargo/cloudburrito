@@ -274,7 +274,6 @@ RSpec.describe 'The Patron class' do
   end
 
   context '#greedy?' do
-    let(:package) { create(:package, hungry_man: patron) }
 
     it 'when first created' do
       expect(patron.greedy?).to eq(true)
@@ -287,7 +286,7 @@ RSpec.describe 'The Patron class' do
 
     it 'when inactive' do
       patron.inactive!
-      expect(patron.greedy?).to be true
+      expect(patron.greedy?).to eq(true)
     end
 
     it 'not when forced not greedy' do
@@ -301,28 +300,56 @@ RSpec.describe 'The Patron class' do
       expect(patron.greedy?).to eq(false)
     end
 
-    context 'active and after 3600 seconds' do
-      before(:each) do
-        patron.active!
-        patron.active_at = Time.now - 3600
+    context 'active' do
+      before(:each) { patron.active! }
+
+      context 'for less than 3600 seconds' do
+        before(:each) { patron.active_at = Time.now }
+
+        context 'never delivered burrito' do
+          it('is greedy') { expect(patron.greedy?).to eq(true) }
+        end
+
+        context 'delivered burrito' do
+          let(:package) { create(:package, delivery_man: patron) }
+          before(:each) { package.received! }
+
+          context 'within 3600 seconds' do
+            before(:each) { package.received_at = Time.now }
+            it('is not greedy') { expect(patron.greedy?).to eq(false) }
+          end
+
+          context 'over 3600 seconds ago' do
+            before(:each) { package.received_at = Time.now - 3600 }
+            it('is greedy') { expect(patron.greedy?).to eq(true) }
+          end
+        end
       end
 
-      it 'greedy when marked inactive' do
-        patron.inactive!
-        expect(patron.greedy?).to eq(true)
-      end
+      context 'for more than 3600 seconds' do
+        before(:each) { patron.active_at = Time.now - 3600 }
 
-      it 'greedy just after receiving burrito' do
-        package.received!
-        expect(patron.greedy?).to eq(true)
-      end
+        context 'marked inactive' do
+          before(:each) { patron.inactive! }
+          it('is greedy') { expect(patron.greedy?).to eq(true) }
+        end
 
-      it 'not greedy 3600s after receiving burrito' do
-        patron.active_at = Time.now - 3600
-        package.received!
-        package.received_at = Time.now - 3600
-        package.save
-        expect(patron.greedy?).to eq(false)
+        context 'just after receiving burrito' do
+          let(:package) { create(:package, hungry_man: patron) }
+          before(:each) { package.received! }
+          it('is greedy') { expect(patron.greedy?).to eq(true) }
+        end
+
+        context '3600s after receiving burrito' do
+          let(:package) { create(:package, hungry_man: patron) }
+          before(:each) do
+            patron.active_at = Time.now - 3600
+            package.received!
+            package.received_at = Time.now - 3600
+            package.save
+          end
+          it('is not greedy') { expect(patron.greedy?).to eq(false) }
+        end
       end
     end
   end
