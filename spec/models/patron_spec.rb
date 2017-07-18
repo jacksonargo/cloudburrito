@@ -300,7 +300,19 @@ RSpec.describe 'The Patron class' do
           before(:each) { package.received! }
 
           context 'within 3600 seconds' do
-            it('is not greedy') { expect(patron.greedy?).to eq(false) }
+            before(:each) do
+              package.received_at = Time.now - 600
+              package.save
+            end
+            context 'recevied burrito since last delivery' do
+              let(:package2) { create(:package, hungry_man: patron) }
+              before(:each) { package2.received! }
+              it('is greedy') { expect(patron.greedy?).to eq(true) }
+            end
+
+            context 'have not received burrito since last delivery' do
+              it('is not greedy') { expect(patron.greedy?).to eq(false) }
+            end
           end
 
           context 'over 3600 seconds ago' do
