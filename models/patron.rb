@@ -92,6 +92,7 @@ class Patron
   def greedy?
     return false if force_not_greedy
     return true if inactive?
+    return false if Time.now - time_of_last_delivery < 3600
     time_until_hungry.positive?
   end
 
