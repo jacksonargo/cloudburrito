@@ -22,3 +22,9 @@ A slack app to download burritos from the cloud.
 ### Build with docker:
 
     docker build . -t cloudburrito
+
+
+
+#### Contributors
+* Jackson
+* Brittany
