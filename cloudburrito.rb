@@ -160,7 +160,7 @@ class CloudBurrito < Sinatra::Base
       logger.info "New user #{params['user_id']}"
       pool = Pool.first_or_create!(name: 'default_pool')
       Patron.create!(slack_user_id: params['user_id'], pool: pool)
-      return erb :slack_new_user
+      return erb :'slack/new_user'
     end
 
     # Create the controller
@@ -173,7 +173,7 @@ class CloudBurrito < Sinatra::Base
     if controller.actions.include? cmd
       controller.send(cmd)
     else
-      erb :slack_help
+      erb :'slack/help'
     end
   end
 end
