@@ -8,7 +8,7 @@
 # server "db.example.com", user: "deploy", roles: %w{db}
 
 set :rack_env, 'production'
-server "cloudburrito.us", user: "deploy", roles: %w{app db web}
+server "cloudburrito.jacksonargo.com", user: "deploy", roles: %w{app db web}
 
 
 # role-based syntax

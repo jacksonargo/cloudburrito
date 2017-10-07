@@ -10,7 +10,7 @@ fi
 
 start() {
     if [ -e ${unicorn_pid} ]; then
-        bundle exec unicorn -c ${unicorn_conf} -D
+        ~/.rvm/bin/rvm default do bundle exec unicorn -c ${unicorn_conf} -D
     fi
 }
 
@@ -30,6 +30,7 @@ reload() {
 
 restart() {
     stop
+    sleep 2
     start
 }
 
