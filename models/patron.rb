@@ -163,7 +163,7 @@ class Patron
 
   def stats_url
     reset_token
-    "https://cloudburrito.us/user?id=#{_id}&token=#{user_token}"
+    "https://cloudburrito.jacksonargo.com/user?id=#{_id}&token=#{user_token}"
   end
 
   def name

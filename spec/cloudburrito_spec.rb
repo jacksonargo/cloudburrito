@@ -129,7 +129,7 @@ If you need a reminder of these commands, just type in:
 >/cloudburrito
 And that's it! Have fun!
 
-Check out https://cloudburrito.us/ for current stats!\n")
+Check out https://cloudburrito.jacksonargo.com/ for current stats!\n")
       end
     end
 
