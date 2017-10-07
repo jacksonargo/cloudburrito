@@ -37,6 +37,17 @@ jobs:
             - ./vendor/bundle
           key: v1-dependencies-{{ checksum "Gemfile.lock" }}
         
+      # Make the mongoid.yml file
+      - run:
+        name: make mongoid.yml
+        command: |
+          echo 'test:
+  clients:
+    default:
+      database: cloudburrito_test
+      hosts:
+        - 172.17.0.2:27017' > config/mongoid.yml
+
       # run tests!
       - run:
           name: run tests
