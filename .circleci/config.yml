@@ -39,14 +39,14 @@ jobs:
         
       # Make the mongoid.yml file
       - run:
-        name: make mongoid.yml
-        command: |
-          echo 'test:' >> config/mongoid.yml
-          echo ' clients:' >> config/mongoid.yml
-          echo '   default:' >> config/mongoid.yml
-          echo '     database: test' >> config/mongoid.yml
-          echo '     hosts:' >> config/mongoid.yml
-          echo '       - 172.17.0.2:27017' > config/mongoid.yml
+          name: make mongoid.yml
+          command: |
+            echo 'test:' >> config/mongoid.yml
+            echo ' clients:' >> config/mongoid.yml
+            echo '   default:' >> config/mongoid.yml
+            echo '     database: test' >> config/mongoid.yml
+            echo '     hosts:' >> config/mongoid.yml
+            echo '       - 172.17.0.2:27017' > config/mongoid.yml
 
       # run tests!
       - run:
