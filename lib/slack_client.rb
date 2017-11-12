@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # SlackClient
 # A module to create the slack client
 
@@ -15,9 +17,7 @@ module SlackClient
       if File.exist? 'config/secrets.yml'
         secrets = YAML.load_file 'config/secrets.yml'
         secrets = secrets[environment]
-        unless secrets.nil?
-          slack_auth_token = secrets['slack_auth_token']
-        end
+        slack_auth_token = secrets['slack_auth_token'] unless secrets.nil?
       end
 
       # Environmnet variables take precedent

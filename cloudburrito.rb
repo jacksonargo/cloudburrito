@@ -4,13 +4,13 @@
 # Jackson Argo 2017
 
 # Require models
-Dir[File.dirname(__FILE__) + '/models/*.rb'].each {|file| require file }
+Dir[File.dirname(__FILE__) + '/models/*.rb'].each { |file| require file }
 
 # Require controllers
-Dir[File.dirname(__FILE__) + '/controllers/*.rb'].each {|file| require file }
+Dir[File.dirname(__FILE__) + '/controllers/*.rb'].each { |file| require file }
 
 # Require events
-Dir[File.dirname(__FILE__) + '/events/*.rb'].each {|file| require file }
+Dir[File.dirname(__FILE__) + '/events/*.rb'].each { |file| require file }
 
 require 'sinatra/base'
 
@@ -23,13 +23,13 @@ class CloudBurrito < Sinatra::Base
     enable :logging
   end
 
-  if File.exist? '.git'
-    version = `git describe`
-  elsif File.exist? '../../repo/HEAD'
-    version = `cd ../repo && git describe`
-  else
-    version = Time.now
-  end
+  version = if File.exist? '.git'
+              `git describe`
+            elsif File.exist? '../../repo/HEAD'
+              `cd ../repo && git describe`
+            else
+              Time.now
+            end
 
   set :version, version
 

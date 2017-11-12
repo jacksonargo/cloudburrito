@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'codacy-coverage'
 require 'support/factory_girl'
 Codacy::Reporter.start
@@ -9,11 +11,9 @@ RSpec.configure do |config|
   config.mock_with :rspec do |mocks|
     mocks.verify_partial_doubles = true
   end
-  config.example_status_persistence_file_path = "spec/examples.txt"
+  config.example_status_persistence_file_path = 'spec/examples.txt'
   config.disable_monkey_patching!
-  if config.files_to_run.one?
-    config.default_formatter = 'doc'
-  end
-#  config.order = :random
+  config.default_formatter = 'doc' if config.files_to_run.one?
+  #  config.order = :random
   Kernel.srand config.seed
 end

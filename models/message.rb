@@ -47,7 +47,7 @@ class Message
   def send_slack_dm_message
     # Don't dm when we are testing
     if ENV['RACK_ENV'] == 'test'
-      logger.info "Not sending slack pm in test environment."
+      logger.info 'Not sending slack pm in test environment.'
       return true
     end
     begin

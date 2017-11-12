@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative '../../models/patron'
 require 'rspec'
 
@@ -274,7 +276,6 @@ RSpec.describe 'The Patron class' do
   end
 
   context '#greedy?' do
-
     it 'not when forced not greedy' do
       patron.force_not_greedy = true
       expect(patron.greedy?).to eq(false)
@@ -401,7 +402,7 @@ RSpec.describe 'The Patron class' do
 
   context '#slack_user_info' do
     it 'returns {} if slack_user_id is invalid' do
-      expect(patron.slack_user_info).to eq Hash.new
+      expect(patron.slack_user_info).to eq({})
     end
   end
 

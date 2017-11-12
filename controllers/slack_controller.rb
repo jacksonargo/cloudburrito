@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative '../models/patron'
 require_relative '../models/package'
 require_relative '../lib/cloudburrito_logger'
@@ -95,15 +97,15 @@ class SlackController
   end
 
   def pool
-    if @params["text"].nil?
-      pool = ''
-    else
-      pool = @params["text"].sub(/^\s*pool\s*/, '').strip
-    end
+    pool = if @params['text'].nil?
+             ''
+           else
+             @params['text'].sub(/^\s*pool\s*/, '').strip
+           end
     # Unless they give a valid pool, hit em with the list
     unless Pool.all.pluck(:name).include? pool
-      msg = "Here is a list of valid burrito pool parties:"
-      Pool.each {|p| msg += "\n>*#{p.name}*" }
+      msg = 'Here is a list of valid burrito pool parties:'
+      Pool.each { |p| msg += "\n>*#{p.name}*" }
       return msg
     end
     # Set the pool.

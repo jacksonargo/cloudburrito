@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative '../models/message.rb'
 require_relative '../models/package.rb'
 require_relative '../models/patron.rb'
@@ -22,9 +24,7 @@ FactoryGirl.define do
       name 'default_pool'
     end
 
-    after(:create) do |pool|
-      pool.save
-    end
+    after(:create, &:save)
   end
 
   factory :message do
@@ -33,7 +33,6 @@ FactoryGirl.define do
   end
 
   factory :package do
-
     # A received package
     factory(:received_pack) do
       received true

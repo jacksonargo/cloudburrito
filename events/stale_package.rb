@@ -43,9 +43,7 @@ module Event
     end
 
     def next_action
-      while stale_packages.count > 0 do
-        replace_next
-      end
+      replace_next while stale_packages.count > 0
       sleep 0.1
     end
   end

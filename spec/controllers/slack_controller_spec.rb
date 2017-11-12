@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative '../../controllers/slack_controller'
 require 'rspec'
 
@@ -12,7 +14,7 @@ RSpec.describe 'The SlackController class' do
   end
 
   let(:pool) { create(:pool, name: 'test_pool') }
-  let(:patron) { create(:patron,  pool: pool) }
+  let(:patron) { create(:patron, pool: pool) }
   let(:params) { { 'user_id' => patron.slack_user_id } }
   let(:controller) { SlackController.new params }
 
@@ -44,7 +46,7 @@ RSpec.describe 'The SlackController class' do
         expect(controller.pool).to eq("Here is a list of valid burrito pool parties:\n>*#{pool.name}*")
       end
     end
-  
+
     context 'valid pool' do
       let(:pool) { create(:pool, name: 'other_pool', _id: 'other_pool') }
       before(:each) { params['text'] = "pool #{pool.name}" }

@@ -56,9 +56,7 @@ module Event
     end
 
     def next_action
-      while unsent_messages.exists? do
-        send_next
-      end
+      send_next while unsent_messages.exists?
       sleep 0.1
     end
   end

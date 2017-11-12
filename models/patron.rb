@@ -95,7 +95,7 @@ class Patron
     # Check if active
     return true if inactive?
     # Check if they have delivered recently
-    return false if (time_since_last_delivery < 3600) and (time_of_last_delivery > time_of_last_burrito)
+    return false if (time_since_last_delivery < 3600) && (time_of_last_delivery > time_of_last_burrito)
     time_until_hungry.positive?
   end
 
@@ -113,22 +113,22 @@ class Patron
   end
 
   def time_since_active
-    if active_at.nil?
-      time_since_active = 0
-    else
-      time_since_active = Time.now - active_at
-    end
+    time_since_active = if active_at.nil?
+                          0
+                        else
+                          Time.now - active_at
+                        end
   end
 
-  # Time until hungry restarts whenever 
+  # Time until hungry restarts whenever
   # 1) you become active
   # 2) receive a burrito
   def time_until_hungry
-    if time_since_last_burrito < time_since_active
-      time_since_recent_action = time_since_last_burrito
-    else
-      time_since_recent_action = time_since_active
-    end
+    time_since_recent_action = if time_since_last_burrito < time_since_active
+                                 time_since_last_burrito
+                               else
+                                 time_since_active
+                               end
 
     x = greedy_time - time_since_recent_action.to_i
     x > 0 ? x : 0

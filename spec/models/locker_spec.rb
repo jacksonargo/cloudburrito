@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative '../../models/locker'
 require 'rspec'
 
@@ -29,7 +31,7 @@ RSpec.describe 'The Locker class' do
       end
       it 'id is combo of model class and id' do
         Locker.lock model
-        expect(Locker.first._id).to eq(model.class.to_s+model._id.to_s)
+        expect(Locker.first._id).to eq(model.class.to_s + model._id.to_s)
       end
       it 'returns true' do
         expect(Locker.lock(model)).to be true

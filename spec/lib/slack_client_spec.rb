@@ -1,8 +1,9 @@
+# frozen_string_literal: true
+
 require_relative '../../lib/slack_client'
 require 'rspec'
 
 RSpec.describe 'The Slack Client module' do
-
   def app
     CloudBurrito
   end

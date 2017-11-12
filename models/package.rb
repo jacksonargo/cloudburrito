@@ -120,6 +120,6 @@ class Package
   end
 
   def lost?
-    assigned && Time.now - assigned_at > 3600 && ! received && ! failed
+    assigned && Time.now - assigned_at > 3600 && !received && !failed
   end
 end

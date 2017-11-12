@@ -53,9 +53,7 @@ module Event
     end
 
     def next_action
-      while unassigned_packages.exists? do
-        assign_next
-      end
+      assign_next while unassigned_packages.exists?
       sleep 0.1
     end
   end

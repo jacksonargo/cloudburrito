@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative '../lib/event.rb'
 require_relative '../events/new_package'
 require_relative '../events/stale_package'

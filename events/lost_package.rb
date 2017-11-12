@@ -34,13 +34,13 @@ module Event
       lost_package.failed!
       # Send a message to hungry man
       text = "It doesn't look like you received your burrito. "
-      text += "Since it has been an hour, you can order another burrito. "
-      text += "When you receive the burrito, be sure to tell Cloudburrito "
-      text += "with _/cloudburrito full_ or you wont get points."
+      text += 'Since it has been an hour, you can order another burrito. '
+      text += 'When you receive the burrito, be sure to tell Cloudburrito '
+      text += 'with _/cloudburrito full_ or you wont get points.'
       Message.create to: hman, text: text
       # Send a message to delivery man
       text = "It appears <@#{hman.slack_user_id}> never received the burrito. "
-      text += "Since it has been an hour, you can order burritos again, "
+      text += 'Since it has been an hour, you can order burritos again, '
       text += "but you don't get points for the last delivery."
       Message.create to: dman, text: text
       # Unlock the lost package
@@ -48,9 +48,7 @@ module Event
     end
 
     def next_action
-      while lost_packages.count > 0 do
-        fail_next
-      end
+      fail_next while lost_packages.count > 0
       sleep 0.1
     end
   end

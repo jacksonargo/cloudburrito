@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative '../../events/new_package'
 require 'rspec'
 
@@ -38,7 +40,7 @@ RSpec.describe 'Event::NewPackage' do
     context 'no patrons in hungry_man pool' do
       after(:each) { expect(events.get_delivery_man(pool)).to be(nil) }
       context('no patrons at all') do
-        it('returns nill') { }
+        it('returns nill') {}
       end
 
       context('some patrons in other pools') do

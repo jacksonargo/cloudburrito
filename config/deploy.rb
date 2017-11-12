@@ -1,11 +1,13 @@
-set :application, "CloudBurrito"
-set :repo_url, "https://github.com/jacksonargo/cloudburrito.git"
+# frozen_string_literal: true
+
+set :application, 'CloudBurrito'
+set :repo_url, 'https://github.com/jacksonargo/cloudburrito.git'
 
 # Default branch is :master
-#ask :branch, `git rev-parse --abbrev-ref HEAD`.chomp
+# ask :branch, `git rev-parse --abbrev-ref HEAD`.chomp
 
 # Default deploy_to directory is /var/www/my_app_name
-set :deploy_to, "/var/www/html/cloudburrito"
+set :deploy_to, '/var/www/html/cloudburrito'
 
 # Default value for :format is :airbrussh.
 # set :format, :airbrussh
@@ -18,10 +20,10 @@ set :deploy_to, "/var/www/html/cloudburrito"
 # set :pty, true
 
 # Default value for :linked_files is []
-append :linked_files, "config/mongoid.yml", "config/secrets.yml"
+append :linked_files, 'config/mongoid.yml', 'config/secrets.yml'
 
 # Default value for linked_dirs is []
-append :linked_dirs, "log"
+append :linked_dirs, 'log'
 
 # Default value for default_env is {}
 # set :default_env, { path: "/opt/ruby/bin:$PATH" }
@@ -35,4 +37,4 @@ task :restart_unicorn do
   end
 end
 
-after "deploy:published", "restart_unicorn"
+after 'deploy:published', 'restart_unicorn'

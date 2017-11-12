@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative '../../events/stale_package'
 require 'rspec'
 
@@ -63,7 +65,7 @@ RSpec.describe 'Event::StalePackage' do
         end
       end
 
-      context 'the package is not locked' do 
+      context 'the package is not locked' do
         before(:each) { events.replace_next }
         it 'the first package is no longer stale' do
           expect(Package.first.stale?).to be false

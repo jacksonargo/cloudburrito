@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative '../../events/lost_package'
 require 'rspec'
 
@@ -63,7 +65,7 @@ RSpec.describe 'Event::LostPackage' do
         end
       end
 
-      context 'the package is not locked' do 
+      context 'the package is not locked' do
         before(:each) { events.fail_next }
         it 'the first package is no longer lost' do
           expect(Package.first.lost?).to be false
@@ -100,8 +102,8 @@ RSpec.describe 'Event::LostPackage' do
             it('exists') { expect(message).not_to be(nil) }
             it('says the burrito was lost') do
               text = "It doesn't look like you received your burrito. "
-              text += "Since it has been an hour, you can order another burrito. "
-              text += "When you receive the burrito, be sure to tell Cloudburrito with _/cloudburrito full_ or you wont get points."
+              text += 'Since it has been an hour, you can order another burrito. '
+              text += 'When you receive the burrito, be sure to tell Cloudburrito with _/cloudburrito full_ or you wont get points.'
               expect(message.text).to eq text
             end
           end

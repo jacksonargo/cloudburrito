@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative '../cloudburrito_logger'
 # A class that defines basic ops for my event classes.
 module Event
@@ -9,6 +11,7 @@ module Event
         loop { next_action }
       end
     end
+
     def stop
       @thread.kill
       while @thread.alive?
